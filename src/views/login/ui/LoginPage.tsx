@@ -1,4 +1,4 @@
-import { authApi } from '@/src/features/auth'
+import { authApi } from '@/src/features/auth';
 
 export function LoginPage() {
   return (
@@ -6,5 +6,5 @@ export function LoginPage() {
       <button onClick={authApi.kakaoLogin}>카카오로 로그인</button>
       <button onClick={authApi.googleLogin}>구글로 로그인</button>
     </main>
-  )
+  );
 }
