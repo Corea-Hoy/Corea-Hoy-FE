@@ -7,7 +7,13 @@ export default function Header() {
       <div className="lg:hidden sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-100/50 shadow-sm shadow-gray-200/20">
         <div className="flex items-center justify-between px-4 h-14 relative">
           <Link className="hover:opacity-70 transition-opacity" href="/">
-            <Image src="/logo.png" alt="Corea Hoy" width={96} height={38} style={{ objectFit: 'contain' }} />
+            <Image
+              src="/logo.png"
+              alt="Corea Hoy"
+              width={96}
+              height={38}
+              style={{ objectFit: 'contain' }}
+            />
           </Link>
           <div className="flex items-center gap-3">
             <button className="text-xl p-1 text-gray-600 cursor-pointer">🔍</button>
