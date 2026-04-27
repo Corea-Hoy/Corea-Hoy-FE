@@ -6,7 +6,7 @@ const onGoogle = () => {};
 
 export function LoginPage() {
   return (
-    <main className="flex-1 max-w-screen-xl mx-auto w-full px-4 pb-20 lg:pb-0">
+    <main className="flex-1 max-w-screen-xl mx-auto w-full px-4 pt-20">
       <div className="w-full max-w-sm mx-auto bg-white p-8">
         <div className="mx-auto mb-4 max-w-[6rem]">
           <img src="/images/logo/logo.svg" alt="corea hoy" />
