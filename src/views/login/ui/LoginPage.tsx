@@ -1,6 +1,6 @@
 'use client';
 
-import GoogleLoginButton from '@/features/auth/ui/GoogleLoginButton';
+import { GoogleLoginButton } from '@/features/auth';
 
 const onGoogle = () => {};
 
