@@ -1,7 +1,7 @@
 'use client';
 
 import Image from 'next/image';
-import GoogleLoginButton from '@/features/auth/ui/GoogleLoginButton';
+import { GoogleLoginButton } from '@/features/auth';
 
 const onGoogle = () => {};
 

@@ -3,7 +3,7 @@
 import { Suspense } from 'react';
 import { HeaderInner } from './HeaderInner';
 
-export default function Header() {
+export function Header() {
   return (
     <Suspense fallback={null}>
       <HeaderInner />

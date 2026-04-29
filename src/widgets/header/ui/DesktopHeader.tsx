@@ -7,7 +7,8 @@ import { useTranslations } from 'next-intl';
 import { useUserStore } from '@/entities/user';
 import { CATEGORIES_KO, CATEGORIES_ES } from '@/entities/content';
 import LangDropdown from './LangDropdown';
-// import HeaderTop from './HeaderTop';
+import { Search, User } from 'lucide-react';
+
 interface LangDropdownProps {
   language: string;
   isLangOpen: boolean;
@@ -80,8 +81,7 @@ const DesktopHeader = ({
                 width="20px"
                 xmlns="http://www.w3.org/2000/svg"
               >
-                <path d="M20.49,19l-5.73-5.73C15.53,12.2,16,10.91,16,9.5C16,5.91,13.09,3,9.5,3S3,5.91,3,9.5C3,13.09,5.91,16,9.5,16 c1.41,0,2.7-0.47,3.77-1.24L19,20.49L20.49,19z M5,9.5C5,7.01,7.01,5,9.5,5S14,7.01,14,9.5S11.99,14,9.5,14S5,11.99,5,9.5z" />
-                <path d="M0,0h24v24H0V0z" fill="none" />
+                <Search />
               </svg>
             </span>
             <input
@@ -122,14 +122,7 @@ const DesktopHeader = ({
               aria-label={t('login')}
               className="px-5 py-2 text-black transition-all"
             >
-              <Image
-                src="/images/user.png"
-                alt=""
-                width={20}
-                height={48}
-                style={{ objectFit: 'contain' }}
-                priority
-              />
+              <User />
             </Link>
           )}
         </div>
@@ -163,7 +156,7 @@ const DesktopHeader = ({
               })}
           </div>
 
-          {/* 관리자 실험실 피드백 */}
+          {/* 관리자 피드백 */}
           <div className="flex items-center gap-1 xl:gap-2 ml-4">
             {[
               { href: '/admin', label: t('admin'), icon: '⚙️' },
