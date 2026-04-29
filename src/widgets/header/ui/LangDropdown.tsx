@@ -22,7 +22,7 @@ function LangDropdown({
         aria-expanded={isLangOpen}
         aria-haspopup="listbox"
         aria-label={selectLangLabel}
-        className="flex items-center gap-1.5 px-3 py-2 rounded-full border border-gray-200 text-sm font-bold hover:bg-gray-50 transition-colors cursor-pointer group"
+        className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-gray-200 text-sm font-bold hover:bg-gray-50 transition-colors cursor-pointer group"
       >
         <span className="leading-none">{language.toUpperCase()}</span>
         <span

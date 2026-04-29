@@ -3,7 +3,6 @@
     "admin": "관리자",
     "logout": "로그아웃",
     "login": "로그인",
-    "labs": "실험실",
     "feedback": "피드백",
     "selectLang": "언어 선택",
     "home": "홈",
@@ -33,7 +32,6 @@
     "desc": "Corea Hoy는 K-POP, 드라마, 뉴스, 음식 등 한국의 다양한 문화 콘텐츠를 스페인어로 전달하는 미디어 플랫폼입니다. 라틴아메리카의 한국 문화 팬들과 함께합니다.",
     "nav": "서비스",
     "home": "홈",
-    "labs": "실험실",
     "feedback": "피드백",
     "contact": "문의",
     "email": "xxx@gmail.com",
@@ -92,14 +90,6 @@
     "commentPlaceholder": "댓글을 입력하세요...",
     "submit": "등록",
     "firstComment": "첫 번째 댓글을 남겨보세요."
-  },
-  "labs": {
-    "badge": "COREA HOY LABS",
-    "title": "미래를 미리 만나보세요",
-    "subtitle": "AI 기술을 활용한 Corea Hoy 팀의 실험적인 프로젝트들을 소개합니다. 혁신적인 아이디어가 실제 서비스가 되는 과정을 함께 지켜봐 주세요.",
-    "ctaTitle": "여러분의 아이디어를 들려주세요",
-    "ctaDesc": "Corea Hoy Labs에서 만나보고 싶은 기능이 있나요?",
-    "ctaBtn": "아이디어 제안하기"
   },
   "feedback": {
     "title": "피드백",

@@ -16,7 +16,6 @@ const MobileTopBar = ({ isKo }: MobileTopBarProps) => {
 
   const bottomTabs = [
     { href: '/', label: t('home'), icon: '🏠' },
-    { href: '/labs', label: t('labs'), icon: '✨' },
     { href: '/feedback', label: t('feedback'), icon: '💬' },
     {
       href: isLoggedIn ? '/mypage' : '/login',

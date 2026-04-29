@@ -9,7 +9,6 @@ export default function Footer() {
   const year = new Date().getFullYear();
 
   const navLinks = [
-    { href: '/labs', label: t('labs') },
     { href: '/feedback', label: t('feedback') },
     { href: '/privacy', label: t('privacy') },
   ];

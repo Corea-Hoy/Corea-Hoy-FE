@@ -3,7 +3,6 @@
     "admin": "Administración",
     "logout": "Salir",
     "login": "Iniciar sesión",
-    "labs": "Laboratorios",
     "feedback": "Sugerencias",
     "selectLang": "Seleccionar idioma",
     "home": "Inicio",
@@ -33,7 +32,6 @@
     "desc": "Corea Hoy es una plataforma de medios que entrega contenido cultural coreano en español, incluyendo K-POP, dramas, noticias y gastronomía. Acompañamos a los fans de la cultura coreana en toda América Latina.",
     "nav": "Servicios",
     "home": "Inicio",
-    "labs": "Laboratorios",
     "feedback": "Sugerencias",
     "contact": "Contacto",
     "email": "xxx@gmail.com",
@@ -92,14 +90,6 @@
     "commentPlaceholder": "Escribe un comentario...",
     "submit": "Enviar",
     "firstComment": "Aún no hay comentarios."
-  },
-  "labs": {
-    "badge": "COREA HOY LABS",
-    "title": "Conoce el futuro por adelantado",
-    "subtitle": "Presentamos los proyectos experimentales del equipo de Corea Hoy utilizando tecnología de IA. Sé testigo del proceso de cómo las ideas innovadoras se convierten en servicios reales.",
-    "ctaTitle": "Cuéntanos tus ideas",
-    "ctaDesc": "¿Hay alguna función que te gustaría ver en Corea Hoy Labs?",
-    "ctaBtn": "Sugerir Idea"
   },
   "feedback": {
     "title": "Feedback",

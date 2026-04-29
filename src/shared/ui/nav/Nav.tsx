@@ -150,7 +150,6 @@ function NavInner() {
   };
 
   const bottomTabs = [
-    { href: '/labs', label: t('labs'), icon: '✨' },
     { href: '/feedback', label: t('feedback'), icon: '💬' },
     { href: '/admin', label: t('admin'), icon: '⚙️' },
     { href: '/mypage', label: t('mypage'), icon: '👤' },
@@ -246,7 +245,6 @@ function NavInner() {
             <div className="flex items-center gap-1 xl:gap-2 ml-4">
               {[
                 { href: '/admin', label: t('admin'), icon: '⚙️' },
-                { href: '/labs', label: t('labs'), icon: '✨' },
                 { href: '/feedback', label: t('feedback'), icon: '💬' },
               ].map((link) => {
                 const isActive = pathname === link.href;
