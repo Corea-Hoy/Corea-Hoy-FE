@@ -47,7 +47,13 @@ export function DetailPage() {
 
       {/* 좋아요 */}
       <div className="flex justify-between items-center">
-        <button className="flex items-center justify-start gap-2" onClick={onlike}>
+        <button
+          type="button"
+          aria-label="좋아요 버튼"
+          aria-pressed={like}
+          className="flex items-center justify-start gap-2"
+          onClick={onlike}
+        >
           <Heart className={like ? 'stroke-red-600' : 'stroke-black'} />
           <span
             className={`relative top-[0.1rem] text-base ${like ? 'text-red-600' : 'text-black'}`}
@@ -55,7 +61,7 @@ export function DetailPage() {
             35
           </span>
         </button>
-        <button onClick={() => setShowModal(true)}>
+        <button type="button" aria-label="공유하기 버튼" onClick={() => setShowModal(true)}>
           <Share2 />
         </button>
       </div>

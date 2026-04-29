@@ -18,8 +18,8 @@ export function CommentForm() {
       </label>
       <textarea
         ref={inputRef}
+        id="commnet"
         rows={1}
-        onInput={handleInput}
         className="
         w-full
         pl-1.5

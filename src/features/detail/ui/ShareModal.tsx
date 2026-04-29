@@ -15,14 +15,20 @@ export function ShareModal({ show, onClick }: Props) {
       className="fixed top-0 left-0 z-100 flex items-center justify-center w-full h-full bg-black/40"
       onClick={onClick}
     >
-      <div className="w-[20rem] h-auto rounded-3xl bg-white" onClick={(e) => e.stopPropagation()}>
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="share-modal-title"
+        className="w-[20rem] h-auto rounded-3xl bg-white"
+        onClick={(e) => e.stopPropagation()}
+      >
         <div className="flex justify-end p-3">
-          <button onClick={onClick}>
+          <button aria-label="닫기" onClick={onClick}>
             <X />
           </button>
         </div>
         <div className="px-5 pb-8">
-          <p className="text-center font-bold">이 소식을 함께 나눠보세요.</p>
+          <p id="share-modal-title" className="text-center font-bold">이 소식을 함께 나눠보세요.</p>
           <div className="flex items-center justify-center gap-4 mt-5">
             <button className={buttonStyle}>
               <img src="/images/icon/icon-x.webp" alt="x" />

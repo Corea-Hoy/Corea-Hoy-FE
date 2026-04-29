@@ -5,7 +5,7 @@ export function CommentCard() {
     <div className="py-3 px-4 border-b border-gray-100">
       <div className="flex items-center justify-between">
         <b className="text-[0.9rem]">사용자명</b>
-        <button>
+        <button type="button" aria-label="댓글 삭제">
           <Trash2 className="h-[1rem] stroke-red-400" />
         </button>
       </div>
