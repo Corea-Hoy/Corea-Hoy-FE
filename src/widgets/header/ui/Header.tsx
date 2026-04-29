@@ -190,7 +190,7 @@ function HeaderInner() {
             className="flex items-center hover:opacity-70 transition-opacity flex-shrink-0"
           >
             <Image
-              src="/logo.png"
+              src="/images/logo/logo.svg"
               alt="Corea Hoy"
               width={120}
               height={48}
@@ -325,7 +325,7 @@ function HeaderInner() {
             <>
               <Link href="/" className="hover:opacity-70 transition-opacity">
                 <Image
-                  src="/logo.png"
+                  src="/images/logo/logo.svg"
                   alt="Corea Hoy"
                   width={96}
                   height={38}
