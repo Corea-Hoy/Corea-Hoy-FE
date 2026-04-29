@@ -28,7 +28,9 @@ export function ShareModal({ show, onClick }: Props) {
           </button>
         </div>
         <div className="px-5 pb-8">
-          <p id="share-modal-title" className="text-center font-bold">이 소식을 함께 나눠보세요.</p>
+          <p id="share-modal-title" className="text-center font-bold">
+            이 소식을 함께 나눠보세요.
+          </p>
           <div className="flex items-center justify-center gap-4 mt-5">
             <button className={buttonStyle}>
               <img src="/images/icon/icon-x.webp" alt="x" />

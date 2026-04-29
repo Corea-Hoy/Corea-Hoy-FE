@@ -150,7 +150,6 @@ function NavInner() {
   };
 
   const bottomTabs = [
-    { href: '/labs', label: t('labs'), icon: '✨' },
     { href: '/feedback', label: t('feedback'), icon: '💬' },
     { href: '/admin', label: t('admin'), icon: '⚙️' },
     { href: '/mypage', label: t('mypage'), icon: '👤' },
@@ -169,7 +168,7 @@ function NavInner() {
             className="flex items-center hover:opacity-70 transition-opacity flex-shrink-0"
           >
             <Image
-              src="/logo.png"
+              src="/images/logo/logo.svg"
               alt="Corea Hoy"
               width={120}
               height={48}
@@ -246,7 +245,6 @@ function NavInner() {
             <div className="flex items-center gap-1 xl:gap-2 ml-4">
               {[
                 { href: '/admin', label: t('admin'), icon: '⚙️' },
-                { href: '/labs', label: t('labs'), icon: '✨' },
                 { href: '/feedback', label: t('feedback'), icon: '💬' },
               ].map((link) => {
                 const isActive = pathname === link.href;
@@ -282,7 +280,7 @@ function NavInner() {
             <>
               <Link href="/" className="hover:opacity-70 transition-opacity">
                 <Image
-                  src="/logo.png"
+                  src="/images/logo/logo.svg"
                   alt="Corea Hoy"
                   width={96}
                   height={38}
