@@ -1,0 +1,193 @@
+'use client';
+
+import Image from 'next/image';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import { useTranslations } from 'next-intl';
+import { useUserStore } from '@/entities/user';
+import { CATEGORIES_KO, CATEGORIES_ES } from '@/entities/content';
+import LangDropdown from './LangDropdown';
+// import HeaderTop from './HeaderTop';
+interface LangDropdownProps {
+  language: string;
+  isLangOpen: boolean;
+  setIsLangOpen: (v: boolean) => void;
+  setLanguage: (code: 'ko' | 'es') => void;
+  selectLangLabel: string;
+  langs: { code: 'ko' | 'es'; label: string }[];
+  align?: 'right' | 'left';
+}
+
+interface DesktopHeaderProps {
+  searchValue: string;
+  setSearchValue: (val: string) => void;
+  handleSearch: (e: React.FormEvent) => void;
+  langDropdownProps: LangDropdownProps;
+  handleLogout: () => void;
+  isHome: boolean;
+  isKo: boolean;
+  activeCategory: string;
+  handleCategoryClick: (cat: string) => void;
+}
+
+const DesktopHeader = ({
+  searchValue,
+  setSearchValue,
+  handleSearch,
+  langDropdownProps,
+  handleLogout,
+  isHome,
+  isKo,
+  activeCategory,
+  handleCategoryClick,
+}: DesktopHeaderProps) => {
+  const pathname = usePathname();
+  const t = useTranslations('nav');
+  const { user, isLoggedIn } = useUserStore();
+
+  return (
+    <nav className="hidden lg:block sticky top-0 z-50 bg-white shadow-sm">
+      {/* Top bar: 3-column Google News style */}
+      <div className="max-w-screen-xl mx-auto px-6 h-16 flex items-center gap-6 border-b border-gray-100">
+        {/* Left: Logo */}
+        <div className="flex-1 flex items-center">
+          <Link
+            href="/"
+            className="flex items-center hover:opacity-70 transition-opacity flex-shrink-0"
+          >
+            <Image
+              src="/images/logo/logo.svg"
+              alt="Corea Hoy"
+              width={120}
+              height={48}
+              style={{ objectFit: 'contain' }}
+              priority
+            />
+          </Link>
+        </div>
+
+        {/* Center: Search Bar */}
+        <form onSubmit={handleSearch} className="relative group flex-[2] min-w-0 max-w-2xl">
+          <div className="relative flex items-center">
+            <span
+              className="absolute left-3.5 text-gray-400 text-sm group-focus-within:text-black transition-colors"
+              aria-hidden="true"
+            >
+              <svg
+                focusable="false"
+                height="20px"
+                viewBox="0 0 24 24"
+                width="20px"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path d="M20.49,19l-5.73-5.73C15.53,12.2,16,10.91,16,9.5C16,5.91,13.09,3,9.5,3S3,5.91,3,9.5C3,13.09,5.91,16,9.5,16 c1.41,0,2.7-0.47,3.77-1.24L19,20.49L20.49,19z M5,9.5C5,7.01,7.01,5,9.5,5S14,7.01,14,9.5S11.99,14,9.5,14S5,11.99,5,9.5z" />
+                <path d="M0,0h24v24H0V0z" fill="none" />
+              </svg>
+            </span>
+            <input
+              type="text"
+              value={searchValue}
+              onChange={(e) => setSearchValue(e.target.value)}
+              placeholder={t('search')}
+              aria-label={t('search')}
+              className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-full text-sm focus:bg-white focus:border-black transition-all outline-none placeholder:text-gray-400"
+            />
+          </div>
+        </form>
+
+        {/* Right: Lang + User */}
+        <div className="flex-1 flex items-center justify-end gap-3">
+          <LangDropdown {...langDropdownProps} />
+
+          {isLoggedIn && user ? (
+            <div className="flex items-center gap-3">
+              <Link href="/mypage">
+                <div
+                  aria-label={t('mypage')}
+                  className={`w-9 h-9 rounded-full flex items-center justify-center text-lg border-2 transition-all cursor-pointer shadow-sm hover:scale-105 ${pathname === '/mypage' ? 'border-black' : 'border-transparent'}`}
+                  style={{ backgroundColor: user.avatarColor }}
+                >
+                  {user.avatarEmoji}
+                </div>
+              </Link>
+              <button
+                onClick={handleLogout}
+                className="px-4 py-2 text-sm font-bold text-gray-600 border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors cursor-pointer"
+              >
+                {t('logout')}
+              </button>
+            </div>
+          ) : (
+            <Link href="/login" className="px-5 py-2 text-black transition-all  ">
+              <Image
+                src="/images/user.png"
+                alt="Corea Hoy"
+                width={20}
+                height={48}
+                style={{ objectFit: 'contain' }}
+                priority
+              />
+            </Link>
+          )}
+        </div>
+      </div>
+
+      {/* Persistent Secondary Nav Bar */}
+      <div className="bg-gray-50/80 backdrop-blur-md border-b border-gray-100">
+        <div className="max-w-screen-xl mx-auto px-6 h-12 flex items-center justify-between">
+          {/* Left: Categories (Home only) */}
+          <div className="flex items-center gap-0 overflow-x-auto scrollbar-hide flex-1 min-w-0">
+            {isHome &&
+              CATEGORIES_KO.map((cat, i) => {
+                const label = isKo ? cat : CATEGORIES_ES[i];
+                const isActive =
+                  cat === activeCategory || (activeCategory === '전체' && cat === '전체');
+                return (
+                  <button
+                    key={cat}
+                    onClick={() => handleCategoryClick(cat)}
+                    aria-pressed={isActive}
+                    className={`relative flex-shrink-0 px-5 py-3 text-sm font-bold transition-colors cursor-pointer whitespace-nowrap ${
+                      isActive ? 'text-black' : 'text-gray-400 hover:text-gray-700'
+                    }`}
+                  >
+                    {label}
+                    {isActive && (
+                      <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-black rounded-full" />
+                    )}
+                  </button>
+                );
+              })}
+          </div>
+
+          {/* 관리자 실험실 피드백 */}
+          <div className="flex items-center gap-1 xl:gap-2 ml-4">
+            {[
+              { href: '/admin', label: t('admin'), icon: '⚙️' },
+              { href: '/labs', label: t('labs'), icon: '✨' },
+              { href: '/feedback', label: t('feedback'), icon: '💬' },
+            ].map((link) => {
+              const isActive = pathname === link.href;
+              return (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className={`relative flex items-center gap-1.5 px-3 py-1.5 text-[11px] transition-all whitespace-nowrap rounded-lg hover:bg-black/5 ${
+                    isActive ? 'text-black font-black' : 'text-gray-500 font-bold hover:text-black'
+                  }`}
+                >
+                  <span className="text-sm opacity-80" aria-hidden="true">
+                    {link.icon}
+                  </span>
+                  <span>{link.label}</span>
+                </Link>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+    </nav>
+  );
+};
+
+export default DesktopHeader;
