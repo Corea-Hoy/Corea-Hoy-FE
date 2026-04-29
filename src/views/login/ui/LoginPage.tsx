@@ -1,6 +1,7 @@
 'use client';
 
-import GoogleLoginButton from '@/features/auth/ui/GoogleLoginButton';
+import Image from 'next/image';
+import { GoogleLoginButton } from '@/features/auth';
 
 const onGoogle = () => {};
 
@@ -9,7 +10,13 @@ export function LoginPage() {
     <div className="flex-1 max-w-screen-xl mx-auto w-full px-4 pt-20">
       <div className="w-full max-w-sm mx-auto bg-white p-8">
         <div className="mx-auto mb-4 max-w-[6rem]">
-          <img src="/images/logo/logo.svg" alt="corea hoy" />
+          <Image
+            src="/images/logo/logo.svg"
+            alt="corea hoy"
+            width={96}
+            height={96}
+            className="w-full h-auto"
+          />
         </div>
 
         <p className="text-center text-gray-500 text-sm mb-[4rem] leading-relaxed">
@@ -22,7 +29,13 @@ export function LoginPage() {
           <div className="relative">
             <GoogleLoginButton onClick={onGoogle} />
             <div className="absolute right-[-1rem] top-[-3.5rem] w-[5rem]">
-              <img src="/images/characters/mascot-v.svg" alt="" />
+              <Image
+                src="/images/characters/mascot-v.svg"
+                alt=""
+                width={80}
+                height={80}
+                className="w-full h-auto"
+              />
             </div>
           </div>
           <p className="mt-5 text-[11px] leading-relaxed text-gray-400 text-center px-2">

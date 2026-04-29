@@ -9,7 +9,6 @@ export default function Footer() {
   const year = new Date().getFullYear();
 
   const navLinks = [
-    { href: '/labs', label: t('labs') },
     { href: '/feedback', label: t('feedback') },
     { href: '/privacy', label: t('privacy') },
   ];
@@ -22,7 +21,7 @@ export default function Footer() {
           <div className="max-w-sm">
             <Link href="/" className="inline-block mb-4 hover:opacity-70 transition-opacity">
               <Image
-                src="/logo.png"
+                src="/images/logo/logo.svg"
                 alt="Corea Hoy"
                 width={110}
                 height={44}

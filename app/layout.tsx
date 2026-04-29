@@ -1,9 +1,9 @@
 import type { Metadata } from 'next';
 import './globals.css';
-import Header from '@/widgets/header/ui/Header';
 import { Providers } from '@/app/providers';
 import { IntlProvider } from '@/app/providers/IntlProvider';
 import Footer from '@/widgets/footer/footer/Footer';
+import { Header } from '@/widgets/header/index';
 
 // ----------- Components -----------
 

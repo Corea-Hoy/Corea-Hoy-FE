@@ -17,7 +17,7 @@ export default function ContentCard({ content, isKo }: ContentCardProps) {
 
   return (
     <Link
-      href={`/content/${content.id}`}
+      href={`/detail/${content.id}`}
       className="group block rounded-xl sm:rounded-2xl border border-gray-100 overflow-hidden bg-white hover:-translate-y-0.5 sm:hover:-translate-y-1 hover:shadow-md sm:hover:shadow-lg transition-all duration-200 active:scale-[0.98]"
     >
       {/* Thumbnail */}
