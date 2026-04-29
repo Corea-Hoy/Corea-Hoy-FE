@@ -101,9 +101,8 @@ const DesktopHeader = ({
 
           {isLoggedIn && user ? (
             <div className="flex items-center gap-3">
-              <Link href="/mypage">
+              <Link href="/mypage" aria-label={t('mypage')}>
                 <div
-                  aria-label={t('mypage')}
                   className={`w-9 h-9 rounded-full flex items-center justify-center text-lg border-2 transition-all cursor-pointer shadow-sm hover:scale-105 ${pathname === '/mypage' ? 'border-black' : 'border-transparent'}`}
                   style={{ backgroundColor: user.avatarColor }}
                 >
@@ -118,10 +117,14 @@ const DesktopHeader = ({
               </button>
             </div>
           ) : (
-            <Link href="/login" className="px-5 py-2 text-black transition-all  ">
+            <Link
+              href="/login"
+              aria-label={t('login')}
+              className="px-5 py-2 text-black transition-all"
+            >
               <Image
                 src="/images/user.png"
-                alt="Corea Hoy"
+                alt=""
                 width={20}
                 height={48}
                 style={{ objectFit: 'contain' }}

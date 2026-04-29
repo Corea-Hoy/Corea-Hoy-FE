@@ -49,5 +49,9 @@ export default function KoreaCarousel({
     touchStartX.current = null;
   };
 
-  return <div></div>;
+  return (
+    <div className={fullHeight ? 'h-full w-full bg-gray-200' : 'h-56 w-full bg-gray-200'}>
+      {/* Placeholder until slides are added */}
+    </div>
+  );
 }

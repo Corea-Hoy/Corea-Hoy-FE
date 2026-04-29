@@ -86,9 +86,8 @@ const MobileHeader = ({
               </button>
               <LangDropdown align="right" {...langDropdownProps} />
               {isLoggedIn && user ? (
-                <Link href="/mypage">
+                <Link href="/mypage" aria-label={t('mypage')}>
                   <div
-                    aria-label={t('mypage')}
                     className={`w-8 h-8 rounded-full flex items-center justify-center text-base border-2 cursor-pointer ${
                       pathname === '/mypage' ? 'border-black' : 'border-transparent'
                     }`}
@@ -104,7 +103,8 @@ const MobileHeader = ({
                 >
                   <Image
                     src="/images/user.png"
-                    alt="Corea Hoy"
+                    alt=""
+                    aria-hidden="true"
                     width={20}
                     height={48}
                     style={{ objectFit: 'contain' }}

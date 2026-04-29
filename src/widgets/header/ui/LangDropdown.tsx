@@ -16,7 +16,7 @@ function LangDropdown({
   langs: { code: 'ko' | 'es'; label: string }[];
 }) {
   return (
-    <div className="relative">
+    <div className={`relative ${isLangOpen ? 'z-50' : ''}`}>
       <button
         onClick={() => setIsLangOpen(!isLangOpen)}
         aria-expanded={isLangOpen}
@@ -36,7 +36,6 @@ function LangDropdown({
         <>
           <div className="fixed inset-0 z-40" onClick={() => setIsLangOpen(false)} />
           <div
-            role="listbox"
             aria-label={selectLangLabel}
             className={`absolute top-full mt-2 z-50 bg-white/95 backdrop-blur-xl border border-gray-100 rounded-2xl shadow-2xl min-w-[180px] p-2 animate-in fade-in zoom-in-95 duration-200 ${align === 'right' ? 'right-0' : 'left-0'}`}
           >
@@ -47,8 +46,7 @@ function LangDropdown({
             {langs.map(({ code, label }) => (
               <button
                 key={code}
-                role="option"
-                aria-selected={language === code}
+                aria-pressed={language === code}
                 onClick={() => {
                   setLanguage(code);
                   setIsLangOpen(false);
