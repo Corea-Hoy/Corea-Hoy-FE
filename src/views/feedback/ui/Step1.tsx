@@ -51,8 +51,18 @@ export function Step1({ onClick }: Props) {
         />
       </div>
       <button
-        className="mt-12 ml-auto block w-[4rem] h-[2.5rem] rounded-xl text-base text-white font-bold bg-green-700 cursor-pointer"
-        onClick={() => onClick(activeButton)}
+        className={`mt-12 ml-auto block w-[4rem] h-[2.5rem] rounded-xl text-base text-white font-bold ${
+          activeButton == null
+            ? 'bg-gray-400 cursor-not-allowed'
+            : 'bg-green-700 cursor-pointer'
+        }`}
+        disabled={activeButton == null}
+        onClick={() => {
+          if (activeButton != null) {
+            onClick(activeButton);
+          }
+        }}
+        aria-disabled={activeButton == null}
       >
         다음
       </button>

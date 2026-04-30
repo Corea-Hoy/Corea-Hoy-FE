@@ -8,6 +8,8 @@ import { ConfirmModal, Stepper } from '@/shared/ui';
 export function FeedbackPage() {
   const [currentStep, setCurrentStep] = useState(0);
   const [confirmModal, setConfirmModal] = useState(false);
+  const [email, setEmail] = useState('');
+  const [contents, setContents] = useState('');
 
   const onNext = (activeButton: number | null) => {
     if (activeButton == null) return;
@@ -19,8 +21,16 @@ export function FeedbackPage() {
     setConfirmModal(true);
   };
 
-  const onConfirm = () => {
+  const submitFeedback = async () => {
+    // TODO: Implement actual API call
+    // Example: await fetch('/api/feedback', { method: 'POST', body: JSON.stringify({ email, contents }) });
+    console.log('Submitting feedback:', { email, contents });
+    // Handle success/error as needed
     setConfirmModal(false);
+  };
+
+  const onConfirm = async () => {
+    await submitFeedback();
   };
 
   return (
@@ -42,7 +52,15 @@ export function FeedbackPage() {
         {currentStep === 0 && <Step1 onClick={onNext} />}
 
         {/* 2단계 */}
-        {currentStep === 1 && <Step2 onClick={onSubmit} />}
+        {currentStep === 1 && (
+          <Step2
+            email={email}
+            contents={contents}
+            onEmailChange={setEmail}
+            onContentsChange={setContents}
+            onClick={onSubmit}
+          />
+        )}
 
         {/* 확인 모달 */}
         <ConfirmModal

@@ -1,8 +1,12 @@
 interface Props {
+  email: string;
+  contents: string;
+  onEmailChange: (value: string) => void;
+  onContentsChange: (value: string) => void;
   onClick: () => void;
 }
 
-export function Step2({ onClick }: Props) {
+export function Step2({ email, contents, onEmailChange, onContentsChange, onClick }: Props) {
   return (
     <>
       <div>
@@ -13,8 +17,11 @@ export function Step2({ onClick }: Props) {
           <input
             id="emailInput"
             className="border-b border-b-gray-300 outline-none text-base"
-            type="text"
+            type="email"
             placeholder="test@test.com"
+            required
+            value={email}
+            onChange={(e) => onEmailChange(e.target.value)}
           />
         </div>
 
@@ -28,6 +35,9 @@ export function Step2({ onClick }: Props) {
               rows={6}
               className="w-full text-base resize-none outline-none"
               placeholder="의견을 작성해주세요."
+              required
+              value={contents}
+              onChange={(e) => onContentsChange(e.target.value)}
             />
           </div>
         </div>
