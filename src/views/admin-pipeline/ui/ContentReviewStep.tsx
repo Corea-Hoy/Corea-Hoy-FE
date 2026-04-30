@@ -64,8 +64,8 @@ export function ContentReviewStep({
         </div>
 
         <div className="rounded-2xl border-2 border-black bg-white p-5 shadow-sm lg:max-h-[720px] lg:overflow-y-auto">
-          <div className="mb-5 flex flex-col gap-4 border-b border-gray-100 pb-4">
-            <div>
+          <div className="mb-5 flex flex-col gap-4 border-b border-gray-100 pb-4 xl:flex-row xl:items-start xl:justify-between">
+            <div className="min-w-0">
               <p className="text-xs font-black uppercase tracking-widest text-gray-700">
                 AI 생성 콘텐츠
               </p>
@@ -74,13 +74,13 @@ export function ContentReviewStep({
               </p>
             </div>
 
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 xl:w-[320px] xl:flex-shrink-0">
               <label>
-                <span className="mb-1.5 block text-xs font-bold text-gray-500">카테고리</span>
+                <span className="mb-1 block text-[11px] font-bold text-gray-500">카테고리</span>
                 <select
                   value={content.category}
                   onChange={(event) => onChange({ ...content, category: event.target.value })}
-                  className="w-full rounded-xl border border-gray-200 bg-white px-3 py-2.5 text-sm font-bold outline-none transition-colors cursor-pointer focus:border-black"
+                  className="w-full rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm font-bold outline-none transition-colors cursor-pointer focus:border-black"
                 >
                   <option value="">선택 없음</option>
                   {CATEGORIES_KO.filter((category) => category !== '전체').map((category) => (
@@ -92,13 +92,13 @@ export function ContentReviewStep({
               </label>
 
               <label>
-                <span className="mb-1.5 block text-xs font-bold text-gray-500">번역 언어</span>
+                <span className="mb-1 block text-[11px] font-bold text-gray-500">번역 언어</span>
                 <select
                   value={targetLanguage}
                   onChange={(event) =>
                     onTargetLanguageChange(event.target.value as TranslationTargetLanguageSelection)
                   }
-                  className="w-full rounded-xl border border-gray-200 bg-white px-3 py-2.5 text-sm font-bold outline-none transition-colors cursor-pointer focus:border-black"
+                  className="w-full rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm font-bold outline-none transition-colors cursor-pointer focus:border-black"
                 >
                   <option value="">선택 없음</option>
                   {TRANSLATION_TARGET_LANGUAGES.map((language) => (
