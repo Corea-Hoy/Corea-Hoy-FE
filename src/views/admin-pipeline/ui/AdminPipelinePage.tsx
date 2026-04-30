@@ -11,6 +11,11 @@ import {
   type TranslatedContent,
   type TranslationTargetLanguageSelection,
 } from '../model/mockArticles';
+import {
+  ContentManagementPage,
+  MOCK_MANAGED_CONTENTS,
+  type ContentStep,
+} from '@/views/content-management';
 import { ArticleSelectCard } from './ArticleSelectCard';
 import { ContentReviewStep } from './ContentReviewStep';
 import { PipelineSteps } from './PipelineSteps';
@@ -21,7 +26,7 @@ import { WorkflowControlPanel } from './WorkflowControlPanel';
 const DRAFT_STORAGE_KEY = 'coreahoy-admin-pipeline-draft';
 const PUBLISH_RETURN_DELAY_MS = 2000;
 
-type AdminSection = 'home' | 'pipeline';
+type AdminSection = 'home' | 'pipeline' | 'content-management';
 type ToastState = {
   title: string;
   message: string;
@@ -38,6 +43,26 @@ type SavedDraft = {
   isPublished: boolean;
   saved: true;
 };
+
+function getPipelineStepFromContentStep(step: ContentStep): PipelineStep {
+  if (step === 'select_article') return 'select-article';
+  if (step === 'review_content') return 'review-content';
+  if (step === 'review_translation') return 'review-translation';
+  return 'preview';
+}
+
+function getContentStepFromQuery(step: string | null): ContentStep | null {
+  if (
+    step === 'select_article' ||
+    step === 'review_content' ||
+    step === 'review_translation' ||
+    step === 'preview'
+  ) {
+    return step;
+  }
+
+  return null;
+}
 
 export function AdminPipelinePage() {
   const [activeAdminSection, setActiveAdminSection] = useState<AdminSection>('home');
@@ -70,11 +95,53 @@ export function AdminPipelinePage() {
     category: generatedContent?.category ?? '문화',
   };
 
+  function openDraftContentInPipeline(contentId: string | null, contentStep: ContentStep | null) {
+    const draftContent = MOCK_MANAGED_CONTENTS.find((content) => content.id === contentId);
+    if (!draftContent || !contentStep) return false;
+
+    const fallbackArticle = MOCK_ADMIN_ARTICLES[0];
+    const nextStep = getPipelineStepFromContentStep(contentStep);
+    const nextGeneratedContent: GeneratedContent = {
+      title: draftContent.title,
+      category: draftContent.category,
+      body: `${draftContent.title}
+
+이 콘텐츠는 콘텐츠 관리에서 이어서 작업 중인 임시저장 항목입니다.
+백엔드 연동 시 draft id를 기준으로 저장된 본문과 검수 상태를 불러오도록 교체합니다.`,
+    };
+    const nextTranslatedContent = createMockTranslatedContent(nextGeneratedContent, 'es');
+
+    setActiveAdminSection('pipeline');
+    setCurrentStep(nextStep);
+    setSelectedArticleId(fallbackArticle.id);
+    setGeneratedContent(nextStep === 'select-article' ? null : nextGeneratedContent);
+    setTranslatedContent(
+      nextStep === 'review-translation' || nextStep === 'preview' ? nextTranslatedContent : null,
+    );
+    setTranslationTargetLanguage(nextStep === 'select-article' ? '' : 'es');
+    setHasCompletedContentReview(nextStep === 'review-translation' || nextStep === 'preview');
+    setHasReviewedTranslation(nextStep === 'preview');
+    setIsPublished(false);
+    setSaveStatus('saved');
+
+    return true;
+  }
+
   useEffect(() => {
     let isCancelled = false;
 
     window.queueMicrotask(() => {
       if (isCancelled) return;
+
+      const searchParams = new URLSearchParams(window.location.search);
+      const shouldOpenPipeline = searchParams.get('section') === 'pipeline';
+      const contentId = searchParams.get('contentId');
+      const contentStep = getContentStepFromQuery(searchParams.get('step'));
+
+      if (shouldOpenPipeline && openDraftContentInPipeline(contentId, contentStep)) {
+        setHasHydratedDraft(true);
+        return;
+      }
 
       const savedDraft = localStorage.getItem(DRAFT_STORAGE_KEY);
       if (!savedDraft) {
@@ -304,6 +371,10 @@ export function AdminPipelinePage() {
     setActiveAdminSection('pipeline');
   }
 
+  function openContentManagement() {
+    setActiveAdminSection('content-management');
+  }
+
   if (!hasHydratedDraft) {
     return (
       <div className="py-6 pb-10 md:py-10">
@@ -358,9 +429,8 @@ export function AdminPipelinePage() {
             type="button"
             role="tab"
             aria-selected={false}
-            aria-disabled="true"
-            disabled
-            className="rounded-xl border border-gray-100 bg-gray-50 px-5 py-3 text-sm font-extrabold text-gray-300 sm:min-w-40"
+            onClick={openContentManagement}
+            className="rounded-xl border border-gray-200 bg-white px-5 py-3 text-sm font-extrabold text-gray-700 transition-colors cursor-pointer hover:border-black hover:text-black sm:min-w-40"
           >
             콘텐츠 관리
           </button>
@@ -435,6 +505,14 @@ export function AdminPipelinePage() {
           saveStatus={saveStatus}
           onPublish={handlePublish}
           onPrev={handlePrev}
+        />
+      )}
+
+      {activeAdminSection === 'content-management' && (
+        <ContentManagementPage
+          onContinueDraft={(contentId, contentStep) => {
+            openDraftContentInPipeline(contentId, contentStep);
+          }}
         />
       )}
 
