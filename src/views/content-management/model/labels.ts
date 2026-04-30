@@ -39,6 +39,6 @@ export const STATUS_STYLES: Record<ContentStatus, string> = {
 };
 
 export const LANGUAGE_LABELS: Record<ContentLanguage, string> = {
-  ko: 'KO',
-  es: 'ES',
+  ko: '한국어 (KO)',
+  es: '스페인어 (ES)',
 };

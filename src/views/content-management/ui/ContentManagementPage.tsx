@@ -35,25 +35,14 @@ const STATUS_TABS: { value: StatusTab; label: string }[] = [
 
 function sortContents(
   contents: ManagedContent[],
-  sortKey: SortKey,
-  sortDirection: SortDirection,
-  isAllTab: boolean,
+  sortKey: SortKey | null,
+  sortDirection: SortDirection | null,
 ) {
+  if (!sortKey || !sortDirection) return contents;
+
   return [...contents].sort((a, b) => {
     if (sortKey === 'views') {
-      const aIsPublished = a.status === 'published';
-      const bIsPublished = b.status === 'published';
-
-      if (aIsPublished !== bIsPublished) return aIsPublished ? -1 : 1;
-      if (!aIsPublished || !bIsPublished) {
-        return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
-      }
-
       return sortDirection === 'desc' ? b.views - a.views : a.views - b.views;
-    }
-
-    if (isAllTab && a.status !== b.status) {
-      return a.status === 'draft' ? -1 : 1;
     }
 
     const dateDifference = new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
@@ -71,8 +60,10 @@ export function ContentManagementPage({ onContinueDraft }: ContentManagementPage
   const [pipelineFilter, setPipelineFilter] = useState<FilterStep>('all');
   const [categoryFilter, setCategoryFilter] = useState<FilterCategory>('all');
   const [languageFilter, setLanguageFilter] = useState<FilterLanguage>('all');
-  const [sortKey, setSortKey] = useState<SortKey>('updatedAt');
-  const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
+  const [draftSortKey, setDraftSortKey] = useState<SortKey | null>(null);
+  const [draftSortDirection, setDraftSortDirection] = useState<SortDirection | null>(null);
+  const [publishedSortKey, setPublishedSortKey] = useState<SortKey | null>(null);
+  const [publishedSortDirection, setPublishedSortDirection] = useState<SortDirection | null>(null);
 
   const isAllTab = activeTab === 'all';
   const isDraftTab = activeTab === 'draft';
@@ -80,8 +71,7 @@ export function ContentManagementPage({ onContinueDraft }: ContentManagementPage
   const showStatusColumn = isAllTab;
   const showPipelineColumn = isAllTab || isDraftTab;
   const showViewsColumn = isAllTab || isPublishedTab;
-  const tableColumnCount =
-    5 + (showStatusColumn ? 1 : 0) + (showPipelineColumn ? 1 : 0) + (showViewsColumn ? 1 : 0);
+
   const counts = useMemo(
     () => ({
       all: contents.length,
@@ -91,8 +81,8 @@ export function ContentManagementPage({ onContinueDraft }: ContentManagementPage
     [contents],
   );
 
-  const filteredContents = useMemo(() => {
-    const nextContents = contents.filter((content) => {
+  const baseFilteredContents = useMemo(() => {
+    return contents.filter((content) => {
       const matchesStatus = activeTab === 'all' || content.status === activeTab;
       const matchesPipeline =
         !isDraftTab || pipelineFilter === 'all' || content.currentStep === pipelineFilter;
@@ -101,76 +91,102 @@ export function ContentManagementPage({ onContinueDraft }: ContentManagementPage
 
       return matchesStatus && matchesPipeline && matchesCategory && matchesLanguage;
     });
+  }, [activeTab, categoryFilter, contents, isDraftTab, languageFilter, pipelineFilter]);
 
-    return sortContents(nextContents, sortKey, sortDirection, isAllTab);
-  }, [
-    activeTab,
-    categoryFilter,
-    contents,
-    isAllTab,
-    isDraftTab,
-    languageFilter,
-    pipelineFilter,
-    sortDirection,
-    sortKey,
-  ]);
+  const draftContents = useMemo(() => {
+    const drafts = baseFilteredContents.filter((content) => content.status === 'draft');
+    return sortContents(drafts, draftSortKey, draftSortDirection);
+  }, [baseFilteredContents, draftSortKey, draftSortDirection]);
 
-  const draftContents = filteredContents.filter((content) => content.status === 'draft');
-  const publishedContents = filteredContents.filter((content) => content.status === 'published');
-  const groupedSections =
-    isAllTab && sortKey === 'views'
-      ? [
-          { key: 'published', title: '발행됨', items: publishedContents },
-          { key: 'draft', title: '임시저장', items: draftContents },
-        ]
-      : [
-          { key: 'draft', title: '임시저장', items: draftContents },
-          { key: 'published', title: '발행됨', items: publishedContents },
-        ];
+  const publishedContents = useMemo(() => {
+    const published = baseFilteredContents.filter((content) => content.status === 'published');
+    return sortContents(published, publishedSortKey, publishedSortDirection);
+  }, [baseFilteredContents, publishedSortKey, publishedSortDirection]);
+  const groupedSections = [
+    { key: 'draft', title: '임시저장', items: draftContents },
+    { key: 'published', title: '발행됨', items: publishedContents },
+  ];
 
   function handleTabChange(nextTab: StatusTab) {
     setActiveTab(nextTab);
     setPipelineFilter('all');
-    setSortKey('updatedAt');
-    setSortDirection('desc');
+    setDraftSortKey(null);
+    setDraftSortDirection(null);
+    setPublishedSortKey(null);
+    setPublishedSortDirection(null);
   }
 
-  function handleSort(nextSortKey: SortKey) {
-    setSortKey((currentSortKey) => {
-      if (currentSortKey !== nextSortKey) {
-        setSortDirection('desc');
-        return nextSortKey;
+  function handleSort(nextSortKey: SortKey, sectionKey: 'draft' | 'published') {
+    if (sectionKey === 'draft') {
+      if (draftSortKey === nextSortKey) {
+        if (draftSortDirection === 'desc') setDraftSortDirection('asc');
+        else if (draftSortDirection === 'asc') {
+          setDraftSortKey(null);
+          setDraftSortDirection(null);
+        }
+      } else {
+        setDraftSortKey(nextSortKey);
+        setDraftSortDirection('desc');
       }
-
-      setSortDirection((currentDirection) => (currentDirection === 'desc' ? 'asc' : 'desc'));
-      return currentSortKey;
-    });
+    } else {
+      if (publishedSortKey === nextSortKey) {
+        if (publishedSortDirection === 'desc') setPublishedSortDirection('asc');
+        else if (publishedSortDirection === 'asc') {
+          setPublishedSortKey(null);
+          setPublishedSortDirection(null);
+        }
+      } else {
+        setPublishedSortKey(nextSortKey);
+        setPublishedSortDirection('desc');
+      }
+    }
   }
 
   function handleDeleteContent(contentId: string) {
-    const shouldDelete = window.confirm('이 콘텐츠를 삭제할까요? 삭제 후 복구할 수 없습니다.');
+    const shouldDelete = window.confirm('정말 이 콘텐츠를 삭제하시겠습니까?');
     if (!shouldDelete) return;
 
     // TODO: 백엔드 연동 시 DELETE /admin/contents/:id 로 교체합니다.
     setContents((currentContents) => currentContents.filter((content) => content.id !== contentId));
   }
 
+  function handleEditPublishedContent(content: ManagedContent) {
+    window.location.href = `/detail/${content.id}?mode=edit`;
+  }
+
   function handleContinueDraft(content: ManagedContent) {
     onContinueDraft?.(content.id, content.currentStep);
   }
 
-  function renderSortableHeader(label: string, nextSortKey: SortKey) {
-    const isActive = sortKey === nextSortKey;
-    const indicator = isActive ? (sortDirection === 'desc' ? '▼' : '▲') : '↕';
+  function renderSortableHeader(
+    label: string,
+    nextSortKey: SortKey,
+    sectionKey: 'draft' | 'published',
+  ) {
+    const currentSortKey = sectionKey === 'draft' ? draftSortKey : publishedSortKey;
+    const currentSortDirection =
+      sectionKey === 'draft' ? draftSortDirection : publishedSortDirection;
+    const isActive = currentSortKey === nextSortKey;
 
     return (
       <button
         type="button"
-        onClick={() => handleSort(nextSortKey)}
-        className="inline-flex items-center justify-center gap-1 text-xs font-black text-gray-500 transition-colors cursor-pointer hover:text-black"
+        onClick={() => handleSort(nextSortKey, sectionKey)}
+        className={`inline-flex items-center justify-center gap-1.5 text-xs font-black transition-colors cursor-pointer ${isActive ? 'text-black' : 'text-gray-500 hover:text-black'}`}
       >
         {label}
-        <span className="text-[10px]">{indicator}</span>
+        <div className="flex flex-col text-[8px] leading-[8px] opacity-80">
+          <span
+            className={isActive && currentSortDirection === 'asc' ? 'text-black' : 'text-gray-300'}
+          >
+            ▲
+          </span>
+          <span
+            className={isActive && currentSortDirection === 'desc' ? 'text-black' : 'text-gray-300'}
+          >
+            ▼
+          </span>
+        </div>
       </button>
     );
   }
@@ -183,7 +199,16 @@ export function ContentManagementPage({ onContinueDraft }: ContentManagementPage
     );
   }
 
-  function renderContentTable(items: ManagedContent[]) {
+  function renderContentTable(items: ManagedContent[], sectionKey: 'draft' | 'published') {
+    const tableShowStatusColumn = showStatusColumn;
+    const tableShowPipelineColumn = sectionKey ? sectionKey === 'draft' : showPipelineColumn;
+    const tableShowViewsColumn = sectionKey ? sectionKey === 'published' : showViewsColumn;
+    const tableColumnCount =
+      5 +
+      (tableShowStatusColumn ? 1 : 0) +
+      (tableShowPipelineColumn ? 1 : 0) +
+      (tableShowViewsColumn ? 1 : 0);
+
     return (
       <div className="overflow-x-auto rounded-2xl border border-gray-100 bg-white shadow-sm">
         <table className="w-full min-w-[1040px] border-collapse text-left">
@@ -191,20 +216,22 @@ export function ContentManagementPage({ onContinueDraft }: ContentManagementPage
             <tr>
               <th className="px-4 py-3 text-xs font-black text-gray-500">제목</th>
               <th className="px-4 py-3 text-center text-xs font-black text-gray-500">카테고리</th>
-              {showStatusColumn && (
+              {tableShowStatusColumn && (
                 <th className="px-4 py-3 text-center text-xs font-black text-gray-500">상태</th>
               )}
-              {showPipelineColumn && (
+              {tableShowPipelineColumn && (
                 <th className="w-40 px-4 py-3 text-center text-xs font-black text-gray-500">
                   현재 단계
                 </th>
               )}
               <th className="px-4 py-3 text-center text-xs font-black text-gray-500">언어</th>
-              {showViewsColumn && (
-                <th className="px-4 py-3 text-center">{renderSortableHeader('조회수', 'views')}</th>
+              {tableShowViewsColumn && (
+                <th className="px-4 py-3 text-center">
+                  {renderSortableHeader('조회수', 'views', sectionKey)}
+                </th>
               )}
               <th className="px-4 py-3 text-center">
-                {renderSortableHeader('수정일', 'updatedAt')}
+                {renderSortableHeader('수정일', 'updatedAt', sectionKey)}
               </th>
               <th className="px-4 py-3 text-center text-xs font-black text-gray-500">작업</th>
             </tr>
@@ -233,7 +260,7 @@ export function ContentManagementPage({ onContinueDraft }: ContentManagementPage
                       </button>
                     ) : (
                       <Link
-                        href={`/admin/contents/${content.id}`}
+                        href={`/detail/${content.id}`}
                         className="block truncate outline-none group-hover:underline"
                       >
                         {content.title}
@@ -243,7 +270,7 @@ export function ContentManagementPage({ onContinueDraft }: ContentManagementPage
                   <td className="px-4 py-4 text-center text-sm font-bold text-gray-600">
                     {content.category}
                   </td>
-                  {showStatusColumn && (
+                  {tableShowStatusColumn && (
                     <td className="px-4 py-4 text-center">
                       <span
                         className={`inline-flex rounded-full px-3 py-1 text-[11px] font-black ${
@@ -254,7 +281,7 @@ export function ContentManagementPage({ onContinueDraft }: ContentManagementPage
                       </span>
                     </td>
                   )}
-                  {showPipelineColumn && (
+                  {tableShowPipelineColumn && (
                     <td className="px-4 py-4 text-center">
                       {content.status === 'draft' ? (
                         <span
@@ -271,7 +298,7 @@ export function ContentManagementPage({ onContinueDraft }: ContentManagementPage
                     </td>
                   )}
                   <td className="px-4 py-4 text-center">{renderLanguageLabel(content)}</td>
-                  {showViewsColumn && (
+                  {tableShowViewsColumn && (
                     <td className="px-4 py-4 text-center text-sm font-bold text-gray-600">
                       {content.status === 'published' ? content.views.toLocaleString() : '-'}
                     </td>
@@ -299,22 +326,17 @@ export function ContentManagementPage({ onContinueDraft }: ContentManagementPage
                       </div>
                     ) : (
                       <div className="flex items-center justify-center gap-2">
-                        <Link
-                          href={`/admin/contents/${content.id}`}
-                          className="rounded-lg border border-gray-200 px-3 py-1.5 text-xs font-black text-gray-600 transition-colors hover:border-black hover:text-black"
-                        >
-                          보기
-                        </Link>
-                        <Link
-                          href={`/admin/contents/${content.id}?mode=edit`}
-                          className="rounded-lg border border-gray-200 px-3 py-1.5 text-xs font-black text-gray-600 transition-colors hover:border-black hover:text-black"
+                        <button
+                          type="button"
+                          onClick={() => handleEditPublishedContent(content)}
+                          className="rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-xs font-black text-gray-600 shadow-sm transition-colors hover:border-black hover:text-black"
                         >
                           수정
-                        </Link>
+                        </button>
                         <button
                           type="button"
                           onClick={() => handleDeleteContent(content.id)}
-                          className="rounded-lg border border-red-100 px-3 py-1.5 text-xs font-black text-red-500 transition-colors cursor-pointer hover:border-red-200 hover:text-red-600"
+                          className="rounded-lg border border-red-100 bg-white px-3 py-1.5 text-xs font-black text-red-500 shadow-sm transition-colors hover:border-red-200 hover:text-red-600"
                         >
                           삭제
                         </button>
@@ -420,12 +442,14 @@ export function ContentManagementPage({ onContinueDraft }: ContentManagementPage
                   {section.title} ({section.items.length})
                 </h3>
               </div>
-              {renderContentTable(section.items)}
+              {renderContentTable(section.items, section.key as 'draft' | 'published')}
             </section>
           ))}
         </div>
+      ) : activeTab === 'draft' ? (
+        renderContentTable(draftContents, 'draft')
       ) : (
-        renderContentTable(filteredContents)
+        renderContentTable(publishedContents, 'published')
       )}
     </section>
   );
