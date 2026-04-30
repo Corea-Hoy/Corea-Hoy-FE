@@ -328,7 +328,7 @@ export function AdminPipelinePage() {
       </header>
 
       {activeAdminSection !== 'home' && (
-        <div className="mb-8 flex flex-col gap-3 border-b border-gray-100 pb-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="mb-8 border-b border-gray-100 pb-4">
           <button
             type="button"
             onClick={() => setActiveAdminSection('home')}
@@ -336,22 +336,6 @@ export function AdminPipelinePage() {
           >
             관리자 홈
           </button>
-
-          <div className="flex gap-2" role="tablist" aria-label="관리자 화면 전환">
-            <button
-              type="button"
-              role="tab"
-              aria-selected={activeAdminSection === 'pipeline'}
-              onClick={openPipeline}
-              className={`rounded-xl px-4 py-2 text-sm font-extrabold transition-colors cursor-pointer ${
-                activeAdminSection === 'pipeline'
-                  ? 'bg-black text-white'
-                  : 'bg-gray-100 text-gray-400 hover:text-black'
-              }`}
-            >
-              파이프라인 실행
-            </button>
-          </div>
         </div>
       )}
 
@@ -369,6 +353,16 @@ export function AdminPipelinePage() {
             className="rounded-xl border border-gray-200 bg-white px-5 py-3 text-sm font-extrabold text-gray-700 transition-colors cursor-pointer hover:border-black hover:text-black sm:min-w-40"
           >
             파이프라인 실행
+          </button>
+          <button
+            type="button"
+            role="tab"
+            aria-selected={false}
+            aria-disabled="true"
+            disabled
+            className="rounded-xl border border-gray-100 bg-gray-50 px-5 py-3 text-sm font-extrabold text-gray-300 sm:min-w-40"
+          >
+            콘텐츠 관리
           </button>
         </section>
       )}
