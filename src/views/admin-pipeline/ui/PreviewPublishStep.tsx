@@ -17,6 +17,13 @@ interface PreviewPublishStepProps {
   onPrev: () => void;
 }
 
+function getInitialPreviewLanguage(): 'ko' | 'translated' {
+  if (typeof window === 'undefined') return 'translated';
+
+  const saved = sessionStorage.getItem('coreahoy-preview-language');
+  return saved === 'ko' || saved === 'translated' ? saved : 'translated';
+}
+
 export function PreviewPublishStep({
   previewData,
   isPublished,
@@ -25,13 +32,9 @@ export function PreviewPublishStep({
   onPublish,
   onPrev,
 }: PreviewPublishStepProps) {
-  const [previewLanguage, setPreviewLanguage] = useState<'ko' | 'translated'>(() => {
-    if (typeof window !== 'undefined') {
-      const saved = sessionStorage.getItem('coreahoy-preview-language');
-      if (saved === 'ko' || saved === 'translated') return saved;
-    }
-    return 'translated';
-  });
+  const [previewLanguage, setPreviewLanguage] = useState<'ko' | 'translated'>(
+    getInitialPreviewLanguage,
+  );
 
   const handlePreviewLanguageChange = (lang: 'ko' | 'translated') => {
     setPreviewLanguage(lang);

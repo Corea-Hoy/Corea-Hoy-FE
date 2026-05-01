@@ -32,6 +32,13 @@ const STATUS_TABS: { value: StatusTab; label: string }[] = [
   { value: 'published', label: STATUS_LABELS.published },
 ];
 
+function getInitialActiveTab(): StatusTab {
+  if (typeof window === 'undefined') return 'all';
+
+  const saved = sessionStorage.getItem('coreahoy-content-management-tab');
+  return saved === 'all' || saved === 'draft' || saved === 'published' ? saved : 'all';
+}
+
 function sortContents(
   contents: ManagedContent[],
   sortKey: SortKey | null,
@@ -55,15 +62,7 @@ interface ContentManagementPageProps {
 
 export function ContentManagementPage({ onContinueDraft }: ContentManagementPageProps) {
   const [contents, setContents] = useState<ManagedContent[]>(MOCK_MANAGED_CONTENTS);
-  const [activeTab, setActiveTab] = useState<StatusTab>(() => {
-    if (typeof window !== 'undefined') {
-      const saved = sessionStorage.getItem('coreahoy-content-management-tab');
-      if (saved === 'all' || saved === 'draft' || saved === 'published') {
-        return saved;
-      }
-    }
-    return 'all';
-  });
+  const [activeTab, setActiveTab] = useState<StatusTab>(getInitialActiveTab);
   const [pipelineFilter, setPipelineFilter] = useState<FilterStep>('all');
   const [categoryFilter, setCategoryFilter] = useState<FilterCategory>('all');
   const [languageFilter, setLanguageFilter] = useState<FilterLanguage>('all');
@@ -156,12 +155,13 @@ export function ContentManagementPage({ onContinueDraft }: ContentManagementPage
     const shouldDelete = window.confirm('정말 이 콘텐츠를 삭제하시겠습니까?');
     if (!shouldDelete) return;
 
-    // TODO: 백엔드 연동 시 DELETE /admin/contents/:id 로 교체합니다.
     setContents((currentContents) => currentContents.filter((content) => content.id !== contentId));
   }
 
   function handleEditPublishedContent(content: ManagedContent) {
-    window.location.href = `/detail/${content.id}?mode=edit`;
+    const params = new URLSearchParams(window.location.search);
+    params.set('mode', 'edit');
+    window.location.href = `/detail/${content.id}?${params.toString()}`;
   }
 
   function handleContinueDraft(content: ManagedContent) {
@@ -264,14 +264,14 @@ export function ContentManagementPage({ onContinueDraft }: ContentManagementPage
                       <button
                         type="button"
                         onClick={() => handleContinueDraft(content)}
-                        className="block max-w-full truncate text-left outline-none group-hover:underline"
+                        className="block max-w-full truncate text-left outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-indigo-500 group-hover:underline"
                       >
                         {content.title}
                       </button>
                     ) : (
                       <a
                         href={`/detail/${content.id}?admin=true`}
-                        className="block truncate outline-none group-hover:underline"
+                        className="block truncate outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-indigo-500 group-hover:underline"
                       >
                         {content.title}
                       </a>

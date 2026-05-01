@@ -114,13 +114,15 @@ export function AdminPipelinePage() {
       category: draftContent.category,
       body: `${draftContent.title}
 
-이 콘텐츠는 콘텐츠 관리에서 이어서 작업 중인 임시저장 항목입니다.
-백엔드 연동 시 draft id를 기준으로 저장된 본문과 검수 상태를 불러오도록 교체합니다.`,
+이 콘텐츠는 콘텐츠 관리에서 이어서 작업 중인 임시저장 항목입니다.`,
     };
     const nextTranslatedContent = createMockTranslatedContent(nextGeneratedContent, 'es');
 
     setCurrentStep(nextStep);
-    setSelectedArticleId(fallbackArticle.id);
+    setSelectedArticleId(
+      (draftContent as unknown as { originalArticleId?: string }).originalArticleId ??
+        fallbackArticle.id,
+    );
     setGeneratedContent(nextStep === 'select-article' ? null : nextGeneratedContent);
     setTranslatedContent(
       nextStep === 'review-translation' || nextStep === 'preview' ? nextTranslatedContent : null,
@@ -333,6 +335,7 @@ export function AdminPipelinePage() {
 
   function handleNextFromTranslation() {
     if (!translatedContent) return;
+    if (!translatedContent.esTitle.trim() || !translatedContent.esBody.trim()) return;
     setHasReviewedTranslation(true);
     setCurrentStep('preview');
     setSaveStatus('dirty');
@@ -368,7 +371,9 @@ export function AdminPipelinePage() {
 
   function handlePublish() {
     if (!generatedContent?.category) return;
+    if (!translatedContent?.esTitle?.trim() || !translatedContent?.esBody?.trim()) return;
 
+    localStorage.removeItem(DRAFT_STORAGE_KEY);
     setIsPublished(true);
     setSaveStatus('dirty');
     showToast({

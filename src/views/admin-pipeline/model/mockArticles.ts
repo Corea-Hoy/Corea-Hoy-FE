@@ -97,12 +97,8 @@ export function createMockTranslatedContent(
     return {
       koTitle: content.title,
       koBody: content.body,
-      esTitle: 'Una noticia clave de Corea para lectores latinoamericanos',
-      esBody: `Esta noticia ofrece una clave importante para comprender las tendencias culturales y sociales de Corea. Más allá de su popularidad inmediata, muestra cómo los temas coreanos pueden llegar a lectores internacionales.
-
-Para el público latinoamericano, no basta con explicar el hecho principal. También es importante presentar el contexto: la velocidad con la que cambian las tendencias en Corea, la cultura de los fandoms y la reacción de los medios.
-
-Al observar estos elementos juntos, el tema se entiende de una manera más clara, cercana y útil para quienes siguen la cultura coreana desde fuera de Corea.`,
+      esTitle: `[ES] ${content.title}`,
+      esBody: `[Traducido] ${content.body}`,
     };
   }
 

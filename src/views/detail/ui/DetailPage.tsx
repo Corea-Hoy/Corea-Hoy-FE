@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { Chip } from '@/shared/ui';
 import Image from 'next/image';
@@ -10,6 +10,8 @@ import { CommentCard, CommentForm, ShareModal } from '@/features/detail';
 export function DetailPage() {
   const [like, setLike] = useState(false);
   const [showModal, setShowModal] = useState(false);
+  const titleRef = useRef<HTMLHeadingElement>(null);
+  const bodyRef = useRef<HTMLDivElement>(null);
 
   const router = useRouter();
   const params = useParams();
@@ -30,9 +32,22 @@ export function DetailPage() {
     router.push(`/detail/${contentId || 'mock'}?mode=edit`);
   };
 
-  const handleSave = () => {
-    window.alert('수정되었습니다.');
-    router.push(`/detail/${contentId || 'mock'}`);
+  const handleSave = async () => {
+    const newTitle = titleRef.current?.innerText?.trim();
+    const newBody = bodyRef.current?.innerText?.trim();
+
+    if (!newTitle || !newBody) {
+      window.alert('제목과 본문을 모두 입력해주세요.');
+      return;
+    }
+
+    try {
+      await new Promise((resolve) => setTimeout(resolve, 300));
+      window.alert('수정되었습니다.');
+      router.push(`/detail/${contentId || 'mock'}`);
+    } catch {
+      window.alert('수정 중 오류가 발생했습니다.');
+    }
   };
 
   return (
@@ -90,6 +105,7 @@ export function DetailPage() {
         <div className="absolute top-0 left-0 flex flex-col justify-end items-start w-full h-[20rem] p-4 bg-black/40">
           <Chip text="K-POP" color="red" />
           <h1
+            ref={titleRef}
             className={`!mt-2 text-[1.4rem] text-white font-bold ${
               isEditMode
                 ? 'rounded border border-dashed border-white/50 bg-black/30 p-1 outline-none'
@@ -108,6 +124,7 @@ export function DetailPage() {
 
       {/* 컨텐츠  */}
       <div
+        ref={bodyRef}
         className={`py-12 ${
           isEditMode
             ? 'rounded-xl border border-dashed border-gray-300 bg-gray-50 p-4 outline-none'
