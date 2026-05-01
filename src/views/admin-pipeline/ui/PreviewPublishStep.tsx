@@ -25,7 +25,20 @@ export function PreviewPublishStep({
   onPublish,
   onPrev,
 }: PreviewPublishStepProps) {
-  const [previewLanguage, setPreviewLanguage] = useState<'ko' | 'translated'>('translated');
+  const [previewLanguage, setPreviewLanguage] = useState<'ko' | 'translated'>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = sessionStorage.getItem('coreahoy-preview-language');
+      if (saved === 'ko' || saved === 'translated') return saved;
+    }
+    return 'translated';
+  });
+
+  const handlePreviewLanguageChange = (lang: 'ko' | 'translated') => {
+    setPreviewLanguage(lang);
+    if (typeof window !== 'undefined') {
+      sessionStorage.setItem('coreahoy-preview-language', lang);
+    }
+  };
   const hasCategory = previewData.category.trim().length > 0;
   const categoryLabel = hasCategory ? previewData.category : '카테고리 미지정';
   const visibleTitle = previewLanguage === 'ko' ? previewData.koTitle : previewData.translatedTitle;
@@ -46,7 +59,7 @@ export function PreviewPublishStep({
           <div className="flex rounded-xl border border-gray-200 bg-gray-50 p-1">
             <button
               type="button"
-              onClick={() => setPreviewLanguage('ko')}
+              onClick={() => handlePreviewLanguageChange('ko')}
               className={`rounded-lg px-4 py-2 text-xs font-black transition-colors cursor-pointer ${
                 previewLanguage === 'ko'
                   ? 'bg-black text-white'
@@ -57,7 +70,7 @@ export function PreviewPublishStep({
             </button>
             <button
               type="button"
-              onClick={() => setPreviewLanguage('translated')}
+              onClick={() => handlePreviewLanguageChange('translated')}
               className={`rounded-lg px-4 py-2 text-xs font-black transition-colors cursor-pointer ${
                 previewLanguage === 'translated'
                   ? 'bg-black text-white'

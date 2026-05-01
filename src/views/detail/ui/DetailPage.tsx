@@ -16,6 +16,7 @@ export function DetailPage() {
   const searchParams = useSearchParams();
   const contentId = params?.id as string | undefined;
   const isEditMode = searchParams?.get('mode') === 'edit';
+  const isAdminView = searchParams?.get('admin') === 'true' || isEditMode;
 
   const onModal = () => {
     setShowModal(false);
@@ -34,43 +35,54 @@ export function DetailPage() {
     router.push(`/detail/${contentId || 'mock'}`);
   };
 
-  const handleDelete = () => {
-    if (window.confirm('정말 이 콘텐츠를 삭제하시겠습니까?')) {
-      router.push('/admin');
-    }
-  };
-
   return (
     <div className="pt-5">
+      {/* 관리자 툴바 (어드민 뷰일 때만 노출) */}
+      {isAdminView && (
+        <div className="mb-4 flex flex-col gap-3 rounded-xl border border-gray-200 bg-gray-50 p-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex flex-col">
+            <span className="text-sm font-black text-black">
+              {isEditMode ? '콘텐츠 수정 모드' : '콘텐츠 관리'}
+            </span>
+            <span className="mt-1 text-xs font-medium text-gray-500">
+              {isEditMode
+                ? '텍스트를 클릭하여 내용을 수정할 수 있습니다.'
+                : '발행된 콘텐츠를 확인하고 관리할 수 있습니다.'}
+            </span>
+          </div>
+          <div className="flex gap-2">
+            {isEditMode ? (
+              <>
+                <button
+                  type="button"
+                  onClick={() => router.push(`/detail/${contentId || 'mock'}?admin=true`)}
+                  className="rounded-lg border border-gray-200 bg-white px-4 py-2 text-xs font-black text-gray-600 shadow-sm transition-colors hover:bg-gray-50"
+                >
+                  취소
+                </button>
+                <button
+                  type="button"
+                  onClick={handleSave}
+                  className="rounded-lg bg-black px-4 py-2 text-xs font-black text-white shadow-sm transition-colors hover:bg-gray-800"
+                >
+                  수정 완료
+                </button>
+              </>
+            ) : (
+              <button
+                type="button"
+                onClick={handleEdit}
+                className="rounded-lg border border-gray-200 bg-white px-4 py-2 text-xs font-black text-gray-700 shadow-sm transition-colors hover:bg-gray-50 hover:text-black"
+              >
+                수정
+              </button>
+            )}
+          </div>
+        </div>
+      )}
+
       {/* 타이틀 헤더 */}
       <div className="relative">
-        <div className="absolute right-4 top-4 z-20 flex gap-2">
-          {isEditMode ? (
-            <button
-              type="button"
-              onClick={handleSave}
-              className="rounded-lg bg-black/90 px-3 py-1.5 text-xs font-black text-white shadow-sm backdrop-blur-sm transition-colors hover:bg-black"
-            >
-              저장
-            </button>
-          ) : (
-            <button
-              type="button"
-              onClick={handleEdit}
-              className="rounded-lg bg-white/90 px-3 py-1.5 text-xs font-black text-gray-700 shadow-sm backdrop-blur-sm transition-colors hover:bg-white hover:text-black"
-            >
-              수정
-            </button>
-          )}
-          <button
-            type="button"
-            onClick={handleDelete}
-            className="rounded-lg bg-red-500/90 px-3 py-1.5 text-xs font-black text-white shadow-sm backdrop-blur-sm transition-colors hover:bg-red-500"
-          >
-            삭제
-          </button>
-        </div>
-
         <div className="h-[20rem] w-full overflow-hidden">
           <Image fill sizes="100vw" className="object-cover" src="/test.jpg" alt="" />
         </div>

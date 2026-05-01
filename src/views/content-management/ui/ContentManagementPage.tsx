@@ -1,6 +1,5 @@
 'use client';
 
-import Link from 'next/link';
 import { useMemo, useState } from 'react';
 import {
   CATEGORY_OPTIONS,
@@ -56,7 +55,15 @@ interface ContentManagementPageProps {
 
 export function ContentManagementPage({ onContinueDraft }: ContentManagementPageProps) {
   const [contents, setContents] = useState<ManagedContent[]>(MOCK_MANAGED_CONTENTS);
-  const [activeTab, setActiveTab] = useState<StatusTab>('all');
+  const [activeTab, setActiveTab] = useState<StatusTab>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = sessionStorage.getItem('coreahoy-content-management-tab');
+      if (saved === 'all' || saved === 'draft' || saved === 'published') {
+        return saved;
+      }
+    }
+    return 'all';
+  });
   const [pipelineFilter, setPipelineFilter] = useState<FilterStep>('all');
   const [categoryFilter, setCategoryFilter] = useState<FilterCategory>('all');
   const [languageFilter, setLanguageFilter] = useState<FilterLanguage>('all');
@@ -109,6 +116,9 @@ export function ContentManagementPage({ onContinueDraft }: ContentManagementPage
 
   function handleTabChange(nextTab: StatusTab) {
     setActiveTab(nextTab);
+    if (typeof window !== 'undefined') {
+      sessionStorage.setItem('coreahoy-content-management-tab', nextTab);
+    }
     setPipelineFilter('all');
     setDraftSortKey(null);
     setDraftSortDirection(null);
@@ -259,12 +269,12 @@ export function ContentManagementPage({ onContinueDraft }: ContentManagementPage
                         {content.title}
                       </button>
                     ) : (
-                      <Link
-                        href={`/detail/${content.id}`}
+                      <a
+                        href={`/detail/${content.id}?admin=true`}
                         className="block truncate outline-none group-hover:underline"
                       >
                         {content.title}
-                      </Link>
+                      </a>
                     )}
                   </td>
                   <td className="px-4 py-4 text-center text-sm font-bold text-gray-600">

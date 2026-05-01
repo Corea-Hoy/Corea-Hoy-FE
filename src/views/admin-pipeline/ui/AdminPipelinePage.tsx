@@ -1,6 +1,7 @@
 'use client';
 
 import Image from 'next/image';
+import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import {
   createMockGeneratedContent,
@@ -24,6 +25,7 @@ import { TranslationReviewStep } from './TranslationReviewStep';
 import { WorkflowControlPanel } from './WorkflowControlPanel';
 
 const DRAFT_STORAGE_KEY = 'coreahoy-admin-pipeline-draft';
+const SESSION_STORAGE_KEY = 'coreahoy-admin-pipeline-session';
 const PUBLISH_RETURN_DELAY_MS = 2000;
 
 type AdminSection = 'home' | 'pipeline' | 'content-management';
@@ -65,7 +67,13 @@ function getContentStepFromQuery(step: string | null): ContentStep | null {
 }
 
 export function AdminPipelinePage() {
-  const [activeAdminSection, setActiveAdminSection] = useState<AdminSection>('home');
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
+  const sectionQuery = searchParams.get('section');
+  const activeAdminSection: AdminSection =
+    sectionQuery === 'pipeline' || sectionQuery === 'content-management' ? sectionQuery : 'home';
   const [currentStep, setCurrentStep] = useState<PipelineStep>('select-article');
   const [selectedArticleId, setSelectedArticleId] = useState<string | null>(null);
   const [generatedContent, setGeneratedContent] = useState<GeneratedContent | null>(null);
@@ -111,7 +119,6 @@ export function AdminPipelinePage() {
     };
     const nextTranslatedContent = createMockTranslatedContent(nextGeneratedContent, 'es');
 
-    setActiveAdminSection('pipeline');
     setCurrentStep(nextStep);
     setSelectedArticleId(fallbackArticle.id);
     setGeneratedContent(nextStep === 'select-article' ? null : nextGeneratedContent);
@@ -133,14 +140,35 @@ export function AdminPipelinePage() {
     window.queueMicrotask(() => {
       if (isCancelled) return;
 
-      const searchParams = new URLSearchParams(window.location.search);
-      const shouldOpenPipeline = searchParams.get('section') === 'pipeline';
-      const contentId = searchParams.get('contentId');
-      const contentStep = getContentStepFromQuery(searchParams.get('step'));
+      const urlParams = new URLSearchParams(window.location.search);
+      const querySection = urlParams.get('section');
+      const contentId = urlParams.get('contentId');
+      const contentStep = getContentStepFromQuery(urlParams.get('step'));
 
-      if (shouldOpenPipeline && openDraftContentInPipeline(contentId, contentStep)) {
+      if (querySection === 'pipeline' && openDraftContentInPipeline(contentId, contentStep)) {
         setHasHydratedDraft(true);
         return;
+      }
+
+      const sessionDraftStr = sessionStorage.getItem(SESSION_STORAGE_KEY);
+      if (sessionDraftStr) {
+        try {
+          const draft = JSON.parse(sessionDraftStr) as Partial<SavedDraft>;
+          setSelectedArticleId(draft.selectedArticleId ?? null);
+          setGeneratedContent(draft.generatedContent ?? null);
+          setTranslatedContent(draft.translatedContent ?? null);
+          setTranslationTargetLanguage(draft.translationTargetLanguage ?? '');
+          setHasCompletedContentReview(draft.hasCompletedContentReview ?? false);
+          setHasReviewedTranslation(draft.hasReviewedTranslation ?? false);
+          setIsPublished(draft.isPublished ?? false);
+          setCurrentStep(draft.currentStep ?? 'select-article');
+          previousStepRef.current = draft.currentStep ?? 'select-article';
+          setSaveStatus(draft.saved ? 'saved' : 'dirty');
+          setHasHydratedDraft(true);
+          return;
+        } catch {
+          sessionStorage.removeItem(SESSION_STORAGE_KEY);
+        }
       }
 
       const savedDraft = localStorage.getItem(DRAFT_STORAGE_KEY);
@@ -168,6 +196,7 @@ export function AdminPipelinePage() {
         setHasReviewedTranslation(draft.hasReviewedTranslation ?? draft.currentStep === 'preview');
         setIsPublished(draft.isPublished ?? false);
         setCurrentStep(draft.currentStep ?? 'select-article');
+        previousStepRef.current = draft.currentStep ?? 'select-article';
         setSaveStatus('saved');
       } catch {
         localStorage.removeItem(DRAFT_STORAGE_KEY);
@@ -188,6 +217,36 @@ export function AdminPipelinePage() {
     previousStepRef.current = currentStep;
     window.scrollTo({ top: 0, behavior: 'auto' });
   }, [currentStep, hasHydratedDraft]);
+
+  useEffect(() => {
+    if (!hasHydratedDraft) return;
+
+    sessionStorage.setItem(
+      SESSION_STORAGE_KEY,
+      JSON.stringify({
+        currentStep,
+        selectedArticleId,
+        generatedContent,
+        translatedContent,
+        translationTargetLanguage,
+        hasCompletedContentReview,
+        hasReviewedTranslation,
+        isPublished,
+        saved: saveStatus === 'saved',
+      }),
+    );
+  }, [
+    hasHydratedDraft,
+    currentStep,
+    selectedArticleId,
+    generatedContent,
+    translatedContent,
+    translationTargetLanguage,
+    hasCompletedContentReview,
+    hasReviewedTranslation,
+    isPublished,
+    saveStatus,
+  ]);
 
   useEffect(() => {
     return () => {
@@ -318,7 +377,7 @@ export function AdminPipelinePage() {
     });
 
     publishReturnTimeoutRef.current = window.setTimeout(() => {
-      setActiveAdminSection('home');
+      goHome();
       window.scrollTo({ top: 0, behavior: 'auto' });
     }, PUBLISH_RETURN_DELAY_MS);
   }
@@ -368,11 +427,29 @@ export function AdminPipelinePage() {
     setHasReviewedTranslation(false);
     setIsPublished(false);
     setSaveStatus('idle');
-    setActiveAdminSection('pipeline');
+    sessionStorage.removeItem(SESSION_STORAGE_KEY);
+
+    const params = new URLSearchParams(searchParams.toString());
+    params.set('section', 'pipeline');
+    params.delete('contentId');
+    params.delete('step');
+    router.push(`${pathname}?${params.toString()}`);
   }
 
   function openContentManagement() {
-    setActiveAdminSection('content-management');
+    const params = new URLSearchParams(searchParams.toString());
+    params.set('section', 'content-management');
+    params.delete('contentId');
+    params.delete('step');
+    router.push(`${pathname}?${params.toString()}`);
+  }
+
+  function goHome() {
+    const params = new URLSearchParams(searchParams.toString());
+    params.delete('section');
+    params.delete('contentId');
+    params.delete('step');
+    router.push(`${pathname}?${params.toString()}`);
   }
 
   if (!hasHydratedDraft) {
@@ -402,7 +479,7 @@ export function AdminPipelinePage() {
         <div className="mb-8 border-b border-gray-100 pb-4">
           <button
             type="button"
-            onClick={() => setActiveAdminSection('home')}
+            onClick={goHome}
             className="w-fit rounded-xl border border-gray-200 px-4 py-2 text-sm font-bold text-gray-500 transition-colors cursor-pointer hover:border-black hover:text-black"
           >
             관리자 홈
@@ -512,6 +589,12 @@ export function AdminPipelinePage() {
         <ContentManagementPage
           onContinueDraft={(contentId, contentStep) => {
             openDraftContentInPipeline(contentId, contentStep);
+
+            const params = new URLSearchParams(searchParams.toString());
+            params.set('section', 'pipeline');
+            params.set('contentId', contentId);
+            params.set('step', contentStep);
+            router.push(`${pathname}?${params.toString()}`);
           }}
         />
       )}
