@@ -13,7 +13,7 @@ interface Props {
 }
 
 export function Step1({ onClick, onChange, other, onOtherChange }: Props) {
-  const buttons = [
+  const buttons: CategoryButton[] = [
     {
       image: '/images/illu/illu-design.webp',
       text: '디자인 / 사용',
@@ -44,7 +44,7 @@ export function Step1({ onClick, onChange, other, onOtherChange }: Props) {
       text: '기타 의견',
       value: 'other',
     },
-  ] as CategoryButton;
+  ];
 
   const [activeButton, setActiveButton] = useState<number | null>(null);
 

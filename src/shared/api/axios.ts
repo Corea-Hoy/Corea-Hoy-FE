@@ -13,6 +13,7 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     const url = error.config?.url ?? '';
+    return Promise.reject(error);
   },
 );
 

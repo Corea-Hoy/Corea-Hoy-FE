@@ -6,9 +6,10 @@ import { FEEDBACK_MIN_LENGTH, FEEDBACK_MAX_LENGTH } from '@/features/feedback/mo
  * @param content
  **/
 export const validateContent = (content: string) => {
-  if (!content) return '내용을 입력해주세요';
+  const normalized = content.trim();
+  if (!normalized) return '내용을 입력해주세요';
 
-  if (content.trim().length < FEEDBACK_MIN_LENGTH || content.length > FEEDBACK_MAX_LENGTH)
+  if (normalized.length < FEEDBACK_MIN_LENGTH || normalized.length > FEEDBACK_MAX_LENGTH)
     return `최소 ${FEEDBACK_MIN_LENGTH}자, 최대 ${FEEDBACK_MAX_LENGTH}자까지 입력할 수 있습니다.`;
 
   return '';
