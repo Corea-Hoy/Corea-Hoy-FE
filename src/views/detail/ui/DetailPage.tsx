@@ -1,6 +1,7 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
+import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { Chip } from '@/shared/ui';
 import Image from 'next/image';
 import { Heart, Share2 } from 'lucide-react';
@@ -9,6 +10,15 @@ import { CommentCard, CommentForm, ShareModal } from '@/features/detail';
 export function DetailPage() {
   const [like, setLike] = useState(false);
   const [showModal, setShowModal] = useState(false);
+  const titleRef = useRef<HTMLHeadingElement>(null);
+  const bodyRef = useRef<HTMLDivElement>(null);
+
+  const router = useRouter();
+  const params = useParams();
+  const searchParams = useSearchParams();
+  const contentId = params?.id as string | undefined;
+  const isEditMode = searchParams?.get('mode') === 'edit';
+  const isAdminView = searchParams?.get('admin') === 'true' || isEditMode;
 
   const onModal = () => {
     setShowModal(false);
@@ -18,8 +28,74 @@ export function DetailPage() {
     setLike(!like);
   };
 
+  const handleEdit = () => {
+    router.push(`/detail/${contentId || 'mock'}?mode=edit`);
+  };
+
+  const handleSave = async () => {
+    const newTitle = titleRef.current?.innerText?.trim();
+    const newBody = bodyRef.current?.innerText?.trim();
+
+    if (!newTitle || !newBody) {
+      window.alert('제목과 본문을 모두 입력해주세요.');
+      return;
+    }
+
+    try {
+      await new Promise((resolve) => setTimeout(resolve, 300));
+      window.alert('수정되었습니다.');
+      router.push(`/detail/${contentId || 'mock'}`);
+    } catch {
+      window.alert('수정 중 오류가 발생했습니다.');
+    }
+  };
+
   return (
     <div className="pt-5">
+      {/* 관리자 툴바 (어드민 뷰일 때만 노출) */}
+      {isAdminView && (
+        <div className="mb-4 flex flex-col gap-3 rounded-xl border border-gray-200 bg-gray-50 p-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex flex-col">
+            <span className="text-sm font-black text-black">
+              {isEditMode ? '콘텐츠 수정 모드' : '콘텐츠 관리'}
+            </span>
+            <span className="mt-1 text-xs font-medium text-gray-500">
+              {isEditMode
+                ? '텍스트를 클릭하여 내용을 수정할 수 있습니다.'
+                : '발행된 콘텐츠를 확인하고 관리할 수 있습니다.'}
+            </span>
+          </div>
+          <div className="flex gap-2">
+            {isEditMode ? (
+              <>
+                <button
+                  type="button"
+                  onClick={() => router.push(`/detail/${contentId || 'mock'}?admin=true`)}
+                  className="rounded-lg border border-gray-200 bg-white px-4 py-2 text-xs font-black text-gray-600 shadow-sm transition-colors hover:bg-gray-50"
+                >
+                  취소
+                </button>
+                <button
+                  type="button"
+                  onClick={handleSave}
+                  className="rounded-lg bg-black px-4 py-2 text-xs font-black text-white shadow-sm transition-colors hover:bg-gray-800"
+                >
+                  수정 완료
+                </button>
+              </>
+            ) : (
+              <button
+                type="button"
+                onClick={handleEdit}
+                className="rounded-lg border border-gray-200 bg-white px-4 py-2 text-xs font-black text-gray-700 shadow-sm transition-colors hover:bg-gray-50 hover:text-black"
+              >
+                수정
+              </button>
+            )}
+          </div>
+        </div>
+      )}
+
       {/* 타이틀 헤더 */}
       <div className="relative">
         <div className="h-[20rem] w-full overflow-hidden">
@@ -28,7 +104,18 @@ export function DetailPage() {
 
         <div className="absolute top-0 left-0 flex flex-col justify-end items-start w-full h-[20rem] p-4 bg-black/40">
           <Chip text="K-POP" color="red" />
-          <h1 className="!mt-2 text-[1.4rem] text-white font-bold">타이틀이 들어갑니다.</h1>
+          <h1
+            ref={titleRef}
+            className={`!mt-2 text-[1.4rem] text-white font-bold ${
+              isEditMode
+                ? 'rounded border border-dashed border-white/50 bg-black/30 p-1 outline-none'
+                : ''
+            }`}
+            contentEditable={isEditMode}
+            suppressContentEditableWarning
+          >
+            타이틀이 들어갑니다.
+          </h1>
           <div className="flex justify-end w-full">
             <span className="text-[0.8rem] text-white">2026-02-10</span>
           </div>
@@ -36,7 +123,16 @@ export function DetailPage() {
       </div>
 
       {/* 컨텐츠  */}
-      <div className="py-12">
+      <div
+        ref={bodyRef}
+        className={`py-12 ${
+          isEditMode
+            ? 'rounded-xl border border-dashed border-gray-300 bg-gray-50 p-4 outline-none'
+            : ''
+        }`}
+        contentEditable={isEditMode}
+        suppressContentEditableWarning
+      >
         {/* 컴포넌트로 빼기 */}
         <p>안녕하세요</p>
 
