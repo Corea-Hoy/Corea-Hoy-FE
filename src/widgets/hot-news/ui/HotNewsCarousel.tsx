@@ -127,7 +127,7 @@ export default function HotNewsCarousel({ isKo }: HotNewsCarouselProps) {
       >
         <div
           ref={trackRef}
-          className="overflow-hidden"
+          className="overflow-hidden py-4 -my-4"
           onTouchStart={onTouchStart}
           onTouchEnd={onTouchEnd}
         >

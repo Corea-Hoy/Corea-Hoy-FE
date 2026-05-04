@@ -77,7 +77,7 @@ function HomePageInner() {
     <div>
       {/* ── Hero (main landing only) ── */}
       {isMainLanding && (
-        <section className="bg-white py-6 sm:py-10 px-4 sm:px-6">
+        <section className="bg-white py-6 sm:py-10 ">
           <div className="max-w-screen-xl mx-auto relative z-10">
             <HotNewsCarousel isKo={isKo} />
           </div>
@@ -85,11 +85,7 @@ function HomePageInner() {
       )}
 
       {/* ── Content area ── */}
-      <div
-        ref={contentRef}
-        id="newsletter"
-        className="max-w-screen-xl mx-auto pt-10 px-6 scroll-mt-20"
-      >
+      <div ref={contentRef} id="newsletter" className="max-w-screen-xl mx-auto pt-10  scroll-mt-20">
         {/* Header row: title + sort tabs */}
         <div className="mb-5 sm:mb-6">
           <div className="flex items-start justify-between gap-3 mb-3">
