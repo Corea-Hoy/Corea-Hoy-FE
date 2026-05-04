@@ -1,6 +1,6 @@
 export function Loading() {
   return (
-    <div className="fixed left-0 top-0 z-100 flex items-center justify-center w-full h-full bg-black/20">
+    <div className="fixed left-0 top-0 z-1000 flex items-center justify-center w-full h-full bg-black/20">
       <div className="loader">
         <div className="dot" />
         <div className="dot" />

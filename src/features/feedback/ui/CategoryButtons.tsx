@@ -1,12 +1,15 @@
-type Button = {
+import { FeedbackType } from '@/entities/feedback/model/types';
+
+export type CategoryButton = {
   image: string;
   text: string;
+  value: FeedbackType;
 };
 
 interface Props {
-  buttons: Button[];
+  buttons: CategoryButton[];
   activeIndex: number | null;
-  onChange: (index: number) => void;
+  onChange: (index: number, value: FeedbackType) => void;
 }
 
 export function CategoryButtons({ buttons, activeIndex, onChange }: Props) {
@@ -15,8 +18,9 @@ export function CategoryButtons({ buttons, activeIndex, onChange }: Props) {
       {buttons.map((item, i) => (
         <button
           key={i}
+          value={item.value}
           className={`flex justify-center items-center flex-col gap-2 py-4.5 px-3.5 rounded-xl border-2 border-transparent cursor-pointer ${i === activeIndex ? '!border-green-500 bg-green-200/10' : 'bg-white'}`}
-          onClick={() => onChange(i)}
+          onClick={() => onChange(i, item.value)}
         >
           <img className="w-[3.5rem]" src={item.image} alt="" />
           <span>{item.text}</span>

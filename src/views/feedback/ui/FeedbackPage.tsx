@@ -1,37 +1,31 @@
 'use client';
 
-import { useState } from 'react';
 import { Step1 } from '@/views/feedback/ui/Step1';
 import { Step2 } from '@/views/feedback/ui/Step2';
-import { ConfirmModal, Stepper } from '@/shared/ui';
+import { ConfirmModal, Loading, Stepper } from '@/shared/ui';
+import { useFeedbackForm } from '@/features/feedback';
 
 export function FeedbackPage() {
-  const [currentStep, setCurrentStep] = useState(0);
-  const [confirmModal, setConfirmModal] = useState(false);
-  const [email, setEmail] = useState('');
-  const [contents, setContents] = useState('');
-
-  const onNext = (activeButton: number | null) => {
-    if (activeButton == null) return;
-
-    setCurrentStep(currentStep + 1);
-  };
-
-  const onSubmit = () => {
-    setConfirmModal(true);
-  };
-
-  const submitFeedback = async () => {
-    // TODO: Implement actual API call
-    // Example: await fetch('/api/feedback', { method: 'POST', body: JSON.stringify({ email, contents }) });
-    console.log('Submitting feedback:', { email, contents });
-    // Handle success/error as needed
-    setConfirmModal(false);
-  };
-
-  const onConfirm = async () => {
-    await submitFeedback();
-  };
+  const {
+    currentStep,
+    confirmModal,
+    successModal,
+    email,
+    contents,
+    other,
+    isPending,
+    emailMessage,
+    contentMessage,
+    setEmail,
+    setContents,
+    setOther,
+    setConfirmModal,
+    onNext,
+    onSubmit,
+    onSelectCategory,
+    onConfirm,
+    onSuccessConfirm,
+  } = useFeedbackForm();
 
   return (
     <div className="pt-[4rem]">
@@ -49,18 +43,30 @@ export function FeedbackPage() {
         <Stepper total={2} currentStep={currentStep} />
 
         {/* 1단계 */}
-        {currentStep === 0 && <Step1 onClick={onNext} />}
+        {currentStep === 0 && (
+          <Step1
+            onChange={(i, value) => onSelectCategory(i, value)}
+            onClick={onNext}
+            other={other}
+            onOtherChange={setOther}
+          />
+        )}
 
         {/* 2단계 */}
         {currentStep === 1 && (
           <Step2
             email={email}
             contents={contents}
+            emailError={emailMessage}
+            contentError={contentMessage}
             onEmailChange={setEmail}
             onContentsChange={setContents}
             onClick={onSubmit}
           />
         )}
+
+        {/* 로딩 */}
+        {isPending && <Loading />}
 
         {/* 확인 모달 */}
         <ConfirmModal
@@ -68,6 +74,14 @@ export function FeedbackPage() {
           text={'작성한 내용을 제출하시겠습니까?\n제출 후 수정이 제한됩니다.'}
           onConfirm={onConfirm}
           onClose={() => setConfirmModal(false)}
+        />
+
+        {/* 제출 완료 모달 */}
+        <ConfirmModal
+          show={successModal}
+          text={'제출이 완료되었습니다.'}
+          onConfirm={onSuccessConfirm}
+          onClose={onSuccessConfirm}
         />
       </div>
     </div>
