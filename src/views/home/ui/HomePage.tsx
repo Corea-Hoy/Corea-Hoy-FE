@@ -1,12 +1,14 @@
 'use client';
 
 import { useRef, useCallback, Suspense, useState, useMemo } from 'react';
+import Image from 'next/image';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { useLanguageStore } from '@/shared/model';
 import { MOCK_CONTENTS, type Category, CATEGORIES_KO, CATEGORIES_ES } from '@/entities/content';
 import { ContentCard } from '@/entities/content';
 import { KoreaCarousel } from '@/widgets/korea-carousel';
+import { HotNewsCarousel } from '@/widgets/hot-news';
 
 const SORT_OPTIONS = [
   { id: 'latest' as const, ko: '최신순', es: 'Reciente' },
@@ -75,41 +77,9 @@ function HomePageInner() {
     <div>
       {/* ── Hero (main landing only) ── */}
       {isMainLanding && (
-        <section className="relative overflow-hidden mt-3 sm:mt-6 rounded-2xl md:rounded-3xl mx-0 sm:mx-2 md:mx-6 h-56 sm:h-80 lg:h-[540px]">
-          <KoreaCarousel isKo={isKo} fullHeight />
-
-          <div
-            className="absolute inset-0 z-20 flex flex-col items-center justify-center text-center px-4"
-            style={{
-              background: 'linear-gradient(to bottom, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0.65) 100%)',
-            }}
-          >
-            <div className="mb-3 sm:mb-6">
-              <span className="px-3 py-1 sm:px-4 sm:py-1.5 rounded-full bg-red-600 text-white text-[9px] sm:text-[10px] font-black uppercase tracking-widest shadow-lg">
-                🔥 Hot Issue
-              </span>
-            </div>
-
-            <h1
-              className="text-2xl sm:text-4xl lg:text-6xl font-black text-white leading-tight mb-3 sm:mb-6 drop-shadow-2xl max-w-xs sm:max-w-2xl lg:max-w-4xl"
-              style={{ letterSpacing: '-0.03em' }}
-            >
-              {isKo ? '지금 가장 뜨거운 한국의 이야기' : 'Lo más candente de Corea ahora'}
-            </h1>
-
-            <p className="hidden sm:block text-sm md:text-lg text-white/90 mb-6 sm:mb-10 leading-relaxed max-w-2xl drop-shadow-md font-medium">
-              {isKo
-                ? '트렌드부터 깊이 있는 문화 분석까지, Corea Hoy가 선별한 프리미엄 콘텐츠를 만나보세요.'
-                : 'Desde tendencias hasta análisis culturales profundos, descubre el contenido premium seleccionado por Corea Hoy.'}
-            </p>
-
-            <button
-              onClick={scrollToContent}
-              className="group flex items-center gap-2 px-6 sm:px-10 py-2.5 sm:py-4 rounded-full bg-white text-black text-sm sm:text-base font-black hover:bg-gray-100 transition-all shadow-2xl hover:-translate-y-1 active:scale-95 cursor-pointer"
-            >
-              {t('heroCta')}
-              <span className="transition-transform group-hover:translate-y-1">↓</span>
-            </button>
+        <section className="bg-white py-6 sm:py-10 px-4 sm:px-6">
+          <div className="max-w-screen-xl mx-auto relative z-10">
+            <HotNewsCarousel isKo={isKo} />
           </div>
         </section>
       )}
@@ -118,7 +88,7 @@ function HomePageInner() {
       <div
         ref={contentRef}
         id="newsletter"
-        className="max-w-screen-xl mx-auto pt-5 sm:pt-8 scroll-mt-20"
+        className="max-w-screen-xl mx-auto pt-10 px-6 scroll-mt-20"
       >
         {/* Header row: title + sort tabs */}
         <div className="mb-5 sm:mb-6">
@@ -133,9 +103,9 @@ function HomePageInner() {
                 : t('newsletterTitle')}
             </h2>
 
-            {/* Sort tabs — only on home/search, not single-category view */}
+            {/* 정렬 버튼 */}
             {!activeCategory && (
-              <div className="flex items-center gap-1 bg-gray-100 p-1 rounded-xl border border-gray-200 flex-shrink-0 mt-1">
+              <div className="flex items-center gap-1 bg-white p-1 rounded-xl border border-gray-200 flex-shrink-0 mt-1">
                 {SORT_OPTIONS.map((opt) => (
                   <button
                     key={opt.id}
