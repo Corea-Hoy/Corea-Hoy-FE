@@ -25,8 +25,10 @@ export function MyPage() {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setMounted(true);
+    const timer = setTimeout(() => {
+      setMounted(true);
+    }, 0);
+    return () => clearTimeout(timer);
   }, []);
 
   const currentUser = user || {
@@ -39,6 +41,10 @@ export function MyPage() {
   };
 
   if (!mounted) return null;
+
+  // TODO: 로그인 기능 추가 후 주석 해제
+  //   if (!mounted || !user) return null;
+  // const currentUser = user;
 
   const likedContents = MOCK_CONTENTS.filter((c) => currentUser.likedContentIds.includes(c.id));
   const myComments = MOCK_CONTENTS.flatMap((c) =>
@@ -100,10 +106,10 @@ export function MyPage() {
           onDeleteAccount={() => setShowDeleteModal(true)}
         />
 
-        <main>
+        <section>
           <LikedContentList contents={likedContents} isKo={isKo} />
           <MyCommentsList comments={myComments} />
-        </main>
+        </section>
       </div>
 
       {showDeleteModal && (

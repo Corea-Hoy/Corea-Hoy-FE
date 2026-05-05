@@ -1,13 +1,11 @@
 'use client';
 
-import { useRef, useCallback, Suspense, useState, useMemo } from 'react';
-import Image from 'next/image';
+import { useRef, Suspense, useState, useMemo } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { useLanguageStore } from '@/shared/model';
 import { MOCK_CONTENTS, type Category, CATEGORIES_KO, CATEGORIES_ES } from '@/entities/content';
 import { ContentCard } from '@/entities/content';
-import { KoreaCarousel } from '@/widgets/korea-carousel';
 import { HotNewsCarousel } from '@/widgets/hot-news';
 
 const SORT_OPTIONS = [
@@ -63,10 +61,6 @@ function HomePageInner() {
 
   const categories: Category[] = ['K-POP', '드라마', '뉴스', '문화', '스포츠', '음식'];
 
-  const scrollToContent = useCallback(() => {
-    contentRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  }, []);
-
   const handleCategoryViewMore = (cat: string) => {
     const params = new URLSearchParams();
     params.set('category', cat);
@@ -100,7 +94,7 @@ function HomePageInner() {
             </h2>
 
             {/* 정렬 버튼 */}
-            {!activeCategory && (
+            {activeCategory && (
               <div className="flex items-center gap-1 bg-white p-1 rounded-xl border border-gray-200 flex-shrink-0 mt-1">
                 {SORT_OPTIONS.map((opt) => (
                   <button
