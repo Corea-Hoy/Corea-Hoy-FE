@@ -4,6 +4,7 @@ import { Providers } from '@/app/providers';
 import { IntlProvider } from '@/app/providers/IntlProvider';
 import Footer from '@/widgets/footer/footer/Footer';
 import { Header } from '@/widgets/header/index';
+import { GoogleScript } from '@/shared/lib/google/GoogleScript';
 
 // ----------- Components -----------
 
@@ -25,6 +26,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <Providers>{children}</Providers>
           </main>
           <Footer />
+          <GoogleScript />
         </body>
       </IntlProvider>
     </html>

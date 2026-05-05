@@ -2,10 +2,11 @@
 
 import Image from 'next/image';
 import { GoogleLoginButton } from '@/features/auth';
-
-const onGoogle = () => {};
+import { useLogin } from '@/features/auth/model/useLogin';
 
 export function LoginPage() {
+  const { onGoogleLogin } = useLogin();
+
   return (
     <div className="flex-1 max-w-screen-xl mx-auto w-full px-4 pt-20">
       <div className="w-full max-w-sm mx-auto bg-white p-8">
@@ -27,7 +28,7 @@ export function LoginPage() {
 
         <form>
           <div className="relative">
-            <GoogleLoginButton onClick={onGoogle} />
+            <GoogleLoginButton onClick={onGoogleLogin} />
             <div className="absolute right-[-1rem] top-[-3.5rem] w-[5rem]">
               <Image
                 src="/images/characters/mascot-v.svg"
