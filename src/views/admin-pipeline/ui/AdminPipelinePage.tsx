@@ -16,6 +16,7 @@ import {
 import { ContentManagementPage } from '@/views/content-management/ui/ContentManagementPage';
 import { MOCK_MANAGED_CONTENTS } from '@/views/content-management/model/mockData';
 import type { ContentStep } from '@/views/content-management/model/types';
+import { getTextFromRichTextHtml } from '@/shared/ui/rich-text-editor/getTextFromRichTextHtml';
 import { ArticleSelectCard } from './ArticleSelectCard';
 import { ContentReviewStep } from './ContentReviewStep';
 import { PipelineSteps } from './PipelineSteps';
@@ -63,14 +64,6 @@ function getContentStepFromQuery(step: string | null): ContentStep | null {
   }
 
   return null;
-}
-
-function getTextFromRichTextHtml(value: string) {
-  return value
-    .replaceAll(/<br\s*\/?>/gi, '\n')
-    .replaceAll(/<[^>]*>/g, '')
-    .replaceAll('&nbsp;', ' ')
-    .trim();
 }
 
 export function AdminPipelinePage() {

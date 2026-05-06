@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
+import { sanitizeRichTextHtml } from '@/shared/ui/rich-text-editor/sanitizeRichTextHtml';
 
 interface PreviewData {
   koTitle: string;
@@ -46,6 +47,7 @@ export function PreviewPublishStep({
   const categoryLabel = hasCategory ? previewData.category : '카테고리 미지정';
   const visibleTitle = previewLanguage === 'ko' ? previewData.koTitle : previewData.translatedTitle;
   const visibleBody = previewLanguage === 'ko' ? previewData.koBody : previewData.translatedBody;
+  const sanitizedVisibleBody = useMemo(() => sanitizeRichTextHtml(visibleBody), [visibleBody]);
 
   return (
     <section className="animate-fade-in">
@@ -95,7 +97,7 @@ export function PreviewPublishStep({
             <h3 className="mt-4 text-2xl font-black leading-tight text-black">{visibleTitle}</h3>
             <div
               className="rich-text-renderer mt-5 text-sm leading-7 text-gray-700"
-              dangerouslySetInnerHTML={{ __html: visibleBody }}
+              dangerouslySetInnerHTML={{ __html: sanitizedVisibleBody }}
             />
           </article>
         </div>
@@ -109,7 +111,7 @@ export function PreviewPublishStep({
           <h3 className="text-3xl font-black leading-tight text-black">{visibleTitle}</h3>
           <div
             className="rich-text-renderer mt-6 text-sm leading-8 text-gray-700"
-            dangerouslySetInnerHTML={{ __html: visibleBody }}
+            dangerouslySetInnerHTML={{ __html: sanitizedVisibleBody }}
           />
         </article>
       </div>

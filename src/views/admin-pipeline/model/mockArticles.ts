@@ -1,3 +1,5 @@
+import { sanitizeRichTextHtml } from '@/shared/ui/rich-text-editor/sanitizeRichTextHtml';
+
 export interface AdminCandidateArticle {
   id: string;
   title: string;
@@ -67,22 +69,15 @@ export const MOCK_ADMIN_ARTICLES: AdminCandidateArticle[] = [
   },
 ];
 
-function escapeHtml(value: string) {
-  return value
-    .replaceAll('&', '&amp;')
-    .replaceAll('<', '&lt;')
-    .replaceAll('>', '&gt;')
-    .replaceAll('"', '&quot;')
-    .replaceAll("'", '&#39;');
-}
-
 export function createParagraphHtml(value: string) {
-  return value
+  const html = value
     .split(/\n{2,}/)
     .map((paragraph) => paragraph.trim())
     .filter(Boolean)
-    .map((paragraph) => `<p>${escapeHtml(paragraph).replaceAll('\n', '<br>')}</p>`)
+    .map((paragraph) => `<p>${paragraph.replaceAll('\n', '<br>')}</p>`)
     .join('');
+
+  return sanitizeRichTextHtml(html);
 }
 
 export function createMockGeneratedContent(article: AdminCandidateArticle): GeneratedContent {

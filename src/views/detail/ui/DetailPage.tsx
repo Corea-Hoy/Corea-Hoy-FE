@@ -6,7 +6,9 @@ import { Chip } from '@/shared/ui';
 import Image from 'next/image';
 import { Heart, Share2 } from 'lucide-react';
 import { CommentCard, CommentForm, ShareModal } from '@/features/detail';
+import { getTextFromRichTextHtml } from '@/shared/ui/rich-text-editor/getTextFromRichTextHtml';
 import { RichTextEditor } from '@/shared/ui/rich-text-editor/RichTextEditor';
+import { sanitizeRichTextHtml } from '@/shared/ui/rich-text-editor/sanitizeRichTextHtml';
 
 const INITIAL_TITLE = '타이틀이 들어갑니다.';
 const INITIAL_BODY =
@@ -33,6 +35,7 @@ export function DetailPage() {
   const contentId = params?.id as string | undefined;
   const isEditMode = searchParams?.get('mode') === 'edit';
   const isAdminView = searchParams?.get('admin') === 'true' || isEditMode;
+  const sanitizedBody = sanitizeRichTextHtml(editableBody);
 
   const onModal = () => {
     setShowModal(false);
@@ -71,7 +74,7 @@ export function DetailPage() {
 
   const handleSave = async () => {
     const newTitle = editableTitle.trim();
-    const newBody = editableBody.replaceAll(/<[^>]*>/g, '').trim();
+    const newBody = getTextFromRichTextHtml(editableBody);
 
     if (!newTitle || !newBody) {
       window.alert('제목과 본문을 모두 입력해주세요.');
@@ -175,7 +178,7 @@ export function DetailPage() {
       ) : (
         <div
           className="rich-text-renderer py-12"
-          dangerouslySetInnerHTML={{ __html: editableBody }}
+          dangerouslySetInnerHTML={{ __html: sanitizedBody }}
         />
       )}
 

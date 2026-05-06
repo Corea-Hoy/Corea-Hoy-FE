@@ -70,6 +70,7 @@ export function RichTextEditor({
   const [isEmojiPanelOpen, setIsEmojiPanelOpen] = useState(false);
   const editor = useEditor({
     immediatelyRender: false,
+    shouldRerenderOnTransaction: true,
     extensions: [
       StarterKit.configure({
         heading: {
@@ -84,10 +85,21 @@ export function RichTextEditor({
         'aria-label': placeholder ?? '본문 편집기',
       },
     },
-    onUpdate: ({ editor: nextEditor }) => {
-      onChange(nextEditor.getHTML());
-    },
   });
+
+  useEffect(() => {
+    if (!editor) return;
+
+    const handleUpdate = () => {
+      onChange(editor.getHTML());
+    };
+
+    editor.on('update', handleUpdate);
+
+    return () => {
+      editor.off('update', handleUpdate);
+    };
+  }, [editor, onChange]);
 
   useEffect(() => {
     if (!editor) return;
@@ -98,7 +110,9 @@ export function RichTextEditor({
 
   if (!editor) {
     return (
-      <div className="min-h-[280px] animate-pulse rounded-xl border border-gray-200 bg-gray-50" />
+      <div
+        className={`${minHeightClassName} animate-pulse rounded-xl border border-gray-200 bg-gray-50`}
+      />
     );
   }
 
