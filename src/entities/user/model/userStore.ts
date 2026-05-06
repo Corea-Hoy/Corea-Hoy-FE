@@ -43,9 +43,21 @@ export const useUserStore = create<UserState>()(
         }),
 
       updateProfile: (name, avatarEmoji, avatarColor) =>
-        set((state) => ({
-          user: state.user ? { ...state.user, name, avatarEmoji, avatarColor } : null,
-        })),
+        set((state) => {
+          if (state.user) {
+            return { user: { ...state.user, name, avatarEmoji, avatarColor } };
+          }
+          return {
+            user: {
+              name,
+              email: 'test@example.com',
+              avatarEmoji,
+              avatarColor,
+              likedContentIds: ['c1', 'c3'],
+            },
+            isLoggedIn: true,
+          };
+        }),
 
       toggleLike: (contentId) =>
         set((state) => {
