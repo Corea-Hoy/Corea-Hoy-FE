@@ -7,7 +7,7 @@ import {
   type TranslationTargetLanguageSelection,
 } from '../model/mockArticles';
 import { CATEGORIES_KO } from '@/entities/content';
-import { RichTextEditor } from '@/shared/ui';
+import { RichTextEditor } from '@/shared/ui/rich-text-editor/RichTextEditor';
 
 interface ContentReviewStepProps {
   article: AdminCandidateArticle;

@@ -1,5 +1,5 @@
 import { type TranslatedContent } from '../model/mockArticles';
-import { RichTextEditor } from '@/shared/ui';
+import { RichTextEditor } from '@/shared/ui/rich-text-editor/RichTextEditor';
 
 interface TranslationReviewStepProps {
   content: TranslatedContent;

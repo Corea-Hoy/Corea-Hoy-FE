@@ -13,11 +13,9 @@ import {
   type TranslatedContent,
   type TranslationTargetLanguageSelection,
 } from '../model/mockArticles';
-import {
-  ContentManagementPage,
-  MOCK_MANAGED_CONTENTS,
-  type ContentStep,
-} from '@/views/content-management';
+import { ContentManagementPage } from '@/views/content-management/ui/ContentManagementPage';
+import { MOCK_MANAGED_CONTENTS } from '@/views/content-management/model/mockData';
+import type { ContentStep } from '@/views/content-management/model/types';
 import { ArticleSelectCard } from './ArticleSelectCard';
 import { ContentReviewStep } from './ContentReviewStep';
 import { PipelineSteps } from './PipelineSteps';

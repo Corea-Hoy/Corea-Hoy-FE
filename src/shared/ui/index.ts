@@ -3,4 +3,3 @@ export { Stepper } from './stepper/Stepper';
 export { ConfirmModal } from './modal/ConfirmModal';
 export { Loading } from './loading/Loading';
 export { Avatar } from './avatar/Avatar';
-export { RichTextEditor } from './rich-text-editor';
