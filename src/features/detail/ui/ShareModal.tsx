@@ -1,14 +1,45 @@
+'use client';
+
 import { X, Link } from 'lucide-react';
+import { ConfirmModal } from '@/shared/ui';
+import { useState } from 'react';
 
 interface Props {
   show: boolean;
   onClick: () => void;
 }
 
-const buttonStyle = 'w-[3rem] h-[3rem] border border-gray-200 rounded-full p-2.5';
-
 export function ShareModal({ show, onClick }: Props) {
+  const [showModal, setShowModal] = useState(false);
+
   if (!show) return null;
+
+  const buttonStyle = 'w-[3rem] h-[3rem] border border-gray-200 rounded-full p-2.5';
+
+  const twitterShareFn = () => {
+    const url = encodeURIComponent(window.location.href);
+    window.open(`https://twitter.com/intent/tweet?url=${url}`);
+  };
+
+  const kakaoShareFn = () => {
+    // 카카오 SDK 연동 필요
+  };
+
+  const urlShareFn = async () => {
+    await navigator.clipboard.writeText(window.location.href);
+    setShowModal(true);
+  };
+
+  const logAndShare = (platform: string, action: () => void) => {
+    console.log(`[share] ${platform}`);
+    action();
+  };
+
+  const share = {
+    x: () => logAndShare('twitter', twitterShareFn),
+    kakao: () => logAndShare('kakao', kakaoShareFn),
+    url: () => logAndShare('url', urlShareFn),
+  };
 
   return (
     <div
@@ -32,21 +63,36 @@ export function ShareModal({ show, onClick }: Props) {
             이 소식을 함께 나눠보세요.
           </p>
           <div className="flex items-center justify-center gap-4 mt-5">
-            <button className={buttonStyle}>
+            <button type="text" aria-label="X로 공유하기" className={buttonStyle} onClick={share.x}>
               <img src="/images/icon/icon-x.webp" alt="x" />
             </button>
-            <button className={buttonStyle}>
+            <button
+              type="text"
+              aria-label="카카오톡으로 공유하기"
+              className={buttonStyle}
+              onClick={share.kakao}
+            >
               <img src="/images/icon/icon-kakao.webp" alt="카카오톡" />
             </button>
-            <button className={buttonStyle}>
-              <img src="/images/icon/icon-facebook.webp" alt="페이스북" />
-            </button>
-            <button className={buttonStyle}>
+            <button
+              type="text"
+              aria-label="링크로 공유하기"
+              className={buttonStyle}
+              onClick={share.url}
+            >
               <Link />
             </button>
           </div>
         </div>
       </div>
+
+      {/* 링크 확인 모달 */}
+      <ConfirmModal
+        show={showModal}
+        text="링크가 복사되었습니다."
+        cancelBtn={false}
+        onConfirm={() => setShowModal(false)}
+      />
     </div>
   );
 }

@@ -1,11 +1,12 @@
 interface Props {
   show: boolean;
   text: string;
+  cancelBtn?: boolean;
   onConfirm: () => void;
-  onClose: () => void;
+  onClose?: () => void;
 }
 
-export function ConfirmModal({ show, text, onConfirm, onClose }: Props) {
+export function ConfirmModal({ show, text, cancelBtn = true, onConfirm, onClose }: Props) {
   if (!show) return null;
 
   return (
@@ -29,13 +30,15 @@ export function ConfirmModal({ show, text, onConfirm, onClose }: Props) {
 
         {/* 푸터 */}
         <div className="flex gap-2 p-4">
-          <button
-            type="button"
-            className="flex-1 h-[2.5rem] text-base text-white font-bold rounded-xl bg-gray-400"
-            onClick={onClose}
-          >
-            취소
-          </button>
+          {cancelBtn && (
+            <button
+              type="button"
+              className="flex-1 h-[2.5rem] text-base text-white font-bold rounded-xl bg-gray-400"
+              onClick={onClose}
+            >
+              취소
+            </button>
+          )}
           <button
             type="button"
             className="flex-1 h-[2.5rem] text-base text-white font-bold rounded-xl bg-green-700"

@@ -1,144 +1,77 @@
 'use client';
 
-import { useState, useRef } from 'react';
-import { useParams, useRouter, useSearchParams } from 'next/navigation';
-import { Chip } from '@/shared/ui';
+import { Chip, ConfirmModal, Loading } from '@/shared/ui';
 import Image from 'next/image';
-import { Heart, Share2 } from 'lucide-react';
+import { Heart, Share2, UserRound } from 'lucide-react';
 import { CommentCard, CommentForm, ShareModal } from '@/features/detail';
+import { useDetails } from '@/features/detail/model/useDetails';
+import { formatDate } from '@/shared/utils/formatDate';
 
 export function DetailPage() {
-  const [like, setLike] = useState(false);
-  const [showModal, setShowModal] = useState(false);
-  const titleRef = useRef<HTMLHeadingElement>(null);
-  const bodyRef = useRef<HTMLDivElement>(null);
+  const {
+    title,
+    body,
+    note,
+    data,
+    isLoading,
+    error,
+    like,
+    showShareModal,
+    showDeletePostModal,
+    setLike,
+    setShowShareModal,
+    setShowDeletePostModal,
+    onEdit,
+    onDeletePostModal,
+    onDeletePost,
+    onShareModal,
+    onLikeToggle,
+  } = useDetails();
 
-  const router = useRouter();
-  const params = useParams();
-  const searchParams = useSearchParams();
-  const contentId = params?.id as string | undefined;
-  const isEditMode = searchParams?.get('mode') === 'edit';
-  const isAdminView = searchParams?.get('admin') === 'true' || isEditMode;
+  if (isLoading) return <Loading />;
 
-  const onModal = () => {
-    setShowModal(false);
-  };
-
-  const onlike = () => {
-    setLike(!like);
-  };
-
-  const handleEdit = () => {
-    router.push(`/detail/${contentId || 'mock'}?mode=edit`);
-  };
-
-  const handleSave = async () => {
-    const newTitle = titleRef.current?.innerText?.trim();
-    const newBody = bodyRef.current?.innerText?.trim();
-
-    if (!newTitle || !newBody) {
-      window.alert('제목과 본문을 모두 입력해주세요.');
-      return;
-    }
-
-    try {
-      await new Promise((resolve) => setTimeout(resolve, 300));
-      window.alert('수정되었습니다.');
-      router.push(`/detail/${contentId || 'mock'}`);
-    } catch {
-      window.alert('수정 중 오류가 발생했습니다.');
-    }
-  };
+  const buttonStyle = 'h-[2rem] w-[3rem] text-base border leading-none rounded-xl';
 
   return (
     <div className="pt-5">
-      {/* 관리자 툴바 (어드민 뷰일 때만 노출) */}
-      {isAdminView && (
-        <div className="mb-4 flex flex-col gap-3 rounded-xl border border-gray-200 bg-gray-50 p-4 sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex flex-col">
-            <span className="text-sm font-black text-black">
-              {isEditMode ? '콘텐츠 수정 모드' : '콘텐츠 관리'}
-            </span>
-            <span className="mt-1 text-xs font-medium text-gray-500">
-              {isEditMode
-                ? '텍스트를 클릭하여 내용을 수정할 수 있습니다.'
-                : '발행된 콘텐츠를 확인하고 관리할 수 있습니다.'}
-            </span>
-          </div>
-          <div className="flex gap-2">
-            {isEditMode ? (
-              <>
-                <button
-                  type="button"
-                  onClick={() => router.push(`/detail/${contentId || 'mock'}?admin=true`)}
-                  className="rounded-lg border border-gray-200 bg-white px-4 py-2 text-xs font-black text-gray-600 shadow-sm transition-colors hover:bg-gray-50"
-                >
-                  취소
-                </button>
-                <button
-                  type="button"
-                  onClick={handleSave}
-                  className="rounded-lg bg-black px-4 py-2 text-xs font-black text-white shadow-sm transition-colors hover:bg-gray-800"
-                >
-                  수정 완료
-                </button>
-              </>
-            ) : (
-              <button
-                type="button"
-                onClick={handleEdit}
-                className="rounded-lg border border-gray-200 bg-white px-4 py-2 text-xs font-black text-gray-700 shadow-sm transition-colors hover:bg-gray-50 hover:text-black"
-              >
-                수정
-              </button>
-            )}
-          </div>
-        </div>
-      )}
-
       {/* 타이틀 헤더 */}
       <div className="relative">
         <div className="h-[20rem] w-full overflow-hidden">
           <Image fill sizes="100vw" className="object-cover" src="/test.jpg" alt="" />
         </div>
 
+        <div className="absolute right-[0.7rem] top-4 z-50 flex gap-1">
+          <button className={`${buttonStyle} text-red-600 bg-red-100`} onClick={onDeletePost}>
+            삭제
+          </button>
+          <button className={`${buttonStyle} text-green-700 bg-green-100`} onClick={onEdit}>
+            수정
+          </button>
+        </div>
+
         <div className="absolute top-0 left-0 flex flex-col justify-end items-start w-full h-[20rem] p-4 bg-black/40">
           <Chip text="K-POP" color="red" />
-          <h1
-            ref={titleRef}
-            className={`!mt-2 text-[1.4rem] text-white font-bold ${
-              isEditMode
-                ? 'rounded border border-dashed border-white/50 bg-black/30 p-1 outline-none'
-                : ''
-            }`}
-            contentEditable={isEditMode}
-            suppressContentEditableWarning
-          >
-            타이틀이 들어갑니다.
-          </h1>
-          <div className="flex justify-end w-full">
-            <span className="text-[0.8rem] text-white">2026-02-10</span>
+          <h1 className="!mt-2 text-[1.4rem] text-white font-bold">{title}</h1>
+          <div className="flex justify-between w-full mt-[1rem] text-[0.8rem] text-white">
+            <span className="flex items-center justify-start">
+              <UserRound color="#ffffff" className="h-[1rem]" />
+              {data.viewCount}
+            </span>
+            <span>{formatDate(data.publishedAt)}</span>
           </div>
         </div>
       </div>
 
       {/* 컨텐츠  */}
-      <div
-        ref={bodyRef}
-        className={`py-12 ${
-          isEditMode
-            ? 'rounded-xl border border-dashed border-gray-300 bg-gray-50 p-4 outline-none'
-            : ''
-        }`}
-        contentEditable={isEditMode}
-        suppressContentEditableWarning
-      >
-        {/* 컴포넌트로 빼기 */}
-        <p>안녕하세요</p>
+      <div className="py-12">
+        {/* Todo 컴포넌트로 빼기 */}
+        <p>{body}</p>
 
-        <p>오늘 소개해드릴 내용은 귀여운 고양이입니다.</p>
-
-        <p>반갑습니다.</p>
+        {/* 요약 */}
+        <div className="my-8 p-4 border border-amber-200 rounded-xl bg-amber-50">
+          <h3 className="text-amber-500 font-bold">오늘의 한국 한 스푼</h3>
+          <p className="mt-3 text-amber-500">{note}</p>
+        </div>
       </div>
 
       {/* 좋아요 */}
@@ -148,7 +81,7 @@ export function DetailPage() {
           aria-label="좋아요 버튼"
           aria-pressed={like}
           className="flex items-center justify-start gap-2"
-          onClick={onlike}
+          onClick={onLikeToggle}
         >
           <Heart className={like ? 'stroke-red-600' : 'stroke-black'} />
           <span
@@ -157,13 +90,13 @@ export function DetailPage() {
             35
           </span>
         </button>
-        <button type="button" aria-label="공유하기 버튼" onClick={() => setShowModal(true)}>
+        <button type="button" aria-label="공유하기 버튼" onClick={() => setShowShareModal(true)}>
           <Share2 />
         </button>
       </div>
 
       {/* 공유하기 모달 */}
-      <ShareModal show={showModal} onClick={onModal} />
+      <ShareModal show={showShareModal} onClick={onShareModal} />
 
       {/* 댓글 */}
       <div className="mt-4 py-4 px-2 border-t border-t-gray-200">
@@ -172,6 +105,14 @@ export function DetailPage() {
       <div>
         <CommentCard />
       </div>
+
+      {/* 게시글 삭제 확인 모달 */}
+      <ConfirmModal
+        show={showDeletePostModal}
+        text="정말 이 게시글을 삭제하시겠습니까?"
+        onConfirm={() => setShowDeletePostModal(false)}
+        onClose={onDeletePostModal}
+      />
     </div>
   );
 }
