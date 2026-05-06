@@ -1,17 +1,22 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState } from 'react';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { Chip } from '@/shared/ui';
 import Image from 'next/image';
 import { Heart, Share2 } from 'lucide-react';
 import { CommentCard, CommentForm, ShareModal } from '@/features/detail';
+import { RichTextEditor } from '@/shared/ui/rich-text-editor/RichTextEditor';
+
+const INITIAL_TITLE = '타이틀이 들어갑니다.';
+const INITIAL_BODY =
+  '<p>안녕하세요</p><p>오늘 소개해드릴 내용은 귀여운 고양이입니다.</p><p>반갑습니다.</p>';
 
 export function DetailPage() {
   const [like, setLike] = useState(false);
   const [showModal, setShowModal] = useState(false);
-  const titleRef = useRef<HTMLHeadingElement>(null);
-  const bodyRef = useRef<HTMLDivElement>(null);
+  const [editableTitle, setEditableTitle] = useState(INITIAL_TITLE);
+  const [editableBody, setEditableBody] = useState(INITIAL_BODY);
 
   const router = useRouter();
   const params = useParams();
@@ -33,8 +38,8 @@ export function DetailPage() {
   };
 
   const handleSave = async () => {
-    const newTitle = titleRef.current?.innerText?.trim();
-    const newBody = bodyRef.current?.innerText?.trim();
+    const newTitle = editableTitle.trim();
+    const newBody = editableBody.replaceAll(/<[^>]*>/g, '').trim();
 
     if (!newTitle || !newBody) {
       window.alert('제목과 본문을 모두 입력해주세요.');
@@ -104,18 +109,16 @@ export function DetailPage() {
 
         <div className="absolute top-0 left-0 flex flex-col justify-end items-start w-full h-[20rem] p-4 bg-black/40">
           <Chip text="K-POP" color="red" />
-          <h1
-            ref={titleRef}
-            className={`!mt-2 text-[1.4rem] text-white font-bold ${
-              isEditMode
-                ? 'rounded border border-dashed border-white/50 bg-black/30 p-1 outline-none'
-                : ''
-            }`}
-            contentEditable={isEditMode}
-            suppressContentEditableWarning
-          >
-            타이틀이 들어갑니다.
-          </h1>
+          {isEditMode ? (
+            <input
+              value={editableTitle}
+              onChange={(event) => setEditableTitle(event.target.value)}
+              className="!mt-2 w-full rounded border border-dashed border-white/50 bg-black/30 p-1 text-[1.4rem] font-bold text-white outline-none placeholder:text-white/60"
+              placeholder="제목을 입력하세요"
+            />
+          ) : (
+            <h1 className="!mt-2 text-[1.4rem] font-bold text-white">{editableTitle}</h1>
+          )}
           <div className="flex justify-end w-full">
             <span className="text-[0.8rem] text-white">2026-02-10</span>
           </div>
@@ -123,23 +126,21 @@ export function DetailPage() {
       </div>
 
       {/* 컨텐츠  */}
-      <div
-        ref={bodyRef}
-        className={`py-12 ${
-          isEditMode
-            ? 'rounded-xl border border-dashed border-gray-300 bg-gray-50 p-4 outline-none'
-            : ''
-        }`}
-        contentEditable={isEditMode}
-        suppressContentEditableWarning
-      >
-        {/* 컴포넌트로 빼기 */}
-        <p>안녕하세요</p>
-
-        <p>오늘 소개해드릴 내용은 귀여운 고양이입니다.</p>
-
-        <p>반갑습니다.</p>
-      </div>
+      {isEditMode ? (
+        <div className="py-12">
+          <RichTextEditor
+            value={editableBody}
+            onChange={setEditableBody}
+            minHeightClassName="min-h-[320px]"
+            placeholder="콘텐츠 본문"
+          />
+        </div>
+      ) : (
+        <div
+          className="rich-text-renderer py-12"
+          dangerouslySetInnerHTML={{ __html: editableBody }}
+        />
+      )}
 
       {/* 좋아요 */}
       <div className="flex justify-between items-center">
