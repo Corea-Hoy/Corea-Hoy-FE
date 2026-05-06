@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { Chip } from '@/shared/ui';
 import Image from 'next/image';
@@ -11,12 +11,21 @@ import { RichTextEditor } from '@/shared/ui/rich-text-editor/RichTextEditor';
 const INITIAL_TITLE = '타이틀이 들어갑니다.';
 const INITIAL_BODY =
   '<p>안녕하세요</p><p>오늘 소개해드릴 내용은 귀여운 고양이입니다.</p><p>반갑습니다.</p>';
+const SAVE_RETURN_DELAY_MS = 1200;
+
+type ToastState = {
+  title: string;
+  message: string;
+} | null;
 
 export function DetailPage() {
   const [like, setLike] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [editableTitle, setEditableTitle] = useState(INITIAL_TITLE);
   const [editableBody, setEditableBody] = useState(INITIAL_BODY);
+  const [toast, setToast] = useState<ToastState>(null);
+  const toastTimeoutRef = useRef<number | null>(null);
+  const saveReturnTimeoutRef = useRef<number | null>(null);
 
   const router = useRouter();
   const params = useParams();
@@ -37,6 +46,29 @@ export function DetailPage() {
     router.push(`/detail/${contentId || 'mock'}?mode=edit`);
   };
 
+  useEffect(() => {
+    return () => {
+      if (toastTimeoutRef.current) {
+        window.clearTimeout(toastTimeoutRef.current);
+      }
+      if (saveReturnTimeoutRef.current) {
+        window.clearTimeout(saveReturnTimeoutRef.current);
+      }
+    };
+  }, []);
+
+  function showToast(nextToast: Exclude<ToastState, null>) {
+    if (toastTimeoutRef.current) {
+      window.clearTimeout(toastTimeoutRef.current);
+    }
+
+    setToast(nextToast);
+    toastTimeoutRef.current = window.setTimeout(() => {
+      setToast(null);
+      toastTimeoutRef.current = null;
+    }, 3000);
+  }
+
   const handleSave = async () => {
     const newTitle = editableTitle.trim();
     const newBody = editableBody.replaceAll(/<[^>]*>/g, '').trim();
@@ -48,8 +80,13 @@ export function DetailPage() {
 
     try {
       await new Promise((resolve) => setTimeout(resolve, 300));
-      window.alert('수정되었습니다.');
-      router.push(`/detail/${contentId || 'mock'}`);
+      showToast({
+        title: '수정 완료',
+        message: '콘텐츠 수정이 완료되었습니다.',
+      });
+      saveReturnTimeoutRef.current = window.setTimeout(() => {
+        router.push(`/detail/${contentId || 'mock'}?admin=true`);
+      }, SAVE_RETURN_DELAY_MS);
     } catch {
       window.alert('수정 중 오류가 발생했습니다.');
     }
@@ -173,6 +210,30 @@ export function DetailPage() {
       <div>
         <CommentCard />
       </div>
+
+      {toast && (
+        <div
+          role="status"
+          aria-live="polite"
+          className="fixed top-20 left-1/2 z-[80] w-[calc(100vw-2rem)] max-w-sm -translate-x-1/2 rounded-2xl border border-gray-100 bg-white p-4 shadow-2xl sm:top-24"
+        >
+          <div className="flex items-center gap-3">
+            <Image
+              src="/images/characters/mascot-cheer.png"
+              alt=""
+              width={52}
+              height={46}
+              className="h-12 w-14 flex-shrink-0 object-contain"
+            />
+            <div className="min-w-0">
+              <p className="text-sm font-black text-black">{toast.title}</p>
+              <p className="mt-1 text-xs font-medium leading-relaxed text-gray-500">
+                {toast.message}
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
