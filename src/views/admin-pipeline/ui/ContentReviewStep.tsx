@@ -7,6 +7,7 @@ import {
   type TranslationTargetLanguageSelection,
 } from '../model/mockArticles';
 import { CATEGORIES_KO } from '@/entities/content';
+import { RichTextEditor } from '@/shared/ui';
 
 interface ContentReviewStepProps {
   article: AdminCandidateArticle;
@@ -121,15 +122,15 @@ export function ContentReviewStep({
               />
             </label>
 
-            <label className="block">
+            <div className="block">
               <span className="mb-2 block text-xs font-bold text-gray-500">본문</span>
-              <textarea
+              <RichTextEditor
                 value={content.body}
-                onChange={(event) => onChange({ ...content, body: event.target.value })}
-                rows={15}
-                className="w-full resize-y rounded-xl border border-gray-200 px-4 py-3 text-sm leading-7 outline-none transition-colors focus:border-black"
+                onChange={(body) => onChange({ ...content, body })}
+                minHeightClassName="min-h-[360px]"
+                placeholder="한국어 콘텐츠 본문"
               />
-            </label>
+            </div>
           </div>
         </div>
       </div>

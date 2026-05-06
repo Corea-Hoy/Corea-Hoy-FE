@@ -93,9 +93,10 @@ export function PreviewPublishStep({
               {categoryLabel}
             </span>
             <h3 className="mt-4 text-2xl font-black leading-tight text-black">{visibleTitle}</h3>
-            <p className="mt-5 whitespace-pre-wrap text-sm leading-7 text-gray-700">
-              {visibleBody}
-            </p>
+            <div
+              className="rich-text-renderer mt-5 text-sm leading-7 text-gray-700"
+              dangerouslySetInnerHTML={{ __html: visibleBody }}
+            />
           </article>
         </div>
 
@@ -106,7 +107,10 @@ export function PreviewPublishStep({
             </span>
           </div>
           <h3 className="text-3xl font-black leading-tight text-black">{visibleTitle}</h3>
-          <p className="mt-6 whitespace-pre-wrap text-sm leading-8 text-gray-700">{visibleBody}</p>
+          <div
+            className="rich-text-renderer mt-6 text-sm leading-8 text-gray-700"
+            dangerouslySetInnerHTML={{ __html: visibleBody }}
+          />
         </article>
       </div>
 

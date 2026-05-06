@@ -5,6 +5,7 @@ import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import {
   createMockGeneratedContent,
+  createParagraphHtml,
   createMockTranslatedContent,
   MOCK_ADMIN_ARTICLES,
   type GeneratedContent,
@@ -66,6 +67,14 @@ function getContentStepFromQuery(step: string | null): ContentStep | null {
   return null;
 }
 
+function getTextFromRichTextHtml(value: string) {
+  return value
+    .replaceAll(/<br\s*\/?>/gi, '\n')
+    .replaceAll(/<[^>]*>/g, '')
+    .replaceAll('&nbsp;', ' ')
+    .trim();
+}
+
 export function AdminPipelinePage() {
   const router = useRouter();
   const pathname = usePathname();
@@ -112,9 +121,9 @@ export function AdminPipelinePage() {
     const nextGeneratedContent: GeneratedContent = {
       title: draftContent.title,
       category: draftContent.category,
-      body: `${draftContent.title}
+      body: createParagraphHtml(`${draftContent.title}
 
-이 콘텐츠는 콘텐츠 관리에서 이어서 작업 중인 임시저장 항목입니다.`,
+이 콘텐츠는 콘텐츠 관리에서 이어서 작업 중인 임시저장 항목입니다.`),
     };
     const nextTranslatedContent = createMockTranslatedContent(nextGeneratedContent, 'es');
 
@@ -335,7 +344,9 @@ export function AdminPipelinePage() {
 
   function handleNextFromTranslation() {
     if (!translatedContent) return;
-    if (!translatedContent.esTitle.trim() || !translatedContent.esBody.trim()) return;
+    if (!translatedContent.esTitle.trim() || !getTextFromRichTextHtml(translatedContent.esBody)) {
+      return;
+    }
     setHasReviewedTranslation(true);
     setCurrentStep('preview');
     setSaveStatus('dirty');
@@ -371,7 +382,9 @@ export function AdminPipelinePage() {
 
   function handlePublish() {
     if (!generatedContent?.category) return;
-    if (!translatedContent?.esTitle?.trim() || !translatedContent?.esBody?.trim()) return;
+    if (!translatedContent?.esTitle?.trim() || !getTextFromRichTextHtml(translatedContent.esBody)) {
+      return;
+    }
 
     localStorage.removeItem(DRAFT_STORAGE_KEY);
     setIsPublished(true);

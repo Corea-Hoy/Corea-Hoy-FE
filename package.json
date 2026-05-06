@@ -19,6 +19,8 @@
   },
   "dependencies": {
     "@tanstack/react-query": "^5.99.2",
+    "@tiptap/react": "^3.22.5",
+    "@tiptap/starter-kit": "^3.22.5",
     "axios": "^1.15.2",
     "commitlint": "^20.5.0",
     "lucide-react": "^1.11.0",
