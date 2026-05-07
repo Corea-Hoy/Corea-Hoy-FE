@@ -8,7 +8,7 @@ interface Props {
 
 export function GoogleLoginButton({ onClick }: Props) {
   return (
-    <button className={styles['gsi-material-button']} onClick={onClick}>
+    <button type="button" className={styles['gsi-material-button']} onClick={onClick}>
       <div className={styles['gsi-material-button-state']}></div>
 
       <div className={styles['gsi-material-button-content-wrapper']}>

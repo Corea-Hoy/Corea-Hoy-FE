@@ -8,6 +8,10 @@ import { useUserStore } from '@/entities/user';
 import { CATEGORIES_KO, CATEGORIES_ES } from '@/entities/content';
 import LangDropdown from './LangDropdown';
 import { Search, User } from 'lucide-react';
+import { useLogout } from '@/features/auth';
+import { useState } from 'react';
+import { createPortal } from 'react-dom';
+import { ConfirmModal } from '@/shared/ui';
 
 interface LangDropdownProps {
   language: string;
@@ -24,7 +28,6 @@ interface DesktopHeaderProps {
   setSearchValue: (val: string) => void;
   handleSearch: (e: React.FormEvent) => void;
   langDropdownProps: LangDropdownProps;
-  handleLogout: () => void;
   isHome: boolean;
   isKo: boolean;
   activeCategory: string;
@@ -36,17 +39,19 @@ const DesktopHeader = ({
   setSearchValue,
   handleSearch,
   langDropdownProps,
-  handleLogout,
   isHome,
   isKo,
   activeCategory,
   handleCategoryClick,
 }: DesktopHeaderProps) => {
+  const [showModal, setShowModal] = useState(false);
   const pathname = usePathname();
   const t = useTranslations('nav');
   const { user, isLoggedIn } = useUserStore();
+  const { onLogout } = useLogout();
 
   return (
+    <>
     <nav className="hidden lg:block sticky top-0 z-50 bg-white shadow-sm">
       {/* Top bar: 3-column Google News style */}
       <div className="max-w-screen-xl mx-auto px-6 h-16 flex items-center gap-6 border-b border-gray-100">
@@ -110,7 +115,7 @@ const DesktopHeader = ({
                 </div>
               </Link>
               <button
-                onClick={handleLogout}
+                onClick={() => setShowModal(true)}
                 className="px-4 py-2 text-sm font-bold text-gray-600 border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors cursor-pointer"
               >
                 {t('logout')}
@@ -182,6 +187,19 @@ const DesktopHeader = ({
         </div>
       </div>
     </nav>
+      {showModal && createPortal(
+        <ConfirmModal
+          show={showModal}
+          text="로그아웃 하시겠어요?"
+          onConfirm={() => {
+            setShowModal(false);
+            onLogout();
+          }}
+          onClose={() => setShowModal(false)}
+        />,
+        document.body,
+      )}
+    </>
   );
 };
 
