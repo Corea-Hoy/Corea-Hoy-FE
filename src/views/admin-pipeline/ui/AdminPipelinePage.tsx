@@ -100,7 +100,6 @@ export function AdminPipelinePage() {
     koBody: translatedContent?.koBody ?? generatedContent?.body ?? '',
     translatedTitle: translatedContent?.esTitle ?? '',
     translatedBody: translatedContent?.esBody ?? '',
-    category: generatedContent?.category ?? '문화',
   };
 
   function openDraftContentInPipeline(contentId: string | null, contentStep: ContentStep | null) {
@@ -372,7 +371,6 @@ export function AdminPipelinePage() {
   }
 
   function handlePublish() {
-    if (!generatedContent?.category) return;
     if (!translatedContent?.esTitle?.trim() || !getTextFromRichTextHtml(translatedContent.esBody)) {
       return;
     }

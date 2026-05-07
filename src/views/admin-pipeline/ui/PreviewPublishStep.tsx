@@ -6,7 +6,6 @@ interface PreviewData {
   koBody: string;
   translatedTitle: string;
   translatedBody: string;
-  category: string;
 }
 
 interface PreviewPublishStepProps {
@@ -43,8 +42,6 @@ export function PreviewPublishStep({
       sessionStorage.setItem('coreahoy-preview-language', lang);
     }
   };
-  const hasCategory = previewData.category.trim().length > 0;
-  const categoryLabel = hasCategory ? previewData.category : '카테고리 미지정';
   const visibleTitle = previewLanguage === 'ko' ? previewData.koTitle : previewData.translatedTitle;
   const visibleBody = previewLanguage === 'ko' ? previewData.koBody : previewData.translatedBody;
   const sanitizedVisibleBody = useMemo(() => sanitizeRichTextHtml(visibleBody), [visibleBody]);
@@ -91,10 +88,7 @@ export function PreviewPublishStep({
       <div className="grid grid-cols-1 gap-5 lg:grid-cols-[360px_1fr]">
         <div className="rounded-[2rem] border-8 border-gray-900 bg-white p-4 shadow-sm">
           <article className="min-h-[520px] rounded-2xl bg-white">
-            <span className="inline-flex rounded-full bg-black px-3 py-1 text-[11px] font-black text-white">
-              {categoryLabel}
-            </span>
-            <h3 className="mt-4 text-2xl font-black leading-tight text-black">{visibleTitle}</h3>
+            <h3 className="text-2xl font-black leading-tight text-black">{visibleTitle}</h3>
             <div
               className="rich-text-renderer mt-5 text-sm leading-7 text-gray-700"
               dangerouslySetInnerHTML={{ __html: sanitizedVisibleBody }}
@@ -103,11 +97,6 @@ export function PreviewPublishStep({
         </div>
 
         <article className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
-          <div className="mb-4 flex flex-wrap items-center gap-2">
-            <span className="rounded-full bg-black px-3 py-1 text-xs font-black text-white">
-              {categoryLabel}
-            </span>
-          </div>
           <h3 className="text-3xl font-black leading-tight text-black">{visibleTitle}</h3>
           <div
             className="rich-text-renderer mt-6 text-sm leading-8 text-gray-700"
@@ -134,10 +123,10 @@ export function PreviewPublishStep({
         <button
           type="button"
           onClick={onPublish}
-          disabled={isPublished || !hasCategory}
+          disabled={isPublished}
           className="rounded-xl bg-black px-5 py-3 text-sm font-black text-white transition-opacity cursor-pointer hover:opacity-80 disabled:cursor-not-allowed disabled:opacity-30"
         >
-          {isPublished ? '발행 완료' : hasCategory ? '발행하기' : '카테고리 선택 필요'}
+          {isPublished ? '발행 완료' : '발행하기'}
         </button>
       </div>
     </section>
