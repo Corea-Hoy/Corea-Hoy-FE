@@ -4,6 +4,7 @@ import { Providers } from '@/app/providers';
 import { IntlProvider } from '@/app/providers/IntlProvider';
 import Footer from '@/widgets/footer/footer/Footer';
 import { Header } from '@/widgets/header/index';
+import { GoogleScript } from '@/shared/lib/google/GoogleScript';
 
 // ----------- Components -----------
 
@@ -20,11 +21,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="ko">
       <IntlProvider>
         <body className="bg-white text-black min-h-screen flex flex-col">
-          <Header />
-          <main className="flex-1 max-w-screen-xl mx-auto w-full px-4 pb-20 lg:pb-0">
-            <Providers>{children}</Providers>
-          </main>
-          <Footer />
+          <Providers>
+            <Header />
+            <main className="flex-1 max-w-screen-xl mx-auto w-full px-4 pb-20 lg:pb-0">
+              {children}
+            </main>
+            <Footer />
+          </Providers>
+          <GoogleScript />
         </body>
       </IntlProvider>
     </html>

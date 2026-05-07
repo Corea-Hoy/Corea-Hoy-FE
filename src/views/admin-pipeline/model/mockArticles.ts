@@ -1,3 +1,5 @@
+import { sanitizeRichTextHtml } from '@/shared/ui/rich-text-editor/sanitizeRichTextHtml';
+
 export interface AdminCandidateArticle {
   id: string;
   title: string;
@@ -67,15 +69,26 @@ export const MOCK_ADMIN_ARTICLES: AdminCandidateArticle[] = [
   },
 ];
 
+export function createParagraphHtml(value: string) {
+  const html = value
+    .split(/\n{2,}/)
+    .map((paragraph) => paragraph.trim())
+    .filter(Boolean)
+    .map((paragraph) => `<p>${paragraph.replaceAll('\n', '<br>')}</p>`)
+    .join('');
+
+  return sanitizeRichTextHtml(html);
+}
+
 export function createMockGeneratedContent(article: AdminCandidateArticle): GeneratedContent {
   return {
     title: `${article.title}: 라틴아메리카 독자를 위한 핵심 정리`,
     category: '',
-    body: `${article.summary}
+    body: createParagraphHtml(`${article.summary}
 
 이번 소식은 한국 콘텐츠와 사회적 흐름을 이해하는 데 중요한 단서가 됩니다. 단순한 화제성을 넘어, 한국 문화가 해외 독자에게 어떻게 전달되는지 보여주는 사례로 볼 수 있습니다.
 
-특히 라틴아메리카 독자에게는 사건 자체보다 그 배경과 맥락을 함께 설명하는 것이 중요합니다. 한국의 빠른 트렌드 변화, 팬덤 문화, 미디어 반응을 함께 살펴보면 이 이슈가 가진 의미를 더 입체적으로 이해할 수 있습니다.`,
+특히 라틴아메리카 독자에게는 사건 자체보다 그 배경과 맥락을 함께 설명하는 것이 중요합니다. 한국의 빠른 트렌드 변화, 팬덤 문화, 미디어 반응을 함께 살펴보면 이 이슈가 가진 의미를 더 입체적으로 이해할 수 있습니다.`),
   };
 }
 
@@ -98,7 +111,7 @@ export function createMockTranslatedContent(
       koTitle: content.title,
       koBody: content.body,
       esTitle: `[ES] ${content.title}`,
-      esBody: `[Traducido] ${content.body}`,
+      esBody: `<p>[Traducido]</p>${content.body}`,
     };
   }
 

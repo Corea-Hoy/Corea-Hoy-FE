@@ -1,4 +1,5 @@
 import { type TranslatedContent } from '../model/mockArticles';
+import { RichTextEditor } from '@/shared/ui/rich-text-editor/RichTextEditor';
 
 interface TranslationReviewStepProps {
   content: TranslatedContent;
@@ -37,15 +38,15 @@ export function TranslationReviewStep({
               className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm font-bold outline-none transition-colors focus:border-black"
             />
           </label>
-          <label className="mt-4 block">
+          <div className="mt-4 block">
             <span className="mb-2 block text-xs font-bold text-gray-500">본문</span>
-            <textarea
+            <RichTextEditor
               value={content.koBody}
-              onChange={(event) => onChange({ ...content, koBody: event.target.value })}
-              rows={14}
-              className="w-full resize-y rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm leading-7 outline-none transition-colors focus:border-black"
+              onChange={(koBody) => onChange({ ...content, koBody })}
+              minHeightClassName="min-h-[320px]"
+              placeholder="한국어 원문 본문"
             />
-          </label>
+          </div>
         </div>
 
         <div className="rounded-2xl border-2 border-black bg-white p-5 shadow-sm">
@@ -60,15 +61,15 @@ export function TranslationReviewStep({
               className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm font-bold outline-none transition-colors focus:border-black"
             />
           </label>
-          <label className="mt-4 block">
+          <div className="mt-4 block">
             <span className="mb-2 block text-xs font-bold text-gray-500">본문</span>
-            <textarea
+            <RichTextEditor
               value={content.esBody}
-              onChange={(event) => onChange({ ...content, esBody: event.target.value })}
-              rows={14}
-              className="w-full resize-y rounded-xl border border-gray-200 px-4 py-3 text-sm leading-7 outline-none transition-colors focus:border-black"
+              onChange={(esBody) => onChange({ ...content, esBody })}
+              minHeightClassName="min-h-[320px]"
+              placeholder="스페인어 번역문 본문"
             />
-          </label>
+          </div>
         </div>
       </div>
 

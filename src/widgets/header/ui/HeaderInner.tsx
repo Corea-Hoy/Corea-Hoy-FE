@@ -3,7 +3,6 @@
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { useLanguageStore } from '@/shared/model';
-import { useUserStore } from '@/entities/user';
 import { useState, useEffect, useRef } from 'react';
 import DesktopHeader from './DesktopHeader';
 import MobileHeader from './MobileHeader';
@@ -15,7 +14,6 @@ export function HeaderInner() {
   const searchParams = useSearchParams();
   const t = useTranslations('nav');
   const { language, setLanguage } = useLanguageStore();
-  const { logout } = useUserStore();
   const [isLangOpen, setIsLangOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const mobileHeaderRef = useRef<HTMLElement>(null);
@@ -72,11 +70,6 @@ export function HeaderInner() {
     setIsSearchOpen(false);
   }
 
-  function handleLogout() {
-    logout();
-    router.push('/');
-  }
-
   const langs: { code: 'ko' | 'es'; label: string }[] = [
     { code: 'ko', label: t('langKo') },
     { code: 'es', label: t('langEs') },
@@ -98,7 +91,6 @@ export function HeaderInner() {
         setSearchValue={setSearchValue}
         handleSearch={handleSearch}
         langDropdownProps={langDropdownProps}
-        handleLogout={handleLogout}
         isHome={isHome}
         isKo={isKo}
         activeCategory={activeCategory}

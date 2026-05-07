@@ -4,11 +4,12 @@ import styles from './GoogleLoginButton.module.css';
 
 interface Props {
   onClick: () => void;
+  disabled?: boolean;
 }
 
-export function GoogleLoginButton({ onClick }: Props) {
+export function GoogleLoginButton({ onClick, disabled }: Props) {
   return (
-    <button className={styles['gsi-material-button']} onClick={onClick}>
+    <button type="button" className={styles['gsi-material-button']} onClick={onClick} disabled={disabled}>
       <div className={styles['gsi-material-button-state']}></div>
 
       <div className={styles['gsi-material-button-content-wrapper']}>
