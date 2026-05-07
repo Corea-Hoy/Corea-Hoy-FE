@@ -111,7 +111,13 @@ const DesktopHeader = ({
                     className={`w-9 h-9 rounded-full flex items-center justify-center text-lg border-2 transition-all cursor-pointer shadow-sm hover:scale-105 overflow-hidden ${pathname === '/mypage' ? 'border-black' : 'border-transparent'}`}
                   >
                     {user.image ? (
-                      <Image src={user.image} alt={user.name} width={36} height={36} className="rounded-full" />
+                      <Image
+                        src={user.image}
+                        alt={user.name}
+                        width={36}
+                        height={36}
+                        className="rounded-full"
+                      />
                     ) : (
                       <span className="text-sm font-bold">{user.name?.[0] ?? '?'}</span>
                     )}
@@ -192,7 +198,8 @@ const DesktopHeader = ({
           </div>
         </div>
       </nav>
-      {typeof document !== 'undefined' && showModal &&
+      {typeof document !== 'undefined' &&
+        showModal &&
         createPortal(
           <ConfirmModal
             show={showModal}

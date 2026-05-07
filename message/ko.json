@@ -89,7 +89,10 @@
     "comments": "댓글",
     "commentPlaceholder": "댓글을 입력하세요...",
     "submit": "등록",
-    "firstComment": "첫 번째 댓글을 남겨보세요."
+    "firstComment": "첫 번째 댓글을 남겨보세요.",
+    "deleteCommentConfirm": "정말 이 댓글을 삭제하시겠습니까?",
+    "culturalNoteTitle": "오늘의 한국 한 스푼",
+    "noSummary": "요약이 존재하지 않습니다."
   },
   "feedback": {
     "title": "피드백",

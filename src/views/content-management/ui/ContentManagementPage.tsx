@@ -161,7 +161,7 @@ export function ContentManagementPage({ onContinueDraft }: ContentManagementPage
   function handleEditPublishedContent(content: ManagedContent) {
     const params = new URLSearchParams(window.location.search);
     params.set('mode', 'edit');
-    window.location.href = `/detail/${content.id}?${params.toString()}`;
+    window.location.href = `/article/${content.id}?${params.toString()}`;
   }
 
   function handleContinueDraft(content: ManagedContent) {
@@ -270,7 +270,7 @@ export function ContentManagementPage({ onContinueDraft }: ContentManagementPage
                       </button>
                     ) : (
                       <a
-                        href={`/detail/${content.id}?admin=true`}
+                        href={`/article/${content.id}?admin=true`}
                         className="block truncate outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-indigo-500 group-hover:underline"
                       >
                         {content.title}

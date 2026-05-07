@@ -153,7 +153,7 @@ export default function HotNewsCarousel({ isKo, articles }: HotNewsCarouselProps
             style={{ gap: `${GAP}px`, transform: `translateX(-${translateX}px)` }}
           >
             {hotItems.map((item) => (
-              <Link key={item.id} href={`/detail/${item.id}`} style={cardStyle}>
+              <Link key={item.id} href={`/article/${item.id}`} style={cardStyle}>
                 <div className="group h-[360px] sm:h-[400px] lg:h-[460px] bg-black rounded-2xl overflow-hidden transition-all duration-500  hover:-translate-y-2 relative flex flex-col">
                   {/* Card Background Image */}
                   <SafeImage

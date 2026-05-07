@@ -1,5 +1,5 @@
 import api from '@/shared/api';
-import { DetailRequest } from '@/entities/article/model/types';
+import { DetailRequest } from '@/entities/article';
 
 /**
  * 상세 뉴스 조회

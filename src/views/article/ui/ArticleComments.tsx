@@ -2,6 +2,7 @@ import { CommentCard, CommentForm } from '@/features/comment';
 import { ConfirmModal, NoData } from '@/shared/ui';
 import { useComments } from '@/features/comment/model/useComments';
 import { useUsersStore } from '@/entities/user';
+import { useTranslations } from 'next-intl';
 
 export function ArticleComments() {
   const {
@@ -10,15 +11,16 @@ export function ArticleComments() {
     setTextarea,
     editCommentId,
     showDeleteCommentModal,
-    setShowDeleteCommentModal,
     onEditComment,
     onCreateComment,
     onDeleteComment,
     onDeleteCommentModal,
     onUpdateComment,
+    onCloseDeleteCommentModal,
   } = useComments();
 
-  const { user, isLoggedIn } = useUsersStore();
+  const { isLoggedIn } = useUsersStore();
+  const t = useTranslations('content');
 
   return (
     <>
@@ -35,25 +37,25 @@ export function ArticleComments() {
         {commentsData.length >= 1 ? (
           commentsData.map((item) => (
             <CommentCard
-              key={item.id}
+              key={`${item.id}-${item.updatedAt}`}
               editCommentId={editCommentId}
               commentData={item}
-              onEdit={(id) => onEditComment(id)}
-              onDelete={(id) => onDeleteComment(id)}
-              onUpdateComment={(comment) => onUpdateComment(comment)}
+              onEdit={onEditComment}
+              onDelete={onDeleteComment}
+              onUpdateComment={onUpdateComment}
             />
           ))
         ) : (
-          <NoData text="이 기사에 대한 첫 의견을 남겨보세요." />
+          <NoData text={t('firstComment')} />
         )}
       </div>
 
       {/* 댓글 삭제 확인 모달 */}
       <ConfirmModal
         show={showDeleteCommentModal}
-        text="정말 이 댓글을 삭제하시겠습니까?"
+        text={t('deleteCommentConfirm')}
         onConfirm={onDeleteCommentModal}
-        onClose={() => setShowDeleteCommentModal(false)}
+        onClose={onCloseDeleteCommentModal}
       />
     </>
   );

@@ -31,7 +31,7 @@ export function LikedContentList({ contents, isKo }: LikedContentListProps) {
           {contents.map((c) => (
             <Link
               key={c.id}
-              href={`/detail/${c.id}`}
+              href={`/article/${c.id}`}
               className="group flex gap-3 border border-gray-100 bg-white rounded-xl overflow-hidden hover:border-black transition-all duration-200"
             >
               <div className="relative w-24 h-20 flex-shrink-0">

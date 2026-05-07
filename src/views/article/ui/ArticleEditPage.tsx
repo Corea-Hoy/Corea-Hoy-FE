@@ -1,4 +1,4 @@
-export function DetailEditPage() {
+export function ArticleEditPage() {
   const buttonStyle = 'h-[2rem] w-[3rem] text-base border leading-none rounded-xl';
   return (
     <div>

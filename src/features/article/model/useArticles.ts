@@ -1,11 +1,11 @@
 import { useState } from 'react';
 import { useParams } from 'next/navigation';
 import { useQuery } from '@tanstack/react-query';
-import { getNewsDetail } from '@/features/detail/api/detail.api';
 import { useLocale } from 'next-intl';
-import { getLocalizedField } from '@/features/detail/model/getLocalizedField';
+import { getLocalizedField } from '@/features/article/model/getLocalizedField';
+import { getNewsDetail } from '@/features/article/api/article.api';
 
-export const useDetails = () => {
+export const useArticles = () => {
   const [like, setLike] = useState(false);
   const [showShareModal, setShowShareModal] = useState(false);
   const [showDeletePostModal, setShowDeletePostModal] = useState(false);
@@ -14,20 +14,20 @@ export const useDetails = () => {
 
   const { id } = useParams<{ id: string }>();
 
-  const { data, isLoading, error } = useQuery({
+  const newsQuery = useQuery({
     queryKey: ['newsDetail', id],
     queryFn: () => getNewsDetail(id),
   });
 
-  const title = getLocalizedField(data, 'title', locale);
-  const body = getLocalizedField(data, 'body', locale);
-  const note = getLocalizedField(data, 'culturalNote', locale);
+  const title = getLocalizedField(newsQuery.data, 'title', locale);
+  const body = getLocalizedField(newsQuery.data, 'body', locale);
+  const note = getLocalizedField(newsQuery.data, 'culturalNote', locale);
 
   /**
    * 게시글 수정
    **/
   const onEdit = () => {
-    console.log('데이터', data);
+    console.log('데이터', newsQuery.data);
     console.log('내용', locale);
   };
 
@@ -63,9 +63,8 @@ export const useDetails = () => {
     title,
     body,
     note,
-    data,
-    isLoading,
-    error,
+    newsData: newsQuery.data,
+    newsIsLoading: newsQuery.isLoading,
     like,
     showShareModal,
     showDeletePostModal,

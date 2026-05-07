@@ -1,4 +1,5 @@
 import { useRef } from 'react';
+import { useTranslations } from 'next-intl';
 
 interface Props {
   value: string;
@@ -8,6 +9,7 @@ interface Props {
 
 export function CommentForm({ value, onChange, onClick }: Props) {
   const inputRef = useRef<HTMLTextAreaElement | null>(null);
+  const t = useTranslations('content');
 
   const handleInput = () => {
     const el = inputRef.current;
@@ -20,7 +22,7 @@ export function CommentForm({ value, onChange, onClick }: Props) {
   return (
     <div className="flex gap-2 items-end w-full h-auto py-[0.4rem] px-[0.6rem] rounded-xl bg-gray-100">
       <label htmlFor="commnet" className="sr-only">
-        댓글입력창
+        {t('comments')}
       </label>
       <textarea
         ref={inputRef}
@@ -34,15 +36,16 @@ export function CommentForm({ value, onChange, onClick }: Props) {
         overflow-hidden
         outline-none
       "
-        placeholder="댓글을 입력하세요"
+        placeholder={t('commentPlaceholder')}
         onInput={handleInput}
         onChange={onChange}
       />
       <button
-        className="block ml-auto min-w-fit max-h-[2.2rem] py-[0.2rem] px-[0.6rem] rounded-xl font-bold text-base text-white bg-black"
+        className="block ml-auto min-w-fit max-h-[2.2rem] py-[0.2rem] px-[0.6rem] rounded-xl font-bold text-base text-white bg-black disabled:opacity-30"
+        disabled={value.trim().length < 10}
         onClick={onClick}
       >
-        등록
+        {t('submit')}
       </button>
     </div>
   );

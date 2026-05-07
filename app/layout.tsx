@@ -5,6 +5,7 @@ import { IntlProvider } from '@/app/providers/IntlProvider';
 import Footer from '@/widgets/footer/footer/Footer';
 import { Header } from '@/widgets/header/index';
 import { GoogleScript } from '@/shared/lib/google/GoogleScript';
+import { Toaster } from 'sonner';
 
 // ----------- Components -----------
 
@@ -29,6 +30,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <Footer />
           </Providers>
           <GoogleScript />
+          <Toaster position="top-center" />
         </body>
       </IntlProvider>
     </html>

@@ -10,7 +10,6 @@ export function ArticleThumbnail() {
   const { title, newsData, onEdit, onDeletePost } = useArticles();
 
   const { user, isLoggedIn } = useUsersStore();
-  console.log(newsData);
 
   const buttonStyle = 'h-[2rem] w-[3rem] text-base border leading-none rounded-xl';
   return (
