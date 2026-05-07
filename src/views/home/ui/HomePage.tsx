@@ -1,12 +1,12 @@
 'use client';
 
-import { useRef, Suspense, useState, useMemo } from 'react';
+import { useRef, Suspense, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { useLanguageStore } from '@/shared/model';
-import { MOCK_CONTENTS, type Category, CATEGORIES_KO, CATEGORIES_ES } from '@/entities/content';
-import { ContentCard } from '@/entities/content';
+import { ContentCard, CATEGORIES_KO, CATEGORIES_ES } from '@/entities/content';
 import { HotNewsCarousel } from '@/widgets/hot-news';
+import { useHomeArticles } from '../model/useHomeArticles';
 
 const SORT_OPTIONS = [
   { id: 'latest' as const, ko: '최신순', es: 'Reciente' },
@@ -15,6 +15,7 @@ const SORT_OPTIONS = [
 
 function HomePageInner() {
   const t = useTranslations('home');
+
   const router = useRouter();
   const searchParams = useSearchParams();
   const { language } = useLanguageStore();
@@ -24,42 +25,16 @@ function HomePageInner() {
   const contentRef = useRef<HTMLDivElement>(null);
 
   const searchQuery = searchParams.get('q') ?? '';
-  const activeCategory = searchParams.get('category') as Category | null;
+  const activeCategory = searchParams.get('category');
   const isMainLanding = !activeCategory && !searchQuery;
 
-  const filtered = useMemo(
-    () =>
-      MOCK_CONTENTS.filter((c) => {
-        const title = isKo ? c.title : c.titleEs;
-        const summary = isKo ? c.summary : c.summaryEs;
-        return (
-          title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          summary.toLowerCase().includes(searchQuery.toLowerCase())
-        );
-      }),
-    [isKo, searchQuery],
-  );
+  const { sorted, latestArticles, hotArticles } = useHomeArticles({
+    searchQuery,
+    sortOrder,
+    isKo,
+  });
 
-  const sorted = useMemo(
-    () =>
-      [...filtered].sort((a, b) => {
-        if (sortOrder === 'popular') return b.likes - a.likes;
-        return new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime();
-      }),
-    [filtered, sortOrder],
-  );
-
-  // Top 4 by date for the editors' pick strip — unaffected by sort
-  const editorsPick = useMemo(
-    () =>
-      [...MOCK_CONTENTS]
-        .sort((a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime())
-        .slice(0, 4),
-    [],
-  );
-  const editorsPickIds = useMemo(() => new Set(editorsPick.map((c) => c.id)), [editorsPick]);
-
-  const categories: Category[] = ['K-POP', '드라마', '뉴스', '문화', '스포츠', '음식'];
+  const categories = ['K-POP', '드라마', '뉴스', '문화', '스포츠', '음식'];
 
   const handleCategoryViewMore = (cat: string) => {
     const params = new URLSearchParams();
@@ -70,10 +45,10 @@ function HomePageInner() {
   return (
     <div>
       {/* ── Hero (main landing only) ── */}
-      {isMainLanding && (
+      {isMainLanding && hotArticles.length > 0 && (
         <section className="bg-white py-6 sm:py-10 ">
           <div className="max-w-screen-xl mx-auto relative z-10">
-            <HotNewsCarousel isKo={isKo} />
+            <HotNewsCarousel isKo={isKo} articles={hotArticles} />
           </div>
         </section>
       )}
@@ -118,21 +93,21 @@ function HomePageInner() {
         {activeCategory ? (
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6">
             {sorted
-              .filter((c) => c.category === activeCategory)
+              .filter((c) => c.category.name === activeCategory)
               .map((content) => (
                 <ContentCard key={content.id} content={content} isKo={isKo} />
               ))}
           </div>
         ) : (
           <div className="flex flex-col gap-10 sm:gap-12">
-            {/* ── Editors' pick (top 4 by date, ignores sort) ── */}
+            {/* ── Latest News (top 4 by date) ── */}
             {!searchQuery && (
               <section>
                 <p className="text-xs font-black uppercase tracking-widest text-gray-400 mb-4">
-                  {isKo ? '편집자 추천' : 'Selección del editor'}
+                  {isKo ? '최신 뉴스' : 'Últimas noticias'}
                 </p>
                 <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6">
-                  {editorsPick.map((content) => (
+                  {latestArticles.map((content) => (
                     <ContentCard key={content.id} content={content} isKo={isKo} />
                   ))}
                 </div>
@@ -142,9 +117,7 @@ function HomePageInner() {
             {/* ── Category sections ── */}
             <div className="flex flex-col gap-10 lg:grid lg:grid-cols-2 lg:gap-x-12 lg:gap-y-14">
               {categories.map((cat) => {
-                const catItems = sorted
-                  .filter((c) => c.category === cat && !editorsPickIds.has(c.id))
-                  .slice(0, 2);
+                const catItems = sorted.filter((c) => c.category.name === cat).slice(0, 2);
                 if (catItems.length === 0) return null;
 
                 const catLabel = isKo

@@ -1,20 +1,26 @@
 'use client';
 
+import { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { type Content } from '../model/mock-data';
+// import { type Content } from '../model/mock-data';
 import { CATEGORY_ES_MAP } from '../model/categories';
 import { Chip } from '@/shared/ui/chip/Chip';
+import { Article } from '../model/articles';
 
 interface ContentCardProps {
-  content: Content;
+  content: Article;
   isKo: boolean;
 }
 
 export default function ContentCard({ content, isKo }: ContentCardProps) {
+  const [imgSrc, setImgSrc] = useState(
+    content.thumbnailUrl || '/images/characters/mascot-cheer.png',
+  );
+
   const categoryLabel = isKo
-    ? content.category
-    : (CATEGORY_ES_MAP[content.category] ?? content.category);
+    ? content.category.name
+    : (CATEGORY_ES_MAP[content.category.slug] ?? content.category.name);
 
   return (
     <Link
@@ -24,23 +30,24 @@ export default function ContentCard({ content, isKo }: ContentCardProps) {
       {/* Thumbnail */}
       <div className="relative h-36 sm:h-44 md:h-48 w-full">
         <Image
-          src={`https://picsum.photos/seed/${content.id}/600/400`}
-          alt={isKo ? content.title : content.titleEs}
+          src={imgSrc}
+          alt={isKo ? content.titleKo : content.titleEs}
           fill
           sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
           className="object-cover"
+          onError={() => setImgSrc('/images/characters/mascot-cheer.png')}
         />
         <div className="absolute top-2 left-2 sm:top-3 sm:left-3 z-10">
           <Chip
             text={categoryLabel}
             color={
-              content.category.toLowerCase().includes('k-pop')
+              content.category.slug.includes('kpop')
                 ? 'pink'
-                : content.category.toLowerCase().includes('drama')
+                : content.category.slug.includes('drama')
                   ? 'violet'
-                  : content.category.toLowerCase().includes('news')
+                  : content.category.slug.includes('news')
                     ? 'red'
-                    : content.category.toLowerCase().includes('society')
+                    : content.category.slug.includes('culture')
                       ? 'blue'
                       : 'gray'
             }
@@ -54,7 +61,7 @@ export default function ContentCard({ content, isKo }: ContentCardProps) {
           {content.publishedAt}
         </div> */}
         <h2 className="text-xs sm:text-sm md:text-base font-bold leading-snug text-black line-clamp-2">
-          {isKo ? content.title : content.titleEs}
+          {isKo ? content.titleKo : content.titleEs}
         </h2>
         {/* <p className="hidden sm:block text-xs sm:text-sm text-gray-500 line-clamp-2 leading-relaxed">
           {isKo ? content.summary : content.summaryEs}
