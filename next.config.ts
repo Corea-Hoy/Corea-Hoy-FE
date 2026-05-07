@@ -18,6 +18,10 @@ const nextConfig: NextConfig = {
         protocol: 'https',
         hostname: 'img.yna.co.kr',
       },
+      {
+        protocol: 'https',
+        hostname: 'pimg.mk.co.kr',
+      },
     ],
   },
 };

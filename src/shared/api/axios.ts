@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { ENV } from '@/shared/config/env';
+import { useUsersStore } from '@/entities/user';
 
 const api = axios.create({
   baseURL: ENV.API_URL,
@@ -7,12 +8,19 @@ const api = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
+  withCredentials: true, // 쿠키 자동 전송/수신
 });
 
 api.interceptors.response.use(
   (response) => response,
   (error) => {
     const url = error.config?.url ?? '';
+    if (error.response?.status === 401 && !url.includes('/api/auth')) {
+      useUsersStore.getState().logout();
+      if (typeof window !== 'undefined') {
+        window.location.href = '/login';
+      }
+    }
     return Promise.reject(error);
   },
 );

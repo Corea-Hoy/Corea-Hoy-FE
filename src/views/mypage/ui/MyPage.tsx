@@ -46,7 +46,7 @@ export function MyPage() {
   //   if (!mounted || !user) return null;
   // const currentUser = user;
 
-  const likedContents = MOCK_CONTENTS.filter((c) => currentUser.likedContentIds.includes(c.id));
+  const likedContents = MOCK_CONTENTS.filter((c) => currentUser.likedContentIds?.includes(c.id));
   const myComments = MOCK_CONTENTS.flatMap((c) =>
     c.comments
       .filter((cm) => cm.userId === MOCK_USER.id)
