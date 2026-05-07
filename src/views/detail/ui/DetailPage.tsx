@@ -1,17 +1,33 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { Chip } from '@/shared/ui';
 import Image from 'next/image';
 import { Heart, Share2 } from 'lucide-react';
 import { CommentCard, CommentForm, ShareModal } from '@/features/detail';
+import { getTextFromRichTextHtml } from '@/shared/ui/rich-text-editor/getTextFromRichTextHtml';
+import { RichTextEditor } from '@/shared/ui/rich-text-editor/RichTextEditor';
+import { sanitizeRichTextHtml } from '@/shared/ui/rich-text-editor/sanitizeRichTextHtml';
+
+const INITIAL_TITLE = '타이틀이 들어갑니다.';
+const INITIAL_BODY =
+  '<p>안녕하세요</p><p>오늘 소개해드릴 내용은 귀여운 고양이입니다.</p><p>반갑습니다.</p>';
+const SAVE_RETURN_DELAY_MS = 1200;
+
+type ToastState = {
+  title: string;
+  message: string;
+} | null;
 
 export function DetailPage() {
   const [like, setLike] = useState(false);
   const [showModal, setShowModal] = useState(false);
-  const titleRef = useRef<HTMLHeadingElement>(null);
-  const bodyRef = useRef<HTMLDivElement>(null);
+  const [editableTitle, setEditableTitle] = useState(INITIAL_TITLE);
+  const [editableBody, setEditableBody] = useState(INITIAL_BODY);
+  const [toast, setToast] = useState<ToastState>(null);
+  const toastTimeoutRef = useRef<number | null>(null);
+  const saveReturnTimeoutRef = useRef<number | null>(null);
 
   const router = useRouter();
   const params = useParams();
@@ -19,6 +35,7 @@ export function DetailPage() {
   const contentId = params?.id as string | undefined;
   const isEditMode = searchParams?.get('mode') === 'edit';
   const isAdminView = searchParams?.get('admin') === 'true' || isEditMode;
+  const sanitizedBody = sanitizeRichTextHtml(editableBody);
 
   const onModal = () => {
     setShowModal(false);
@@ -32,9 +49,32 @@ export function DetailPage() {
     router.push(`/detail/${contentId || 'mock'}?mode=edit`);
   };
 
+  useEffect(() => {
+    return () => {
+      if (toastTimeoutRef.current) {
+        window.clearTimeout(toastTimeoutRef.current);
+      }
+      if (saveReturnTimeoutRef.current) {
+        window.clearTimeout(saveReturnTimeoutRef.current);
+      }
+    };
+  }, []);
+
+  function showToast(nextToast: Exclude<ToastState, null>) {
+    if (toastTimeoutRef.current) {
+      window.clearTimeout(toastTimeoutRef.current);
+    }
+
+    setToast(nextToast);
+    toastTimeoutRef.current = window.setTimeout(() => {
+      setToast(null);
+      toastTimeoutRef.current = null;
+    }, 3000);
+  }
+
   const handleSave = async () => {
-    const newTitle = titleRef.current?.innerText?.trim();
-    const newBody = bodyRef.current?.innerText?.trim();
+    const newTitle = editableTitle.trim();
+    const newBody = getTextFromRichTextHtml(editableBody);
 
     if (!newTitle || !newBody) {
       window.alert('제목과 본문을 모두 입력해주세요.');
@@ -43,8 +83,13 @@ export function DetailPage() {
 
     try {
       await new Promise((resolve) => setTimeout(resolve, 300));
-      window.alert('수정되었습니다.');
-      router.push(`/detail/${contentId || 'mock'}`);
+      showToast({
+        title: '수정 완료',
+        message: '콘텐츠 수정이 완료되었습니다.',
+      });
+      saveReturnTimeoutRef.current = window.setTimeout(() => {
+        router.push(`/detail/${contentId || 'mock'}?admin=true`);
+      }, SAVE_RETURN_DELAY_MS);
     } catch {
       window.alert('수정 중 오류가 발생했습니다.');
     }
@@ -104,18 +149,16 @@ export function DetailPage() {
 
         <div className="absolute top-0 left-0 flex flex-col justify-end items-start w-full h-[20rem] p-4 bg-black/40">
           <Chip text="K-POP" color="red" />
-          <h1
-            ref={titleRef}
-            className={`!mt-2 text-[1.4rem] text-white font-bold ${
-              isEditMode
-                ? 'rounded border border-dashed border-white/50 bg-black/30 p-1 outline-none'
-                : ''
-            }`}
-            contentEditable={isEditMode}
-            suppressContentEditableWarning
-          >
-            타이틀이 들어갑니다.
-          </h1>
+          {isEditMode ? (
+            <input
+              value={editableTitle}
+              onChange={(event) => setEditableTitle(event.target.value)}
+              className="!mt-2 w-full rounded border border-dashed border-white/50 bg-black/30 p-1 text-[1.4rem] font-bold text-white outline-none placeholder:text-white/60"
+              placeholder="제목을 입력하세요"
+            />
+          ) : (
+            <h1 className="!mt-2 text-[1.4rem] font-bold text-white">{editableTitle}</h1>
+          )}
           <div className="flex justify-end w-full">
             <span className="text-[0.8rem] text-white">2026-02-10</span>
           </div>
@@ -123,23 +166,21 @@ export function DetailPage() {
       </div>
 
       {/* 컨텐츠  */}
-      <div
-        ref={bodyRef}
-        className={`py-12 ${
-          isEditMode
-            ? 'rounded-xl border border-dashed border-gray-300 bg-gray-50 p-4 outline-none'
-            : ''
-        }`}
-        contentEditable={isEditMode}
-        suppressContentEditableWarning
-      >
-        {/* 컴포넌트로 빼기 */}
-        <p>안녕하세요</p>
-
-        <p>오늘 소개해드릴 내용은 귀여운 고양이입니다.</p>
-
-        <p>반갑습니다.</p>
-      </div>
+      {isEditMode ? (
+        <div className="py-12">
+          <RichTextEditor
+            value={editableBody}
+            onChange={setEditableBody}
+            minHeightClassName="min-h-[320px]"
+            placeholder="콘텐츠 본문"
+          />
+        </div>
+      ) : (
+        <div
+          className="rich-text-renderer py-12"
+          dangerouslySetInnerHTML={{ __html: sanitizedBody }}
+        />
+      )}
 
       {/* 좋아요 */}
       <div className="flex justify-between items-center">
@@ -172,6 +213,30 @@ export function DetailPage() {
       <div>
         <CommentCard />
       </div>
+
+      {toast && (
+        <div
+          role="status"
+          aria-live="polite"
+          className="fixed top-20 left-1/2 z-[80] w-[calc(100vw-2rem)] max-w-sm -translate-x-1/2 rounded-2xl border border-gray-100 bg-white p-4 shadow-2xl sm:top-24"
+        >
+          <div className="flex items-center gap-3">
+            <Image
+              src="/images/characters/mascot-cheer.png"
+              alt=""
+              width={52}
+              height={46}
+              className="h-12 w-14 flex-shrink-0 object-contain"
+            />
+            <div className="min-w-0">
+              <p className="text-sm font-black text-black">{toast.title}</p>
+              <p className="mt-1 text-xs font-medium leading-relaxed text-gray-500">
+                {toast.message}
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
