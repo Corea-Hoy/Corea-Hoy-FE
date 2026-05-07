@@ -4,12 +4,12 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { useTranslations } from 'next-intl';
-import { useUserStore } from '@/entities/user';
+import { useUsersStore } from '@/entities/user';
 import { CATEGORIES_KO, CATEGORIES_ES } from '@/entities/content';
 import { LogOut, Search, User } from 'lucide-react';
 import LangDropdown from './LangDropdown';
 import { useLogout } from '@/features/auth';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { ConfirmModal } from '@/shared/ui';
 
@@ -54,7 +54,7 @@ const MobileHeader = ({
 
   const pathname = usePathname();
   const t = useTranslations('nav');
-  const { isLoggedIn } = useUserStore();
+  const { isLoggedIn } = useUsersStore();
   const { onLogout } = useLogout();
 
   return (
@@ -95,7 +95,7 @@ const MobileHeader = ({
                 <LangDropdown align="right" {...langDropdownProps} />
                 {isLoggedIn ? (
                   <>
-                    <button type="button" onClick={() => setShowModal(true)}>
+                    <button type="button" aria-label="로그아웃" onClick={() => setShowModal(true)}>
                       <LogOut color="#4a5565" />
                     </button>
                   </>
@@ -172,11 +172,11 @@ const MobileHeader = ({
           </div>
         )}
       </header>
-      {showModal &&
+      {typeof document !== 'undefined' && showModal &&
         createPortal(
           <ConfirmModal
             show={showModal}
-            text="로그아웃 하시겠어요?"
+            text={isKo ? '로그아웃 하시겠어요?' : '¿Cerrar sesión?'}
             onConfirm={() => {
               setShowModal(false);
               onLogout();

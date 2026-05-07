@@ -15,7 +15,7 @@ interface UserState {
   logout: () => void;
 }
 
-export const useUserStore = create<UserState>()((set) => ({
+export const useUsersStore = create<UserState>()((set) => ({
   user: null,
   isLoggedIn: false,
   login: (user) => set({ user, isLoggedIn: true }),

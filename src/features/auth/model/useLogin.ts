@@ -2,11 +2,11 @@ import { useRouter } from 'next/navigation';
 import { useMutation } from '@tanstack/react-query';
 import { googleLogin } from '@/features/auth/api/auth.api';
 import { initGoogleAuth } from '@/shared/lib/google/googleAuth';
-import { useUserStore } from '@/entities/user/model/user.store';
+import { useUsersStore } from '@/entities/user';
 
 export const useLogin = () => {
   const router = useRouter();
-  const login = useUserStore((state) => state.login);
+  const login = useUsersStore((state) => state.login);
 
   const { mutate, isPending } = useMutation({
     mutationFn: googleLogin,
@@ -23,6 +23,8 @@ export const useLogin = () => {
    * 구글 로그인
    **/
   const onGoogleLogin = () => {
+    if (isPending) return;
+
     if (!window.google?.accounts) {
       console.error('Google SDK not loaded');
       return;

@@ -4,7 +4,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useTranslations } from 'next-intl';
-import { useUserStore } from '@/entities/user';
+import { useUsersStore } from '@/entities/user';
 import { CATEGORIES_KO, CATEGORIES_ES } from '@/entities/content';
 import LangDropdown from './LangDropdown';
 import { Search, User } from 'lucide-react';
@@ -47,7 +47,7 @@ const DesktopHeader = ({
   const [showModal, setShowModal] = useState(false);
   const pathname = usePathname();
   const t = useTranslations('nav');
-  const { user, isLoggedIn } = useUserStore();
+  const { user, isLoggedIn } = useUsersStore();
   const { onLogout } = useLogout();
 
   return (
@@ -108,10 +108,13 @@ const DesktopHeader = ({
               <div className="flex items-center gap-3">
                 <Link href="/mypage" aria-label={t('mypage')}>
                   <div
-                    className={`w-9 h-9 rounded-full flex items-center justify-center text-lg border-2 transition-all cursor-pointer shadow-sm hover:scale-105 ${pathname === '/mypage' ? 'border-black' : 'border-transparent'}`}
-                    style={{ backgroundColor: user.avatarColor }}
+                    className={`w-9 h-9 rounded-full flex items-center justify-center text-lg border-2 transition-all cursor-pointer shadow-sm hover:scale-105 overflow-hidden ${pathname === '/mypage' ? 'border-black' : 'border-transparent'}`}
                   >
-                    {user.avatarEmoji}
+                    {user.image ? (
+                      <Image src={user.image} alt={user.name} width={36} height={36} className="rounded-full" />
+                    ) : (
+                      <span className="text-sm font-bold">{user.name?.[0] ?? '?'}</span>
+                    )}
                   </div>
                 </Link>
                 <button
@@ -189,11 +192,11 @@ const DesktopHeader = ({
           </div>
         </div>
       </nav>
-      {showModal &&
+      {typeof document !== 'undefined' && showModal &&
         createPortal(
           <ConfirmModal
             show={showModal}
-            text="로그아웃 하시겠어요?"
+            text={isKo ? '로그아웃 하시겠어요?' : '¿Cerrar sesión?'}
             onConfirm={() => {
               setShowModal(false);
               onLogout();

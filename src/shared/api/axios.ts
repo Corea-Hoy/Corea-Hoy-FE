@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { ENV } from '@/shared/config/env';
-import { useUserStore } from '@/entities/user';
+import { useUsersStore } from '@/entities/user';
 
 const api = axios.create({
   baseURL: ENV.API_URL,
@@ -16,8 +16,10 @@ api.interceptors.response.use(
   (error) => {
     const url = error.config?.url ?? '';
     if (error.response?.status === 401 && !url.includes('/api/auth')) {
-      useUserStore.getState().logout();
-      window.location.href = '/login';
+      useUsersStore.getState().logout();
+      if (typeof window !== 'undefined') {
+        window.location.href = '/login';
+      }
     }
     return Promise.reject(error);
   },
