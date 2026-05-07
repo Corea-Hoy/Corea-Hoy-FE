@@ -6,7 +6,6 @@ import {
   type GeneratedContent,
   type TranslationTargetLanguageSelection,
 } from '../model/mockArticles';
-import { CATEGORIES_KO } from '@/entities/content';
 import { RichTextEditor } from '@/shared/ui/rich-text-editor/RichTextEditor';
 
 interface ContentReviewStepProps {
@@ -33,7 +32,7 @@ export function ContentReviewStep({
   onPrev,
 }: ContentReviewStepProps) {
   const originalText = createMockArticleOriginalText(article);
-  const canGoNext = Boolean(content.category && targetLanguage);
+  const canGoNext = Boolean(targetLanguage);
 
   return (
     <section className="animate-fade-in">
@@ -75,23 +74,7 @@ export function ContentReviewStep({
               </p>
             </div>
 
-            <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 xl:w-[320px] xl:flex-shrink-0">
-              <label>
-                <span className="mb-1 block text-[11px] font-bold text-gray-500">카테고리</span>
-                <select
-                  value={content.category}
-                  onChange={(event) => onChange({ ...content, category: event.target.value })}
-                  className="w-full rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm font-bold outline-none transition-colors cursor-pointer focus:border-black"
-                >
-                  <option value="">선택 없음</option>
-                  {CATEGORIES_KO.filter((category) => category !== '전체').map((category) => (
-                    <option key={category} value={category}>
-                      {category}
-                    </option>
-                  ))}
-                </select>
-              </label>
-
+            <div className="xl:w-40 xl:flex-shrink-0">
               <label>
                 <span className="mb-1 block text-[11px] font-bold text-gray-500">번역 언어</span>
                 <select
@@ -162,7 +145,7 @@ export function ContentReviewStep({
                   className="h-11 w-11 flex-shrink-0 object-contain"
                 />
                 <p className="text-xs font-bold leading-relaxed text-gray-700">
-                  카테고리와 번역할 언어를 모두 선택해주세요.
+                  번역할 언어를 선택해주세요.
                 </p>
               </div>
             </div>
