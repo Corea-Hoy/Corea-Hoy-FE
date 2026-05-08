@@ -16,7 +16,13 @@ export const useAuthInit = () => {
 
   useEffect(() => {
     if (data?.data?.user && !isLoggedIn) {
-      login(data.data.user);
+      login({
+        id: data.data.user.id,
+        email: data.data.user.email,
+        name: data.data.user.nickname,
+        role: data.data.user.role,
+        image: data.data.user.avatarEmoji || data.data.user.image,
+      });
     }
   }, [data, login, isLoggedIn]);
 };

@@ -3,7 +3,8 @@
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import { usePathname } from 'next/navigation';
-import { useUserStore } from '@/entities/user';
+// import { useUserStore } from '@/entities/user';
+import { useUsersStore } from '@/entities/user';
 
 interface MobileTopBarProps {
   isKo: boolean;
@@ -12,7 +13,7 @@ interface MobileTopBarProps {
 const MobileTopBar = ({ isKo }: MobileTopBarProps) => {
   const pathname = usePathname();
   const t = useTranslations('nav');
-  const { isLoggedIn } = useUserStore();
+  const { isLoggedIn } = useUsersStore();
 
   const bottomTabs = [
     { href: '/', label: t('home'), icon: '🏠' },

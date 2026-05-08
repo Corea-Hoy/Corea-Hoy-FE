@@ -3,18 +3,20 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTranslations, useLocale } from 'next-intl';
-import { useUserStore, AVATAR_PRESETS } from '@/entities/user';
+import { useUsersStore, AVATAR_PRESETS } from '@/entities/user';
 import { MOCK_CONTENTS, MOCK_USER } from '@/entities/content/model/mock-data';
 
 import { ProfileCard } from './ProfileCard';
 import { LikedContentList } from './LikedContentList';
 import { MyCommentsList } from './MyCommentsList';
+import { useLogout } from '@/features/auth';
 
 export function MyPage() {
   const router = useRouter();
   const t = useTranslations('mypage');
   const locale = useLocale();
-  const { user, updateProfile, logout, deleteAccount } = useUserStore();
+  const { user, updateProfile } = useUsersStore();
+  const { onLogout } = useLogout();
   const isKo = locale === 'ko';
 
   const [mounted, setMounted] = useState(false);
@@ -35,9 +37,8 @@ export function MyPage() {
     id: 'mock-id',
     name: '테스트 유저',
     email: 'test@example.com',
-    avatarEmoji: '',
-    avatarColor: '#ffd0a8',
-    likedContentIds: ['c1', 'c3'],
+    image: '🐨',
+    likedContentIds: [],
   };
 
   if (!mounted) return null;
@@ -56,7 +57,8 @@ export function MyPage() {
   function startEdit() {
     setTempNickname(currentUser.name);
     setTempAvatar(
-      AVATAR_PRESETS.find((p) => p.emoji === currentUser.avatarEmoji) ?? AVATAR_PRESETS[0],
+      AVATAR_PRESETS.find((p) => p.id === currentUser.image || p.emoji === currentUser.image) ??
+        AVATAR_PRESETS[0],
     );
     setNicknameError('');
     setEditing(true);
@@ -68,17 +70,16 @@ export function MyPage() {
       setNicknameError(t('nicknameError'));
       return;
     }
-    updateProfile(trimmed, tempAvatar.emoji, tempAvatar.color);
+    updateProfile(trimmed, tempAvatar.id);
     setEditing(false);
   }
 
   function handleLogout() {
-    logout();
-    router.push('/');
+    onLogout();
   }
 
   function handleDeleteAccount() {
-    deleteAccount();
+    // deleteAccount();
     router.push('/');
   }
 

@@ -22,6 +22,16 @@ const nextConfig: NextConfig = {
         protocol: 'https',
         hostname: 'pimg.mk.co.kr',
       },
+      {
+        protocol: 'https',
+        hostname: '**.co.kr',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'lh3.googleusercontent.com',
+        pathname: '/**',
+      },
     ],
   },
 };
