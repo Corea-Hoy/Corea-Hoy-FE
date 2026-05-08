@@ -1,3 +1,5 @@
+'use client';
+
 import { useArticles } from '@/features/article/model/useArticles';
 import DOMPurify from 'isomorphic-dompurify';
 import { useTranslations } from 'next-intl';

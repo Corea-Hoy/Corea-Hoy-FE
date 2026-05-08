@@ -1,7 +1,7 @@
 declare global {
   interface Window {
     __googleSDKReady?: boolean;
-    google: {
+    google?: {
       accounts: {
         id: {
           initialize: (config: {
@@ -12,7 +12,7 @@ declare global {
         };
       };
     };
-    Kakao: {
+    Kakao?: {
       isInitialized: () => boolean;
       init: (key: string) => void;
       Share: {

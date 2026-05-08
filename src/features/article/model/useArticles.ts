@@ -6,6 +6,7 @@ import { getLocalizedField, Locale } from '@/features/article/model/getLocalized
 import { getNewsDetail, toggleArticleLike } from '@/features/article/api/article.api';
 import { toast } from 'sonner';
 import { DetailRequest } from '@/entities/article';
+import { useUsersStore } from '@/entities/user';
 
 export const useArticles = () => {
   const [showShareModal, setShowShareModal] = useState(false);
@@ -15,6 +16,8 @@ export const useArticles = () => {
 
   const { id } = useParams<{ id: string }>();
   const queryClient = useQueryClient();
+  const likedContentIds = useUsersStore((state) => state.likedContentIds);
+  const toggleLike = useUsersStore((state) => state.toggleLike);
 
   const newsQuery = useQuery({
     queryKey: ['newsDetail', id],
@@ -28,9 +31,11 @@ export const useArticles = () => {
 
       const previousData = queryClient.getQueryData<DetailRequest>(['newsDetail', id]);
 
+      const isLiked = likedContentIds.includes(id);
+      toggleLike(id);
+
       queryClient.setQueryData<DetailRequest>(['newsDetail', id], (old) => {
         if (!old) return old;
-        const isLiked = old._count.likes > 0;
         return {
           ...old,
           _count: {
@@ -45,6 +50,7 @@ export const useArticles = () => {
     onError: (_, __, context) => {
       if (context) {
         queryClient.setQueryData(['newsDetail', id], context.previousData);
+        toggleLike(id); // 롤백
       }
       toast.error('좋아요 처리에 실패했습니다.');
     },
@@ -53,7 +59,7 @@ export const useArticles = () => {
     },
   });
 
-  const like = (newsQuery.data?._count.likes ?? 0) > 0;
+  const like = likedContentIds.includes(id);
   const likeCount = newsQuery.data?._count.likes ?? 0;
   const title = getLocalizedField(newsQuery.data, 'title', locale);
   const body = getLocalizedField(newsQuery.data, 'body', locale);
@@ -62,10 +68,7 @@ export const useArticles = () => {
   /**
    * 게시글 수정
    **/
-  const onEdit = () => {
-    console.log('데이터', newsQuery.data);
-    console.log('내용', locale);
-  };
+  const onEdit = () => {};
 
   /**
    * 게시글 삭제
@@ -77,9 +80,7 @@ export const useArticles = () => {
   /**
    * 게시글 삭제 확인
    **/
-  const onDeletePostModal = () => {
-    console.log('삭제 모달');
-  };
+  const onDeletePostModal = () => {};
 
   /**
    *
