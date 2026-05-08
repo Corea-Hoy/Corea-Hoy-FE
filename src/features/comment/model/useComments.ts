@@ -11,6 +11,7 @@ import { toast } from 'sonner';
 
 export const useComments = () => {
   const [textarea, setTextarea] = useState('');
+  const [editTextarea, setEditTextarea] = useState('');
   const [showDeleteCommentModal, setShowDeleteCommentModal] = useState(false);
   const [editCommentId, setEditCommentId] = useState<string | null>(null);
   const [deleteCommentId, setDeleteCommentId] = useState<string | null>(null);
@@ -69,8 +70,9 @@ export const useComments = () => {
    * 댓글 수정 버튼 클릭 시 edit input 활성화
    * @param id
    **/
-  const onEditComment = (id: string) => {
+  const onEditComment = (id: string, body: string) => {
     setEditCommentId(id);
+    setEditTextarea(body);
   };
 
   /**
@@ -115,6 +117,8 @@ export const useComments = () => {
     setTextarea,
     showDeleteCommentModal,
     editCommentId,
+    editTextarea,
+    setEditTextarea,
     setShowDeleteCommentModal,
     setEditCommentId,
     onCreateComment,

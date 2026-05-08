@@ -1,8 +1,8 @@
-type Locale = 'ko' | 'es';
+export type Locale = 'ko' | 'es';
 
-export const getLocalizedField = (data: Record<string, string>, field: string, locale: Locale) => {
+export const getLocalizedField = (data: Record<string, unknown> | undefined, field: string, locale: Locale): string | undefined => {
   if (!data) return;
 
   const suffix = locale === 'ko' ? 'Ko' : 'Es';
-  return data[`${field}${suffix}`];
+  return data[`${field}${suffix}`] as string;
 };

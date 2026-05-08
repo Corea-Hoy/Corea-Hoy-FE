@@ -10,6 +10,8 @@ export function ArticleComments() {
     textarea,
     setTextarea,
     editCommentId,
+    editTextarea,
+    setEditTextarea,
     showDeleteCommentModal,
     onEditComment,
     onCreateComment,
@@ -37,8 +39,10 @@ export function ArticleComments() {
         {commentsData.length >= 1 ? (
           commentsData.map((item) => (
             <CommentCard
-              key={`${item.id}-${item.updatedAt}`}
+              key={item.id}
               editCommentId={editCommentId}
+              editTextarea={editTextarea}
+              setEditTextarea={setEditTextarea}
               commentData={item}
               onEdit={onEditComment}
               onDelete={onDeleteComment}

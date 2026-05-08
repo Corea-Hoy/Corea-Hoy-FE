@@ -5,18 +5,21 @@ import { CommentsResponse } from '@/entities/comment/model/types';
 import { formatDate } from '@/shared/utils';
 import { useUsersStore } from '@/entities/user';
 import { CommentForm } from '@/features/comment';
-import { useState } from 'react';
 
 interface Props {
   editCommentId: string | null;
+  editTextarea: string;
+  setEditTextarea: (value: string) => void;
   commentData: CommentsResponse;
-  onEdit: (id: string) => void;
+  onEdit: (id: string, body: string) => void;
   onDelete: (id: string) => void;
   onUpdateComment: (textarea: string) => void;
 }
 
 export function CommentCard({
   editCommentId,
+  editTextarea,
+  setEditTextarea,
   commentData,
   onEdit,
   onDelete,
@@ -24,8 +27,6 @@ export function CommentCard({
 }: Props) {
   const isEdit = editCommentId === commentData.id;
   const { user, isLoggedIn } = useUsersStore();
-
-  const [textarea, setTextarea] = useState(commentData.body);
 
   return (
     <div className="py-3 px-4 border-b border-gray-100">
@@ -40,7 +41,7 @@ export function CommentCard({
             >
               <Trash2 className="h-[1rem] stroke-red-400" />
             </button>
-            <button type="button" aria-label="comment edit" onClick={() => onEdit(commentData.id)}>
+            <button type="button" aria-label="comment edit" onClick={() => onEdit(commentData.id, commentData.body)}>
               <Pencil className="h-[1rem] stroke-blue-400" />
             </button>
           </div>
@@ -51,9 +52,9 @@ export function CommentCard({
       <div>
         {isEdit ? (
           <CommentForm
-            value={textarea}
-            onChange={(e) => setTextarea(e.target.value)}
-            onClick={() => onUpdateComment(textarea)}
+            value={editTextarea}
+            onChange={(e) => setEditTextarea(e.target.value)}
+            onClick={() => onUpdateComment(editTextarea)}
           />
         ) : (
           <p className="mt-3 text-[0.9rem]">{commentData.body}</p>

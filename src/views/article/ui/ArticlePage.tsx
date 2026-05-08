@@ -13,11 +13,9 @@ export function ArticlePage() {
   const {
     newsData,
     newsIsLoading,
-    showShareModal,
     showDeletePostModal,
     setShowDeletePostModal,
     onDeletePostModal,
-    onShareModal,
   } = useArticles();
 
   if (newsIsLoading) return <Loading />;
@@ -37,9 +35,6 @@ export function ArticlePage() {
       {/* 댓글 */}
       <ArticleComments />
 
-      {/* 공유하기 모달 */}
-      <ShareModal show={showShareModal} onClick={onShareModal} />
-
       {/* 게시글 삭제 확인 모달 */}
       <ConfirmModal
         show={showDeletePostModal}
@@ -47,7 +42,6 @@ export function ArticlePage() {
         onConfirm={() => setShowDeletePostModal(false)}
         onClose={onDeletePostModal}
       />
-
     </div>
   );
 }

@@ -1,24 +1,60 @@
 import { useState } from 'react';
 import { useParams } from 'next/navigation';
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useLocale } from 'next-intl';
-import { getLocalizedField } from '@/features/article/model/getLocalizedField';
-import { getNewsDetail } from '@/features/article/api/article.api';
+import { getLocalizedField, Locale } from '@/features/article/model/getLocalizedField';
+import { getNewsDetail, toggleArticleLike } from '@/features/article/api/article.api';
+import { toast } from 'sonner';
+import { DetailRequest } from '@/entities/article';
 
 export const useArticles = () => {
-  const [like, setLike] = useState(false);
   const [showShareModal, setShowShareModal] = useState(false);
   const [showDeletePostModal, setShowDeletePostModal] = useState(false);
 
-  const locale = useLocale();
+  const locale = useLocale() as Locale;
 
   const { id } = useParams<{ id: string }>();
+  const queryClient = useQueryClient();
 
   const newsQuery = useQuery({
     queryKey: ['newsDetail', id],
     queryFn: () => getNewsDetail(id),
   });
 
+  const newsLike = useMutation({
+    mutationFn: toggleArticleLike,
+    onMutate: async () => {
+      await queryClient.cancelQueries({ queryKey: ['newsDetail', id] });
+
+      const previousData = queryClient.getQueryData<DetailRequest>(['newsDetail', id]);
+
+      queryClient.setQueryData<DetailRequest>(['newsDetail', id], (old) => {
+        if (!old) return old;
+        const isLiked = old._count.likes > 0;
+        return {
+          ...old,
+          _count: {
+            ...old._count,
+            likes: isLiked ? old._count.likes - 1 : old._count.likes + 1,
+          },
+        };
+      });
+
+      return { previousData };
+    },
+    onError: (_, __, context) => {
+      if (context) {
+        queryClient.setQueryData(['newsDetail', id], context.previousData);
+      }
+      toast.error('좋아요 처리에 실패했습니다.');
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ['newsDetail', id] });
+    },
+  });
+
+  const like = (newsQuery.data?._count.likes ?? 0) > 0;
+  const likeCount = newsQuery.data?._count.likes ?? 0;
   const title = getLocalizedField(newsQuery.data, 'title', locale);
   const body = getLocalizedField(newsQuery.data, 'body', locale);
   const note = getLocalizedField(newsQuery.data, 'culturalNote', locale);
@@ -46,17 +82,24 @@ export const useArticles = () => {
   };
 
   /**
-   * 상세 뉴스 조회
+   *
+   **/
+  const onShare = () => {
+    setShowShareModal(true);
+  };
+
+  /**
+   * 공유하기 링크 카피 모달
    **/
   const onShareModal = () => {
     setShowShareModal(false);
   };
 
   /**
-   * 상세 뉴스 조회
+   * 좋아요
    **/
   const onLikeToggle = () => {
-    setLike(!like);
+    newsLike.mutate(id);
   };
 
   return {
@@ -66,14 +109,15 @@ export const useArticles = () => {
     newsData: newsQuery.data,
     newsIsLoading: newsQuery.isLoading,
     like,
+    likeCount,
     showShareModal,
     showDeletePostModal,
-    setLike,
     setShowShareModal,
     setShowDeletePostModal,
     onEdit,
     onDeletePostModal,
     onDeletePost,
+    onShare,
     onShareModal,
     onLikeToggle,
   };

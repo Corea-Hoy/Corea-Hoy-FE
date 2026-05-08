@@ -29,6 +29,6 @@ export const getNewsDetail = (id: string) => {
  * 좋아요 추가
  * @param id
  **/
-// export const toggleArticleLike = (id: string) => {
-//   return api.post<>(`/api/articles/${id}/like`).then((res) => res.data.data);
-// };
+export const toggleArticleLike = (id: string) => {
+  return api.post(`/api/articles/${id}/like`).then((res) => res.data.data);
+};

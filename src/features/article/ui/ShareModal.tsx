@@ -3,14 +3,19 @@
 import { X, Link } from 'lucide-react';
 import { ConfirmModal } from '@/shared/ui';
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
+import { kakaoShare } from '@/shared/lib';
 
 interface Props {
   show: boolean;
   onClick: () => void;
+  title?: string;
+  imageUrl?: string;
 }
 
-export function ShareModal({ show, onClick }: Props) {
+export function ShareModal({ show, onClick, title = '', imageUrl = '' }: Props) {
   const [showModal, setShowModal] = useState(false);
+  const t = useTranslations('content');
 
   if (!show) return null;
 
@@ -22,7 +27,7 @@ export function ShareModal({ show, onClick }: Props) {
   };
 
   const kakaoShareFn = () => {
-    // 카카오 SDK 연동 필요
+    kakaoShare({ title, imageUrl, url: window.location.href });
   };
 
   const urlShareFn = async () => {
@@ -31,7 +36,6 @@ export function ShareModal({ show, onClick }: Props) {
   };
 
   const logAndShare = (platform: string, action: () => void) => {
-    console.log(`[share] ${platform}`);
     action();
   };
 
@@ -60,27 +64,26 @@ export function ShareModal({ show, onClick }: Props) {
         </div>
         <div className="px-5 pb-8">
           <p id="share-modal-title" className="text-center font-bold">
-            이 소식을 함께 나눠보세요.
+            {t('shareModal')}
           </p>
           <div className="flex items-center justify-center gap-4 mt-5">
-            <button type="text" aria-label="X로 공유하기" className={buttonStyle} onClick={share.x}>
-              <img src="/images/icon/icon-x.webp" alt="x" />
+            <button type="button" aria-label="Share on X" onClick={share.x}>
+              <div className={buttonStyle}>
+                <img src="/images/icon/icon-x.webp" alt="x" />
+              </div>
+              <span className="text-[0.8rem]">X</span>
             </button>
-            <button
-              type="text"
-              aria-label="카카오톡으로 공유하기"
-              className={buttonStyle}
-              onClick={share.kakao}
-            >
-              <img src="/images/icon/icon-kakao.webp" alt="카카오톡" />
+            <button type="button" aria-label="Share on kakaotalk" onClick={share.kakao}>
+              <div className={buttonStyle}>
+                <img src="/images/icon/icon-kakao.webp" alt="kakaotalk" />
+              </div>
+              <span className="text-[0.8rem]">Kakao</span>
             </button>
-            <button
-              type="text"
-              aria-label="링크로 공유하기"
-              className={buttonStyle}
-              onClick={share.url}
-            >
-              <Link />
+            <button type="button" aria-label="Share on Link" onClick={share.url}>
+              <div className={buttonStyle}>
+                <Link />
+              </div>
+              <span className="text-[0.8rem]">{t('share')}</span>
             </button>
           </div>
         </div>

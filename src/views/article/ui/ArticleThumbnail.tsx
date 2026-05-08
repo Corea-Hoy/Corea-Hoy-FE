@@ -7,7 +7,8 @@ import { useUsersStore } from '@/entities/user';
 import { useArticles } from '@/features/article/model/useArticles';
 
 export function ArticleThumbnail() {
-  const { title, newsData, onEdit, onDeletePost } = useArticles();
+  const { title, newsData: _newsData, onEdit, onDeletePost } = useArticles();
+  const newsData = _newsData!;
 
   const { user, isLoggedIn } = useUsersStore();
 

@@ -1,8 +1,10 @@
 import { Heart, Share2 } from 'lucide-react';
 import { useArticles } from '@/features/article/model/useArticles';
+import { ShareModal } from '@/features/article';
 
 export function ArticleActions() {
-  const { like, setShowShareModal, onLikeToggle } = useArticles();
+  const { showShareModal, onShare, onShareModal, newsData, like, onLikeToggle } = useArticles();
+  console.log(newsData);
 
   return (
     <>
@@ -18,13 +20,21 @@ export function ArticleActions() {
           <span
             className={`relative top-[0.1rem] text-base ${like ? 'text-red-600' : 'text-black'}`}
           >
-            35
+            {newsData?._count.likes}
           </span>
         </button>
-        <button type="button" aria-label="공유하기 버튼" onClick={() => setShowShareModal(true)}>
+        <button type="button" aria-label="공유하기 버튼" onClick={onShare}>
           <Share2 />
         </button>
       </div>
+
+      {/* 공유하기 모달 */}
+      <ShareModal
+        show={showShareModal}
+        onClick={onShareModal}
+        title={newsData?.titleKo}
+        imageUrl={newsData?.thumbnailUrl}
+      />
     </>
   );
 }
