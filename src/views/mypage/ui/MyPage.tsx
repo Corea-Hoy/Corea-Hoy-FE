@@ -38,6 +38,7 @@ export function MyPage() {
     name: '테스트 유저',
     email: 'test@example.com',
     image: '🐨',
+    role: 'user',
     likedContentIds: [],
   };
 
