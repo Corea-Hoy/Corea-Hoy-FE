@@ -4,7 +4,10 @@ declare global {
     google: {
       accounts: {
         id: {
-          initialize: (config: { client_id: string; callback: (res: { credential: string }) => void }) => void;
+          initialize: (config: {
+            client_id: string;
+            callback: (res: { credential: string }) => void;
+          }) => void;
           prompt: () => void;
         };
       };

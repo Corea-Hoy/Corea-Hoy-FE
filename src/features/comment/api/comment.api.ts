@@ -6,7 +6,9 @@ import { CommentsRequest, CommentsResponse } from '@/entities/comment/model/type
  * @param id
  **/
 export const getCommentsList = (id: string) => {
-  return api.get<{ data: CommentsResponse[] }>(`/api/articles/${id}/comments`).then((res) => res.data.data);
+  return api
+    .get<{ data: CommentsResponse[] }>(`/api/articles/${id}/comments`)
+    .then((res) => res.data.data);
 };
 
 /**

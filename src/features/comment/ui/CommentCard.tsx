@@ -41,7 +41,11 @@ export function CommentCard({
             >
               <Trash2 className="h-[1rem] stroke-red-400" />
             </button>
-            <button type="button" aria-label="comment edit" onClick={() => onEdit(commentData.id, commentData.body)}>
+            <button
+              type="button"
+              aria-label="comment edit"
+              onClick={() => onEdit(commentData.id, commentData.body)}
+            >
               <Pencil className="h-[1rem] stroke-blue-400" />
             </button>
           </div>
