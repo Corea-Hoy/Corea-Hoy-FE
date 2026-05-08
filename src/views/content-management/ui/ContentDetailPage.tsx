@@ -14,7 +14,7 @@ export function ContentDetailPage({ contentId }: ContentDetailPageProps) {
   useEffect(() => {
     // 실제 사용자가 보는 상세 페이지로 곧바로 리다이렉트
     const query = searchParams.toString();
-    router.replace(`/detail/${contentId}${query ? `?${query}` : ''}`);
+    router.replace(`/article/${contentId}${query ? `?${query}` : ''}`);
   }, [contentId, router, searchParams]);
 
   return null;

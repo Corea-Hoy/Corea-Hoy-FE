@@ -89,7 +89,11 @@
     "comments": "Comentarios",
     "commentPlaceholder": "Escribe un comentario...",
     "submit": "Enviar",
-    "firstComment": "Aún no hay comentarios."
+    "firstComment": "Aún no hay comentarios.",
+    "deleteCommentConfirm": "¿Seguro que quieres eliminar este comentario?",
+    "culturalNoteTitle": "Una pizca de Corea hoy",
+    "noSummary": "No hay resumen disponible.",
+    "shareModal": "¡Comparte esta noticia con todos!"
   },
   "feedback": {
     "title": "Feedback",

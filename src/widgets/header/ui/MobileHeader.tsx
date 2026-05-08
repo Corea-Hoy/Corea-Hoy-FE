@@ -172,7 +172,8 @@ const MobileHeader = ({
           </div>
         )}
       </header>
-      {typeof document !== 'undefined' && showModal &&
+      {typeof document !== 'undefined' &&
+        showModal &&
         createPortal(
           <ConfirmModal
             show={showModal}
