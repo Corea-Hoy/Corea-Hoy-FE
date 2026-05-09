@@ -63,7 +63,7 @@
     "nicknamePlaceholder": "닉네임 입력 (2–20자)",
     "nicknameError": "닉네임은 2자 이상 20자 이하로 입력해주세요.",
     "save": "저장",
-    "cancel": "취소",
+      "cancel": "취소",
     "likes": "좋아요",
     "comments": "댓글",
     "likedTitle": "좋아요한 컨텐츠",
@@ -93,7 +93,8 @@
     "deleteCommentConfirm": "정말 이 댓글을 삭제하시겠습니까?",
     "culturalNoteTitle": "오늘의 한국 한 스푼",
     "noSummary": "요약이 존재하지 않습니다.",
-    "shareModal": "이 소식을 함께 나눠보세요."
+    "shareModal": "이 소식을 함께 나눠보세요.",
+    "likeWithoutLogin": "마음에 드셨다면 로그인 후 좋아요를 눌러보세요."
   },
   "feedback": {
     "title": "피드백",
@@ -152,5 +153,10 @@
     "translationLabel": "번역본",
     "noDirtyHint": "수정 사항이 없으면 바로 번역할 수 있습니다.",
     "dirtyHint": "{count}개 문단이 수정되었습니다."
+  },
+  "common": {
+    "cancel": "취소",
+    "confirm": "확인",
+    "more": "더보기"
   }
 }

@@ -25,7 +25,7 @@ export function ArticleComments() {
   } = useComments();
 
   const { isLoggedIn } = useUsersStore();
-  const t = useTranslations('content');
+  const t = useTranslations();
 
   return (
     <>
@@ -62,19 +62,19 @@ export function ArticleComments() {
                 onClick={onMoreComment}
               >
                 <Plus color="#6a7282" className="relative top-[-0.1rem] h-[1.2rem]" />
-                <span className="text-base text-gray-500 font-bold">더보기</span>
+                <span className="text-base text-gray-500 font-bold">{t('common.more')}</span>
               </button>
             )}
           </>
         ) : (
-          <NoData text={t('firstComment')} />
+          <NoData text={t('content.firstComment')} />
         )}
       </div>
 
       {/* 댓글 삭제 확인 모달 */}
       <ConfirmModal
         show={showDeleteCommentModal}
-        text={t('deleteCommentConfirm')}
+        text={t('content.deleteCommentConfirm')}
         onConfirm={onDeleteCommentModal}
         onClose={onCloseDeleteCommentModal}
       />

@@ -1,3 +1,5 @@
+import { useTranslations } from 'next-intl';
+
 interface Props {
   show: boolean;
   text: string;
@@ -7,6 +9,8 @@ interface Props {
 }
 
 export function ConfirmModal({ show, text, cancelBtn = true, onConfirm, onClose }: Props) {
+  const t = useTranslations('common');
+
   if (!show) return null;
 
   return (
@@ -36,7 +40,7 @@ export function ConfirmModal({ show, text, cancelBtn = true, onConfirm, onClose 
               className="flex-1 h-[2.5rem] text-base text-white font-bold rounded-xl bg-gray-400"
               onClick={onClose}
             >
-              취소
+              {t('cancel')}
             </button>
           )}
           <button
@@ -44,7 +48,7 @@ export function ConfirmModal({ show, text, cancelBtn = true, onConfirm, onClose 
             className="flex-1 h-[2.5rem] text-base text-white font-bold rounded-xl bg-green-700"
             onClick={onConfirm}
           >
-            확인
+            {t('confirm')}
           </button>
         </div>
       </div>
