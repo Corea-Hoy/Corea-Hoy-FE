@@ -3,20 +3,21 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTranslations, useLocale } from 'next-intl';
-import { useUsersStore, AVATAR_PRESETS } from '@/entities/user';
-import { MOCK_CONTENTS, MOCK_USER } from '@/entities/content/model/mock-data';
+import { useUsersStore, AVATAR_PRESETS, useLikedContents } from '@/entities/user';
 
 import { ProfileCard } from './ProfileCard';
 import { LikedContentList } from './LikedContentList';
-import { MyCommentsList } from './MyCommentsList';
-import { useLogout } from '@/features/auth';
+import { useLogout, useUpdateProfile, useDeleteAccount } from '@/features/auth';
 
 export function MyPage() {
   const router = useRouter();
   const t = useTranslations('mypage');
   const locale = useLocale();
-  const { user, updateProfile } = useUsersStore();
+  const { user } = useUsersStore();
   const { onLogout } = useLogout();
+  const { onUpdateProfile } = useUpdateProfile();
+  const { onDeleteAccount } = useDeleteAccount();
+  const { likedContents } = useLikedContents();
   const isKo = locale === 'ko';
 
   const [mounted, setMounted] = useState(false);
@@ -44,17 +45,6 @@ export function MyPage() {
 
   if (!mounted) return null;
 
-  // TODO: 로그인 기능 추가 후 주석 해제
-  //   if (!mounted || !user) return null;
-  // const currentUser = user;
-
-  const likedContents = MOCK_CONTENTS.filter((c) => currentUser.likedContentIds?.includes(c.id));
-  const myComments = MOCK_CONTENTS.flatMap((c) =>
-    c.comments
-      .filter((cm) => cm.userId === MOCK_USER.id)
-      .map((cm) => ({ ...cm, contentTitle: isKo ? c.title : c.titleEs, contentId: c.id })),
-  );
-
   function startEdit() {
     setTempNickname(currentUser.name);
     setTempAvatar(
@@ -71,7 +61,7 @@ export function MyPage() {
       setNicknameError(t('nicknameError'));
       return;
     }
-    updateProfile(trimmed, tempAvatar.id);
+    onUpdateProfile({ nickname: trimmed, avatarId: tempAvatar.id });
     setEditing(false);
   }
 
@@ -80,8 +70,7 @@ export function MyPage() {
   }
 
   function handleDeleteAccount() {
-    // deleteAccount();
-    router.push('/');
+    onDeleteAccount();
   }
 
   return (
@@ -95,7 +84,7 @@ export function MyPage() {
           tempNickname={tempNickname}
           tempAvatar={tempAvatar}
           nicknameError={nicknameError}
-          stats={{ likes: likedContents.length, comments: myComments.length }}
+          stats={{ likes: likedContents.length }}
           onStartEdit={startEdit}
           onSave={handleSave}
           onCancelEdit={() => setEditing(false)}
@@ -109,8 +98,7 @@ export function MyPage() {
         />
 
         <section>
-          <LikedContentList contents={likedContents} isKo={isKo} />
-          <MyCommentsList comments={myComments} />
+          <LikedContentList />
         </section>
       </div>
 

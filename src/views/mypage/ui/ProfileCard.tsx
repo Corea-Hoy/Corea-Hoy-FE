@@ -10,7 +10,7 @@ interface ProfileCardProps {
   tempNickname: string;
   tempAvatar: { id: string; emoji: string; color: string };
   nicknameError: string;
-  stats: { likes: number; comments: number };
+  stats: { likes: number };
   onStartEdit: () => void;
   onSave: () => void;
   onCancelEdit: () => void;
@@ -76,10 +76,6 @@ export function ProfileCard({
               <div className="text-center">
                 <div className="text-2xl font-black">{stats.likes}</div>
                 <div className="text-xs text-gray-400 mt-0.5">{t('likes')}</div>
-              </div>
-              <div className="text-center">
-                <div className="text-2xl font-black">{stats.comments}</div>
-                <div className="text-xs text-gray-400 mt-0.5">{t('comments')}</div>
               </div>
             </div>
           )}
