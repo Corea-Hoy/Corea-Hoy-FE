@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useLocale } from 'next-intl';
 import { getLocalizedField, Locale } from '@/features/article/model/getLocalizedField';
@@ -11,6 +11,7 @@ import { useUsersStore } from '@/entities/user';
 export const useArticles = () => {
   const [showShareModal, setShowShareModal] = useState(false);
   const [showDeletePostModal, setShowDeletePostModal] = useState(false);
+  const [showLoginModal, setShowLoginModal] = useState(false);
 
   const locale = useLocale() as Locale;
 
@@ -18,6 +19,10 @@ export const useArticles = () => {
   const queryClient = useQueryClient();
   const likedContentIds = useUsersStore((state) => state.likedContentIds);
   const toggleLike = useUsersStore((state) => state.toggleLike);
+
+  const { isLoggedIn } = useUsersStore();
+
+  const route = useRouter();
 
   const newsQuery = useQuery({
     queryKey: ['newsDetail', id],
@@ -100,7 +105,19 @@ export const useArticles = () => {
    * 좋아요
    **/
   const onLikeToggle = () => {
+    if (!isLoggedIn) {
+      setShowLoginModal(true);
+      return;
+    }
+
     newsLike.mutate(id);
+  };
+
+  /**
+   * 비로그인 상태로 좋아요를 클릭했을 시 로그인 화면으로 이동
+   **/
+  const onLikeWithoutLogin = () => {
+    route.push('/login');
   };
 
   return {
@@ -113,6 +130,8 @@ export const useArticles = () => {
     likeCount,
     showShareModal,
     showDeletePostModal,
+    showLoginModal,
+    setShowLoginModal,
     setShowShareModal,
     setShowDeletePostModal,
     onEdit,
@@ -121,5 +140,6 @@ export const useArticles = () => {
     onShare,
     onShareModal,
     onLikeToggle,
+    onLikeWithoutLogin,
   };
 };

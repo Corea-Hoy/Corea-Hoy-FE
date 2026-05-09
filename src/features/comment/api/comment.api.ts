@@ -1,14 +1,19 @@
 import api from '@/shared/api';
-import { CommentsRequest, CommentsResponse } from '@/entities/comment/model/types';
+import {
+  CommentListRequest,
+  CommentsListResponse,
+  CommentsRequest,
+} from '@/entities/comment/model/types';
 
 /**
  * 댓글 조회
  * @param id
+ * @param cursor
  **/
-export const getCommentsList = (id: string) => {
+export const getCommentsList = ({ id, cursor }: CommentListRequest) => {
   return api
-    .get<{ data: CommentsResponse[] }>(`/api/articles/${id}/comments`)
-    .then((res) => res.data.data);
+    .get<CommentsListResponse>(`/api/articles/${id}/comments`, { params: { cursor, limit: 10 } })
+    .then((res) => res.data);
 };
 
 /**
