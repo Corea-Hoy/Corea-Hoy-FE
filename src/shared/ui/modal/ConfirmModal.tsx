@@ -1,11 +1,24 @@
+import { ReactNode } from 'react';
+
 interface Props {
   show: boolean;
-  text: string;
+  title?: string;
+  text: ReactNode;
+  confirmText?: string;
+  cancelText?: string;
   onConfirm: () => void;
   onClose: () => void;
 }
 
-export function ConfirmModal({ show, text, onConfirm, onClose }: Props) {
+export function ConfirmModal({
+  show,
+  title,
+  text,
+  confirmText = '확인',
+  cancelText = '취소',
+  onConfirm,
+  onClose,
+}: Props) {
   if (!show) return null;
 
   return (
@@ -16,32 +29,37 @@ export function ConfirmModal({ show, text, onConfirm, onClose }: Props) {
       <div
         role="dialog"
         aria-modal="true"
-        aria-labelledby="share-modal-title"
-        className="w-[100%] max-w-[25rem] h-auto rounded-3xl bg-white"
+        aria-labelledby="confirm-modal-title"
+        className="w-[100%] max-w-[25rem] h-auto rounded-3xl bg-white shadow-2xl overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
         {/* 컨텐츠 */}
-        <div className="px-5 pt-8 pb-2">
-          <p id="share-modal-title" className="text-center font-bold whitespace-pre-line">
+        <div className="px-6 pt-8 pb-4 text-center">
+          {title && (
+            <h3 id="confirm-modal-title" className="text-xl font-black mb-3">
+              {title}
+            </h3>
+          )}
+          <div className="text-base font-medium text-gray-700 whitespace-pre-line leading-relaxed">
             {text}
-          </p>
+          </div>
         </div>
 
         {/* 푸터 */}
-        <div className="flex gap-2 p-4">
+        <div className="flex gap-3 p-5">
           <button
             type="button"
-            className="flex-1 h-[2.5rem] text-base text-white font-bold rounded-xl bg-gray-400"
+            className="flex-1 h-[3rem] text-base text-gray-600 font-bold rounded-2xl bg-gray-100 hover:bg-gray-200 transition-colors cursor-pointer"
             onClick={onClose}
           >
-            취소
+            {cancelText}
           </button>
           <button
             type="button"
-            className="flex-1 h-[2.5rem] text-base text-white font-bold rounded-xl bg-green-700"
+            className="flex-1 h-[3rem] text-base text-white font-bold rounded-2xl bg-green-600 hover:bg-green-700 transition-colors cursor-pointer"
             onClick={onConfirm}
           >
-            확인
+            {confirmText}
           </button>
         </div>
       </div>

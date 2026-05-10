@@ -21,11 +21,11 @@ export const useUpdateProfile = () => {
     onSuccess: () => {
       // invalidateQueries 이후 useAuthInit이 서버 데이터로 스토어를 자동 갱신합니다.
       queryClient.invalidateQueries({ queryKey: ['me'] });
-      alert('프로필이 성공적으로 변경되었습니다.');
+      // alert('프로필이 성공적으로 변경되었습니다.');
     },
     onError: (error) => {
       console.error('프로필 수정 실패:', error);
-      alert('프로필 수정 중 오류가 발생했습니다.');
+      // alert('프로필 수정 중 오류가 발생했습니다.');
     },
   });
 
@@ -42,12 +42,12 @@ export const useDeleteAccount = () => {
     onSuccess: () => {
       queryClient.removeQueries({ queryKey: ['me'] });
       logoutStore();
-      alert('계정이 삭제되었습니다. 이용해 주셔서 감사합니다.');
+      // alert('계정이 삭제되었습니다. 이용해 주셔서 감사합니다.');
       router.push('/');
     },
     onError: (error) => {
       console.error('계정 삭제 실패:', error);
-      alert('계정 삭제 중 오류가 발생했습니다.');
+      // alert('계정 삭제 중 오류가 발생했습니다.');
     },
   });
 
