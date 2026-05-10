@@ -1,17 +1,30 @@
 import { Heart, Share2 } from 'lucide-react';
 import { useArticles } from '@/features/article/model/useArticles';
 import { ShareModal } from '@/features/article';
+import { ConfirmModal } from '@/shared/ui';
+import { useTranslations } from 'next-intl';
 
 export function ArticleActions() {
-  const { showShareModal, onShare, onShareModal, newsData, like, onLikeToggle } = useArticles();
-  console.log(newsData);
+  const {
+    showShareModal,
+    showLoginModal,
+    onShare,
+    onShareModal,
+    newsData,
+    like,
+    onLikeToggle,
+    setShowLoginModal,
+    onLikeWithoutLogin,
+  } = useArticles();
+
+  const t = useTranslations('content');
 
   return (
     <>
       <div className="flex justify-between items-center">
         <button
           type="button"
-          aria-label="좋아요 버튼"
+          aria-label="like button"
           aria-pressed={like}
           className="flex items-center justify-start gap-2"
           onClick={onLikeToggle}
@@ -34,6 +47,14 @@ export function ArticleActions() {
         onClick={onShareModal}
         title={newsData?.titleKo}
         imageUrl={newsData?.thumbnailUrl}
+      />
+
+      {/* 좋아요 로그인 유도 모달 */}
+      <ConfirmModal
+        show={showLoginModal}
+        text={t('likeWithoutLogin')}
+        onConfirm={onLikeWithoutLogin}
+        onClose={() => setShowLoginModal(false)}
       />
     </>
   );

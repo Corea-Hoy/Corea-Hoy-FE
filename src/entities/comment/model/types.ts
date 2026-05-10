@@ -16,3 +16,13 @@ export type CommentsRequest = {
   id: string;
   body: string;
 };
+
+export type CommentListRequest = {
+  id: string;
+  cursor?: string;
+};
+
+export type CommentsListResponse = {
+  data: CommentsResponse[];
+  nextCursor: string | null;
+};

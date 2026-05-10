@@ -6,7 +6,7 @@ import {
   getCommentsList,
   updateComment,
 } from '@/features/comment/api/comment.api';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useInfiniteQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 
 export const useComments = () => {
@@ -19,9 +19,11 @@ export const useComments = () => {
   const { id } = useParams<{ id: string }>();
   const queryClient = useQueryClient();
 
-  const commentQuery = useQuery({
+  const commentQuery = useInfiniteQuery({
     queryKey: ['newsComments', id],
-    queryFn: () => getCommentsList(id),
+    queryFn: ({ pageParam }) => getCommentsList({ id, cursor: pageParam }),
+    initialPageParam: undefined as string | undefined,
+    getNextPageParam: (lastPage) => lastPage.nextCursor ?? undefined,
   });
 
   const commentEdit = useMutation({
@@ -57,7 +59,7 @@ export const useComments = () => {
 
   /**
    * 새로운 댓글 추가
-   *
+   * @param body
    **/
   const onCreateComment = (body: string) => {
     if (body.trim().length < 10) return;
@@ -69,6 +71,7 @@ export const useComments = () => {
   /**
    * 댓글 수정 버튼 클릭 시 edit input 활성화
    * @param id
+   * @param body
    **/
   const onEditComment = (id: string, body: string) => {
     setEditCommentId(id);
@@ -86,6 +89,7 @@ export const useComments = () => {
 
   /**
    * 댓글 삭제 버튼 클릭 시 확인 모달 활성화
+   * @param id
    **/
   const onDeleteComment = (id: string) => {
     setDeleteCommentId(id);
@@ -110,9 +114,19 @@ export const useComments = () => {
     setShowDeleteCommentModal(false);
   };
 
+  /**
+   * 댓글 더보기
+   **/
+  const onMoreComment = () => {
+    if (commentQuery.hasNextPage && !commentQuery.isFetchingNextPage) {
+      commentQuery.fetchNextPage();
+    }
+  };
+
   return {
-    commentsData: commentQuery.data ?? [],
+    commentsData: commentQuery.data?.pages.flatMap((page) => page.data) ?? [],
     commentsIsLoading: commentQuery.isLoading,
+    hasNextPage: commentQuery.hasNextPage,
     textarea,
     setTextarea,
     showDeleteCommentModal,
@@ -127,5 +141,6 @@ export const useComments = () => {
     onDeleteCommentModal,
     onCloseDeleteCommentModal,
     onUpdateComment,
+    onMoreComment,
   };
 };
