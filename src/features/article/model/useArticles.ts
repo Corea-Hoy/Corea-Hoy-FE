@@ -5,12 +5,11 @@ import { useLocale } from 'next-intl';
 import { getLocalizedField, Locale } from '@/features/article/model/getLocalizedField';
 import { getNewsDetail, toggleArticleLike } from '@/features/article/api/article.api';
 import { toast } from 'sonner';
-import { DetailRequest } from '@/entities/article';
+import { ArticleRequest } from '@/entities/article';
 import { useUsersStore } from '@/entities/user';
 
 export const useArticles = () => {
   const [showShareModal, setShowShareModal] = useState(false);
-  const [showDeletePostModal, setShowDeletePostModal] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
 
   const locale = useLocale() as Locale;
@@ -34,12 +33,12 @@ export const useArticles = () => {
     onMutate: async () => {
       await queryClient.cancelQueries({ queryKey: ['newsDetail', id] });
 
-      const previousData = queryClient.getQueryData<DetailRequest>(['newsDetail', id]);
+      const previousData = queryClient.getQueryData<ArticleRequest>(['newsDetail', id]);
 
       const isLiked = likedContentIds.includes(id);
       toggleLike(id);
 
-      queryClient.setQueryData<DetailRequest>(['newsDetail', id], (old) => {
+      queryClient.setQueryData<ArticleRequest>(['newsDetail', id], (old) => {
         if (!old) return old;
         return {
           ...old,
@@ -69,23 +68,6 @@ export const useArticles = () => {
   const title = getLocalizedField(newsQuery.data, 'title', locale);
   const body = getLocalizedField(newsQuery.data, 'body', locale);
   const note = getLocalizedField(newsQuery.data, 'culturalNote', locale);
-
-  /**
-   * 게시글 수정
-   **/
-  const onEdit = () => {};
-
-  /**
-   * 게시글 삭제
-   **/
-  const onDeletePost = () => {
-    setShowDeletePostModal(true);
-  };
-
-  /**
-   * 게시글 삭제 확인
-   **/
-  const onDeletePostModal = () => {};
 
   /**
    *
@@ -129,14 +111,9 @@ export const useArticles = () => {
     like,
     likeCount,
     showShareModal,
-    showDeletePostModal,
     showLoginModal,
     setShowLoginModal,
     setShowShareModal,
-    setShowDeletePostModal,
-    onEdit,
-    onDeletePostModal,
-    onDeletePost,
     onShare,
     onShareModal,
     onLikeToggle,
