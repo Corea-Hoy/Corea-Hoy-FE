@@ -3,18 +3,22 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTranslations, useLocale } from 'next-intl';
-import { useUserStore, AVATAR_PRESETS } from '@/entities/user';
-import { MOCK_CONTENTS, MOCK_USER } from '@/entities/content/model/mock-data';
+import { useUsersStore, AVATAR_PRESETS, useLikedContents } from '@/entities/user';
 
 import { ProfileCard } from './ProfileCard';
 import { LikedContentList } from './LikedContentList';
-import { MyCommentsList } from './MyCommentsList';
+import { useLogout, useUpdateProfile, useDeleteAccount } from '@/features/auth';
+import { ConfirmModal, AlertModal } from '@/shared/ui';
 
 export function MyPage() {
   const router = useRouter();
   const t = useTranslations('mypage');
   const locale = useLocale();
-  const { user, updateProfile, logout, deleteAccount } = useUserStore();
+  const { user } = useUsersStore();
+  const { onLogout } = useLogout();
+  const { onUpdateProfile } = useUpdateProfile();
+  const { onDeleteAccount } = useDeleteAccount();
+  const { likedContents } = useLikedContents();
   const isKo = locale === 'ko';
 
   const [mounted, setMounted] = useState(false);
@@ -22,6 +26,8 @@ export function MyPage() {
   const [tempNickname, setTempNickname] = useState('');
   const [tempAvatar, setTempAvatar] = useState(AVATAR_PRESETS[0]);
   const [nicknameError, setNicknameError] = useState('');
+  const [showSaveModal, setShowSaveModal] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   useEffect(() => {
@@ -35,28 +41,18 @@ export function MyPage() {
     id: 'mock-id',
     name: '테스트 유저',
     email: 'test@example.com',
-    avatarEmoji: '',
-    avatarColor: '#ffd0a8',
-    likedContentIds: ['c1', 'c3'],
+    image: '🐨',
+    role: 'user',
+    likedContentIds: [],
   };
 
   if (!mounted) return null;
 
-  // TODO: 로그인 기능 추가 후 주석 해제
-  //   if (!mounted || !user) return null;
-  // const currentUser = user;
-
-  const likedContents = MOCK_CONTENTS.filter((c) => currentUser.likedContentIds?.includes(c.id));
-  const myComments = MOCK_CONTENTS.flatMap((c) =>
-    c.comments
-      .filter((cm) => cm.userId === MOCK_USER.id)
-      .map((cm) => ({ ...cm, contentTitle: isKo ? c.title : c.titleEs, contentId: c.id })),
-  );
-
   function startEdit() {
     setTempNickname(currentUser.name);
     setTempAvatar(
-      AVATAR_PRESETS.find((p) => p.emoji === currentUser.avatarEmoji) ?? AVATAR_PRESETS[0],
+      AVATAR_PRESETS.find((p) => p.id === currentUser.image || p.emoji === currentUser.image) ??
+        AVATAR_PRESETS[0],
     );
     setNicknameError('');
     setEditing(true);
@@ -68,18 +64,32 @@ export function MyPage() {
       setNicknameError(t('nicknameError'));
       return;
     }
-    updateProfile(trimmed, tempAvatar.emoji, tempAvatar.color);
-    setEditing(false);
+    setShowSaveModal(true);
+  }
+
+  function confirmSave() {
+    const trimmed = tempNickname.trim();
+    onUpdateProfile(
+      { nickname: trimmed, avatarId: tempAvatar.id },
+      {
+        onSuccess: () => {
+          setEditing(false);
+          setShowSaveModal(false);
+          setShowSuccessModal(true);
+        },
+        onError: () => {
+          setShowSaveModal(false);
+        },
+      },
+    );
   }
 
   function handleLogout() {
-    logout();
-    router.push('/');
+    onLogout();
   }
 
   function handleDeleteAccount() {
-    deleteAccount();
-    router.push('/');
+    onDeleteAccount();
   }
 
   return (
@@ -93,7 +103,7 @@ export function MyPage() {
           tempNickname={tempNickname}
           tempAvatar={tempAvatar}
           nicknameError={nicknameError}
-          stats={{ likes: likedContents.length, comments: myComments.length }}
+          stats={{ likes: likedContents.length }}
           onStartEdit={startEdit}
           onSave={handleSave}
           onCancelEdit={() => setEditing(false)}
@@ -107,34 +117,55 @@ export function MyPage() {
         />
 
         <section>
-          <LikedContentList contents={likedContents} isKo={isKo} />
-          <MyCommentsList comments={myComments} />
+          <LikedContentList />
         </section>
       </div>
 
-      {showDeleteModal && (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-3xl p-8 max-w-sm w-full text-center shadow-xl">
-            <div className="text-4xl mb-4">⚠️</div>
-            <h3 className="font-black text-lg mb-2">{t('deleteConfirmTitle')}</h3>
-            <p className="text-sm text-gray-500 leading-relaxed mb-6">{t('deleteConfirmDesc')}</p>
-            <div className="flex gap-3">
-              <button
-                onClick={() => setShowDeleteModal(false)}
-                className="flex-1 py-3 border border-gray-200 bg-white rounded-xl font-semibold text-sm cursor-pointer hover:bg-gray-50 transition-colors"
-              >
-                {t('deleteCancel')}
-              </button>
-              <button
-                onClick={handleDeleteAccount}
-                className="flex-1 py-3 bg-red-500 text-white rounded-xl font-bold text-sm cursor-pointer hover:bg-red-600 transition-colors"
-              >
-                {t('deleteConfirm')}
-              </button>
+      <ConfirmModal
+        show={showSaveModal}
+        title={isKo ? '프로필 변경' : 'Update Profile'}
+        confirmText={isKo ? '네' : 'Yes'}
+        cancelText={isKo ? '아니요' : 'No'}
+        text={
+          <div className="flex flex-col items-center gap-3">
+            <div className="text-5xl bg-gray-50 w-20 h-20 flex items-center justify-center rounded-full shadow-inner">
+              {tempAvatar.emoji}
             </div>
+            <p>
+              <span className="font-black text-green-600">{tempNickname}</span>
+              {isKo ? ' 으로 변경하시겠습니까?' : ' - Change to this profile?'}
+            </p>
           </div>
-        </div>
-      )}
+        }
+        onConfirm={confirmSave}
+        onClose={() => setShowSaveModal(false)}
+      />
+
+      <AlertModal
+        show={showSuccessModal}
+        title={isKo ? '변경 완료' : 'Success'}
+        text={
+          <div className="flex flex-col items-center gap-2">
+            <p>{isKo ? '프로필이 성공적으로 변경되었습니다.' : 'Profile successfully updated.'}</p>
+          </div>
+        }
+        onConfirm={() => setShowSuccessModal(false)}
+      />
+
+      <ConfirmModal
+        show={showDeleteModal}
+        title={t('deleteConfirmTitle')}
+        confirmText={t('deleteConfirm')}
+        cancelText={t('deleteCancel')}
+        text={
+          <div className="flex flex-col items-center">
+            <div className="text-4xl mb-4">⚠️</div>
+            <p>{t('deleteConfirmDesc')}</p>
+          </div>
+        }
+        onConfirm={handleDeleteAccount}
+        onClose={() => setShowDeleteModal(false)}
+      />
     </div>
   );
 }

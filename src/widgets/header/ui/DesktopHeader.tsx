@@ -11,7 +11,8 @@ import { Search, User } from 'lucide-react';
 import { useLogout } from '@/features/auth';
 import { useState } from 'react';
 import { createPortal } from 'react-dom';
-import { ConfirmModal } from '@/shared/ui';
+import { ConfirmModal, Avatar } from '@/shared/ui';
+import { AVATAR_PRESETS } from '@/entities/user';
 
 interface LangDropdownProps {
   language: string;
@@ -110,17 +111,23 @@ const DesktopHeader = ({
                   <div
                     className={`w-9 h-9 rounded-full flex items-center justify-center text-lg border-2 transition-all cursor-pointer shadow-sm hover:scale-105 overflow-hidden ${pathname === '/mypage' ? 'border-black' : 'border-transparent'}`}
                   >
-                    {user.image ? (
-                      <Image
-                        src={user.image}
-                        alt={user.name}
-                        width={36}
-                        height={36}
-                        className="rounded-full"
-                      />
-                    ) : (
-                      <span className="text-sm font-bold">{user.name?.[0] ?? '?'}</span>
-                    )}
+                    <Avatar
+                      src={
+                        user.image?.startsWith('http') || user.image?.startsWith('/')
+                          ? user.image
+                          : undefined
+                      }
+                      emoji={
+                        AVATAR_PRESETS.find((p) => p.id === user.image || p.emoji === user.image)
+                          ?.emoji ||
+                        (user.name?.[0] ?? '?')
+                      }
+                      color={
+                        AVATAR_PRESETS.find((p) => p.id === user.image || p.emoji === user.image)
+                          ?.color
+                      }
+                      size={36}
+                    />
                   </div>
                 </Link>
                 <button

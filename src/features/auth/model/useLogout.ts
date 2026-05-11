@@ -10,13 +10,11 @@ export const useLogout = () => {
 
   const { mutate: onLogout, isPending } = useMutation({
     mutationFn: logout,
-    onSuccess: () => {
+    onSettled: () => {
+      queryClient.removeQueries({ queryKey: ['me'] });
       storeLogout();
       queryClient.clear();
       router.push('/login');
-    },
-    onError: (error) => {
-      console.error('Logout failed:', error);
     },
   });
 
