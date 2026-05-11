@@ -1,5 +1,6 @@
 interface WorkflowControlPanelProps {
   hasSelectedArticle: boolean;
+  isGenerating: boolean;
   onGenerate: () => void;
   onSaveDraft: () => void;
   saveStatus: 'idle' | 'saved' | 'dirty';
@@ -7,6 +8,7 @@ interface WorkflowControlPanelProps {
 
 export function WorkflowControlPanel({
   hasSelectedArticle,
+  isGenerating,
   onGenerate,
   onSaveDraft,
   saveStatus,
@@ -17,11 +19,11 @@ export function WorkflowControlPanel({
         <h2 className="mb-5 text-sm font-black text-black">워크플로우 제어</h2>
         <button
           type="button"
-          disabled={!hasSelectedArticle}
+          disabled={!hasSelectedArticle || isGenerating}
           onClick={onGenerate}
           className="w-full rounded-xl bg-black py-3.5 text-sm font-bold text-white transition-[opacity,border-color,color,background-color] duration-150 cursor-pointer hover:opacity-80 disabled:cursor-not-allowed disabled:opacity-30"
         >
-          AI 콘텐츠 생성
+          {isGenerating ? 'AI 생성 중...' : 'AI 콘텐츠 생성'}
         </button>
         <button
           type="button"

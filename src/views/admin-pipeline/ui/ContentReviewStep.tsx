@@ -1,11 +1,10 @@
 import Image from 'next/image';
-import {
-  createMockArticleOriginalText,
-  TRANSLATION_TARGET_LANGUAGES,
-  type AdminCandidateArticle,
-  type GeneratedContent,
-  type TranslationTargetLanguageSelection,
-} from '../model/mockArticles';
+import { TRANSLATION_TARGET_LANGUAGES } from '../model/labels';
+import type {
+  AdminCandidateArticle,
+  GeneratedContent,
+  TranslationTargetLanguageSelection,
+} from '../model/types';
 import { RichTextEditor } from '@/shared/ui/rich-text-editor/RichTextEditor';
 
 interface ContentReviewStepProps {
@@ -16,6 +15,7 @@ interface ContentReviewStepProps {
   onChange: (content: GeneratedContent) => void;
   onSaveDraft: () => void;
   saveStatus: 'idle' | 'saved' | 'dirty';
+  isTranslating: boolean;
   onNext: () => void;
   onPrev: () => void;
 }
@@ -28,10 +28,10 @@ export function ContentReviewStep({
   onChange,
   onSaveDraft,
   saveStatus,
+  isTranslating,
   onNext,
   onPrev,
 }: ContentReviewStepProps) {
-  const originalText = createMockArticleOriginalText(article);
   const canGoNext = Boolean(targetLanguage);
 
   return (
@@ -60,7 +60,7 @@ export function ContentReviewStep({
           </div>
 
           <h3 className="mb-4 text-base font-black leading-snug text-black">{article.title}</h3>
-          <p className="whitespace-pre-wrap text-sm leading-7 text-gray-700">{originalText}</p>
+          <p className="whitespace-pre-wrap text-sm leading-7 text-gray-700">{article.summary}</p>
         </div>
 
         <div className="rounded-2xl border-2 border-black bg-white p-5 shadow-sm lg:max-h-[720px] lg:overflow-y-auto">
@@ -153,10 +153,10 @@ export function ContentReviewStep({
           <button
             type="button"
             onClick={onNext}
-            disabled={!canGoNext}
+            disabled={!canGoNext || isTranslating}
             className="w-full rounded-xl bg-black px-5 py-3 text-sm font-black text-white transition-opacity cursor-pointer hover:opacity-80 disabled:cursor-not-allowed disabled:opacity-30 sm:w-auto"
           >
-            다음 단계
+            {isTranslating ? 'AI 번역 중...' : '다음 단계'}
           </button>
         </div>
       </div>

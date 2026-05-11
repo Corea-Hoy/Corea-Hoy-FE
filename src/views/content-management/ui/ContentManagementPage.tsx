@@ -10,7 +10,6 @@ import {
   STEP_OPTIONS,
   STEP_STYLES,
 } from '../model/labels';
-import { MOCK_MANAGED_CONTENTS } from '../model/mockData';
 import type {
   ContentCategory,
   ContentLanguage,
@@ -57,11 +56,18 @@ function sortContents(
 }
 
 interface ContentManagementPageProps {
+  contents: ManagedContent[];
+  isLoading: boolean;
+  onDeleteContent: (contentId: string) => Promise<void>;
   onContinueDraft?: (contentId: string, contentStep: ContentStep) => void;
 }
 
-export function ContentManagementPage({ onContinueDraft }: ContentManagementPageProps) {
-  const [contents, setContents] = useState<ManagedContent[]>(MOCK_MANAGED_CONTENTS);
+export function ContentManagementPage({
+  contents,
+  isLoading,
+  onDeleteContent,
+  onContinueDraft,
+}: ContentManagementPageProps) {
   const [activeTab, setActiveTab] = useState<StatusTab>(getInitialActiveTab);
   const [pipelineFilter, setPipelineFilter] = useState<FilterStep>('all');
   const [categoryFilter, setCategoryFilter] = useState<FilterCategory>('all');
@@ -70,6 +76,7 @@ export function ContentManagementPage({ onContinueDraft }: ContentManagementPage
   const [draftSortDirection, setDraftSortDirection] = useState<SortDirection | null>(null);
   const [publishedSortKey, setPublishedSortKey] = useState<SortKey | null>(null);
   const [publishedSortDirection, setPublishedSortDirection] = useState<SortDirection | null>(null);
+  const [deletingIds, setDeletingIds] = useState<Set<string>>(new Set());
 
   const isAllTab = activeTab === 'all';
   const isDraftTab = activeTab === 'draft';
@@ -108,6 +115,7 @@ export function ContentManagementPage({ onContinueDraft }: ContentManagementPage
     const published = baseFilteredContents.filter((content) => content.status === 'published');
     return sortContents(published, publishedSortKey, publishedSortDirection);
   }, [baseFilteredContents, publishedSortKey, publishedSortDirection]);
+
   const groupedSections = [
     { key: 'draft', title: '임시저장', items: draftContents },
     { key: 'published', title: '발행됨', items: publishedContents },
@@ -151,11 +159,20 @@ export function ContentManagementPage({ onContinueDraft }: ContentManagementPage
     }
   }
 
-  function handleDeleteContent(contentId: string) {
+  async function handleDeleteContent(contentId: string) {
     const shouldDelete = window.confirm('정말 이 콘텐츠를 삭제하시겠습니까?');
     if (!shouldDelete) return;
 
-    setContents((currentContents) => currentContents.filter((content) => content.id !== contentId));
+    setDeletingIds((prev) => new Set(prev).add(contentId));
+    try {
+      await onDeleteContent(contentId);
+    } finally {
+      setDeletingIds((prev) => {
+        const next = new Set(prev);
+        next.delete(contentId);
+        return next;
+      });
+    }
   }
 
   function handleEditPublishedContent(content: ManagedContent) {
@@ -247,7 +264,15 @@ export function ContentManagementPage({ onContinueDraft }: ContentManagementPage
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100">
-            {items.length === 0 ? (
+            {isLoading ? (
+              Array.from({ length: 5 }).map((_, i) => (
+                <tr key={i}>
+                  <td colSpan={tableColumnCount} className="px-4 py-4">
+                    <div className="h-4 w-full rounded bg-gray-100 animate-pulse" />
+                  </td>
+                </tr>
+              ))
+            ) : items.length === 0 ? (
               <tr>
                 <td
                   colSpan={tableColumnCount}
@@ -329,9 +354,10 @@ export function ContentManagementPage({ onContinueDraft }: ContentManagementPage
                         <button
                           type="button"
                           onClick={() => handleDeleteContent(content.id)}
-                          className="rounded-lg border border-red-100 px-3 py-1.5 text-xs font-black text-red-500 transition-colors cursor-pointer hover:border-red-200 hover:text-red-600"
+                          disabled={deletingIds.has(content.id)}
+                          className="rounded-lg border border-red-100 px-3 py-1.5 text-xs font-black text-red-500 transition-colors cursor-pointer hover:border-red-200 hover:text-red-600 disabled:opacity-50"
                         >
-                          삭제
+                          {deletingIds.has(content.id) ? '삭제 중...' : '삭제'}
                         </button>
                       </div>
                     ) : (
@@ -346,9 +372,10 @@ export function ContentManagementPage({ onContinueDraft }: ContentManagementPage
                         <button
                           type="button"
                           onClick={() => handleDeleteContent(content.id)}
-                          className="rounded-lg border border-red-100 bg-white px-3 py-1.5 text-xs font-black text-red-500 shadow-sm transition-colors hover:border-red-200 hover:text-red-600"
+                          disabled={deletingIds.has(content.id)}
+                          className="rounded-lg border border-red-100 bg-white px-3 py-1.5 text-xs font-black text-red-500 shadow-sm transition-colors hover:border-red-200 hover:text-red-600 disabled:opacity-50"
                         >
-                          삭제
+                          {deletingIds.has(content.id) ? '삭제 중...' : '삭제'}
                         </button>
                       </div>
                     )}
