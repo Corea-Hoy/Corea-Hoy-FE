@@ -8,6 +8,7 @@ import {
 } from '@/features/comment/api/comment.api';
 import { useInfiniteQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
+import { articleKeys } from '@/features/article/model/queryKeys';
 
 export const useComments = () => {
   const [textarea, setTextarea] = useState('');
@@ -20,7 +21,7 @@ export const useComments = () => {
   const queryClient = useQueryClient();
 
   const commentQuery = useInfiniteQuery({
-    queryKey: ['newsComments', id],
+    queryKey: articleKeys.comments(id),
     queryFn: ({ pageParam }) => getCommentsList({ id, cursor: pageParam }),
     initialPageParam: undefined as string | undefined,
     getNextPageParam: (lastPage) => lastPage.nextCursor ?? undefined,
@@ -29,7 +30,7 @@ export const useComments = () => {
   const commentEdit = useMutation({
     mutationFn: createComment,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['newsComments', id] });
+      queryClient.invalidateQueries({ queryKey: articleKeys.comments(id) });
     },
     onError: () => {
       toast.error('댓글 등록에 실패했습니다.');
@@ -39,7 +40,7 @@ export const useComments = () => {
   const commentUpdate = useMutation({
     mutationFn: updateComment,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['newsComments', id] });
+      queryClient.invalidateQueries({ queryKey: articleKeys.comments(id) });
       setEditCommentId(null);
     },
     onError: () => {
@@ -50,7 +51,7 @@ export const useComments = () => {
   const commentDelete = useMutation({
     mutationFn: deleteComment,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['newsComments', id] });
+      queryClient.invalidateQueries({ queryKey: articleKeys.comments(id) });
     },
     onError: () => {
       toast.error('댓글 삭제를 실패했습니다.');

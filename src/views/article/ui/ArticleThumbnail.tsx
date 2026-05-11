@@ -5,14 +5,22 @@ import { UserRound } from 'lucide-react';
 import { formatDate } from '@/shared/utils';
 import { useUsersStore } from '@/entities/user';
 import { useArticles } from '@/features/article/model/useArticles';
-
-export function ArticleThumbnail() {
-  const { title, newsData: _newsData, onEdit, onDeletePost } = useArticles();
+import { useTranslations } from 'next-intl';
+export function ArticleThumbnail({
+  onDeletePost,
+  onEdit,
+}: {
+  onDeletePost: () => void;
+  onEdit: () => void;
+}) {
+  const { title, newsData: _newsData } = useArticles();
   const newsData = _newsData!;
 
   const { user, isLoggedIn } = useUsersStore();
+  const t = useTranslations('common');
 
-  const buttonStyle = 'h-[2rem] w-[3rem] text-base border leading-none rounded-xl';
+  const buttonStyle =
+    'h-[2rem] min-w-[3rem] w-auto px-[0.4rem] text-base border leading-none rounded-xl';
   return (
     <div className="relative">
       <div className="h-[20rem] w-full overflow-hidden">
@@ -22,10 +30,10 @@ export function ArticleThumbnail() {
       {isLoggedIn && user?.role === ROLE.ADMIN && (
         <div className="absolute right-[0.7rem] top-4 z-50 flex gap-1">
           <button className={`${buttonStyle} text-red-600 bg-red-100`} onClick={onDeletePost}>
-            삭제
+            {t('delete')}
           </button>
           <button className={`${buttonStyle} text-green-700 bg-green-100`} onClick={onEdit}>
-            수정
+            {t('edit')}
           </button>
         </div>
       )}

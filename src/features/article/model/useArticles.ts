@@ -5,21 +5,17 @@ import { useLocale } from 'next-intl';
 import { getLocalizedField, Locale } from '@/features/article/model/getLocalizedField';
 import { getNewsDetail, toggleArticleLike } from '@/features/article/api/article.api';
 import { toast } from 'sonner';
-import { DetailRequest } from '@/entities/article';
+import { ArticleRequest } from '@/entities/article';
 import { useUsersStore } from '@/entities/user';
 
 export const useArticles = () => {
   const [showShareModal, setShowShareModal] = useState(false);
-  const [showDeletePostModal, setShowDeletePostModal] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
 
   const locale = useLocale() as Locale;
 
   const { id } = useParams<{ id: string }>();
   const queryClient = useQueryClient();
-  const likedContentIds = useUsersStore((state) => state.likedContentIds);
-  const toggleLike = useUsersStore((state) => state.toggleLike);
-
   const { isLoggedIn } = useUsersStore();
 
   const route = useRouter();
@@ -34,15 +30,15 @@ export const useArticles = () => {
     onMutate: async () => {
       await queryClient.cancelQueries({ queryKey: ['newsDetail', id] });
 
-      const previousData = queryClient.getQueryData<DetailRequest>(['newsDetail', id]);
+      const previousData = queryClient.getQueryData<ArticleRequest>(['newsDetail', id]);
 
-      const isLiked = likedContentIds.includes(id);
-      toggleLike(id);
+      const isLiked = previousData?.isLiked ?? false;
 
-      queryClient.setQueryData<DetailRequest>(['newsDetail', id], (old) => {
+      queryClient.setQueryData<ArticleRequest>(['newsDetail', id], (old) => {
         if (!old) return old;
         return {
           ...old,
+          isLiked: !isLiked,
           _count: {
             ...old._count,
             likes: isLiked ? old._count.likes - 1 : old._count.likes + 1,
@@ -55,7 +51,6 @@ export const useArticles = () => {
     onError: (_, __, context) => {
       if (context) {
         queryClient.setQueryData(['newsDetail', id], context.previousData);
-        toggleLike(id); // 롤백
       }
       toast.error('좋아요 처리에 실패했습니다.');
     },
@@ -64,28 +59,11 @@ export const useArticles = () => {
     },
   });
 
-  const like = likedContentIds.includes(id);
+  const like = newsQuery.data?.isLiked ?? false;
   const likeCount = newsQuery.data?._count.likes ?? 0;
   const title = getLocalizedField(newsQuery.data, 'title', locale);
   const body = getLocalizedField(newsQuery.data, 'body', locale);
   const note = getLocalizedField(newsQuery.data, 'culturalNote', locale);
-
-  /**
-   * 게시글 수정
-   **/
-  const onEdit = () => {};
-
-  /**
-   * 게시글 삭제
-   **/
-  const onDeletePost = () => {
-    setShowDeletePostModal(true);
-  };
-
-  /**
-   * 게시글 삭제 확인
-   **/
-  const onDeletePostModal = () => {};
 
   /**
    *
@@ -129,14 +107,9 @@ export const useArticles = () => {
     like,
     likeCount,
     showShareModal,
-    showDeletePostModal,
     showLoginModal,
     setShowLoginModal,
     setShowShareModal,
-    setShowDeletePostModal,
-    onEdit,
-    onDeletePostModal,
-    onDeletePost,
     onShare,
     onShareModal,
     onLikeToggle,

@@ -8,15 +8,19 @@ import { ArticleComments } from '@/views/article/ui/ArticleComments';
 import { ArticleActions } from '@/views/article/ui/ArticleActions';
 import { ArticleContent } from '@/views/article/ui/ArticleContent';
 import { ArticleThumbnail } from '@/views/article/ui/ArticleThumbnail';
+import { useArticleManage } from '@/features/article/model/useArticleManage';
 
 export function ArticlePage() {
+  const { newsData, newsIsLoading } = useArticles();
+
   const {
-    newsData,
-    newsIsLoading,
+    isLoading,
     showDeletePostModal,
     setShowDeletePostModal,
     onDeletePostModal,
-  } = useArticles();
+    onDeletePost,
+    onEdit,
+  } = useArticleManage();
 
   if (newsIsLoading) return <Loading />;
   if (!newsData) return notFound();
@@ -24,7 +28,7 @@ export function ArticlePage() {
   return (
     <div className="pt-5">
       {/* 타이틀 헤더 */}
-      <ArticleThumbnail />
+      <ArticleThumbnail onDeletePost={onDeletePost} onEdit={onEdit} />
 
       {/* 컨텐츠  */}
       <ArticleContent />
@@ -35,12 +39,15 @@ export function ArticlePage() {
       {/* 댓글 */}
       <ArticleComments />
 
+      {/* 로딩 */}
+      {isLoading && <Loading />}
+
       {/* 게시글 삭제 확인 모달 */}
       <ConfirmModal
         show={showDeletePostModal}
         text="정말 이 게시글을 삭제하시겠습니까?"
-        onConfirm={() => setShowDeletePostModal(false)}
-        onClose={onDeletePostModal}
+        onConfirm={onDeletePostModal}
+        onClose={() => setShowDeletePostModal(false)}
       />
     </div>
   );

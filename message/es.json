@@ -152,11 +152,18 @@
     "finalKo": "Versión coreana final",
     "translationLabel": "Traducción",
     "noDirtyHint": "Sin modificaciones. Puede traducir directamente.",
-    "dirtyHint": "{count} párrafo(s) modificado(s)."
+    "dirtyHint": "{count} párrafo(s) modificado(s).",
+    "deleteArticle": "La publicación se ha eliminado correctamente.",
+    "deleteArticleError": "No se pudo eliminar la publicación.",
+    "deleteModal": "¿Estás seguro de que deseas eliminar esta publicación?",
+    "editExitModal": "Si sales de la página, los cambios realizados no se guardarán. ¿Estás seguro de que deseas salir de la página?"
   },
   "common": {
+    "edit": "Editar",
+    "delete": "Eliminar",
     "cancel": "Cancelar",
     "confirm": "Confirmar",
-    "more": "Ver más"
+    "more": "Ver más",
+    "titlePlaceholder": "Introduce un título"
   }
 }

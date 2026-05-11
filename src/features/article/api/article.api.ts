@@ -1,29 +1,29 @@
 import api from '@/shared/api';
-import { DetailRequest } from '@/entities/article';
+import { ArticleRequest, UpdateArticleRequest } from '@/entities/article';
 
 /**
  * 상세 뉴스 조회
  * @param id
  **/
 export const getNewsDetail = (id: string) => {
-  return api.get<{ data: DetailRequest }>(`/api/articles/${id}`).then((res) => res.data.data);
+  return api.get<{ data: ArticleRequest }>(`/api/articles/${id}`).then((res) => res.data.data);
 };
 
 /**
  * 게시글 수정
  * @param id
  **/
-// export const updateNewsDetail = (id: string) => {
-//   return api.get<DetailRequest>(`/api/articles/${id}`).then((res) => res.data.data);
-// };
+export const updateNewsDetail = (id: string) => {
+  return api.put<UpdateArticleRequest>(`/api/articles/${id}`).then((res) => res.data);
+};
 
 /**
  * 게시글 삭제
  * @param id
  **/
-// export const deleteNewsDetail = (id: string) => {
-//   return api.get<DetailRequest>(`/api/articles/${id}`).then((res) => res.data.data);
-// };
+export const deleteNewsDetail = (id: string) => {
+  return api.delete(`/api/admin/articles/${id}`).then((res) => res.data.data);
+};
 
 /**
  * 좋아요 추가

@@ -1,4 +1,4 @@
-export type DetailRequest = {
+export type ArticleRequest = {
   id: string;
   titleKo: string;
   bodyKo: string;
@@ -18,6 +18,7 @@ export type DetailRequest = {
   category: Category;
   sources: Sources[];
   _count: Count;
+  isLiked: boolean;
 };
 
 type Category = {
@@ -36,4 +37,16 @@ type Sources = {
 type Count = {
   likes: number;
   comments: number;
+};
+
+export type UpdateArticleRequest = {
+  titleKo: string;
+  bodyKo: string;
+  culturalNoteKo: string;
+  titleEs: string;
+  bodyEs: string;
+  culturalNoteEs: string;
+  draftStep: string;
+  langStatusKo: string;
+  langStatusEs: string;
 };
