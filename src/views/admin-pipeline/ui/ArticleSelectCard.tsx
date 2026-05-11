@@ -1,4 +1,4 @@
-import type { AdminCandidateArticle } from '../model/mockArticles';
+import type { AdminCandidateArticle } from '../model/types';
 
 interface ArticleSelectCardProps {
   article: AdminCandidateArticle;

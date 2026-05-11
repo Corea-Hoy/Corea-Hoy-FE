@@ -25,6 +25,7 @@ interface RichTextEditorProps {
   onChange: (value: string) => void;
   minHeightClassName?: string;
   placeholder?: string;
+  disabled?: boolean;
 }
 
 function ToolbarButton({
@@ -66,9 +67,11 @@ export function RichTextEditor({
   onChange,
   minHeightClassName = 'min-h-[280px]',
   placeholder,
+  disabled = false,
 }: RichTextEditorProps) {
   const [isEmojiPanelOpen, setIsEmojiPanelOpen] = useState(false);
   const editor = useEditor({
+    editable: !disabled,
     immediatelyRender: false,
     shouldRerenderOnTransaction: true,
     extensions: [
@@ -108,6 +111,11 @@ export function RichTextEditor({
     editor.commands.setContent(value, { emitUpdate: false });
   }, [editor, value]);
 
+  useEffect(() => {
+    if (!editor) return;
+    editor.setEditable(!disabled);
+  }, [editor, disabled]);
+
   if (!editor) {
     return (
       <div
@@ -129,7 +137,11 @@ export function RichTextEditor({
   };
 
   return (
-    <div className="overflow-hidden rounded-xl border border-gray-200 bg-white focus-within:border-black">
+    <div
+      className={`overflow-hidden rounded-xl border border-gray-200 bg-white focus-within:border-black ${
+        disabled ? 'opacity-60 grayscale' : ''
+      }`}
+    >
       <div className="flex gap-1.5 overflow-x-auto border-b border-gray-100 bg-gray-50 p-2">
         <ToolbarButton
           label="굵게"
