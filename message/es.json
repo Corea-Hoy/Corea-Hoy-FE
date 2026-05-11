@@ -40,10 +40,10 @@
     "demo": "Actualmente en versión beta."
   },
   "login": {
-    "subtitle": "Inicia sesión para comentar y guardar artículos",
+    "description": "¿Qué está pasando últimamente en Corea?\nInicia sesión y descubre las noticias más rápido.",
     "google": "Continuar con Google",
-    "connecting": "Conectando...",
-    "browse": "Explorar sin iniciar sesión"
+    "loginAgreementText": "Al continuar, se considera que aceptas los Términos de uso y la Política de privacidad de Corea Hoy.",
+    "loginError": "No se pudo iniciar sesión."
   },
   "onboarding": {
     "welcome": "¡Bienvenido/a! 👋",

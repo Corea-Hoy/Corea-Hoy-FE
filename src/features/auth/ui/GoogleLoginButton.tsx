@@ -1,6 +1,7 @@
 'use client';
 
 import styles from './GoogleLoginButton.module.css';
+import { useTranslations } from 'next-intl';
 
 interface Props {
   onClick: () => void;
@@ -8,6 +9,7 @@ interface Props {
 }
 
 export function GoogleLoginButton({ onClick, disabled }: Props) {
+  const t = useTranslations('login');
   return (
     <button
       type="button"
@@ -45,9 +47,7 @@ export function GoogleLoginButton({ onClick, disabled }: Props) {
           </svg>
         </div>
 
-        <span className={styles['gsi-material-button-contents']}>Google로 시작하기</span>
-
-        <span style={{ display: 'none' }}>Sign in with Google</span>
+        <span className={styles['gsi-material-button-contents']}>{t('google')}</span>
       </div>
     </button>
   );

@@ -3,10 +3,13 @@ import { useMutation } from '@tanstack/react-query';
 import { googleLogin } from '@/features/auth/api/auth.api';
 import { initGoogleAuth } from '@/shared/lib/google/googleAuth';
 import { useUsersStore } from '@/entities/user';
+import { toast } from 'sonner';
+import { useTranslations } from 'next-intl';
 
 export const useLogin = () => {
   const router = useRouter();
   const login = useUsersStore((state) => state.login);
+  const t = useTranslations('login');
 
   const { mutate, isPending } = useMutation({
     mutationFn: googleLogin,
@@ -22,6 +25,7 @@ export const useLogin = () => {
     },
     onError: (error) => {
       console.error('Login failed:', error);
+      toast.error(t('loginError'));
     },
   });
 

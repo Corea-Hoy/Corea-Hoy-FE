@@ -6,11 +6,13 @@ import { useLogin } from '@/features/auth/model/useLogin';
 import { useUsersStore } from '@/entities/user';
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 
 export function LoginPage() {
   const { onGoogleLogin, isPending } = useLogin();
   const { isLoggedIn } = useUsersStore();
   const router = useRouter();
+  const t = useTranslations('login');
 
   useEffect(() => {
     if (isLoggedIn) router.replace('/');
@@ -32,9 +34,7 @@ export function LoginPage() {
         </div>
 
         <p className="text-center text-gray-500 text-sm mb-[4rem] leading-relaxed">
-          요즘, 한국에는 무슨 일이 있을까?
-          <br />
-          로그인하고 소식을 더욱 빠르게 만나보세요
+          {t('description')}
         </p>
 
         <form>
@@ -51,7 +51,7 @@ export function LoginPage() {
             </div>
           </div>
           <p className="mt-5 text-[11px] leading-relaxed text-gray-400 text-center px-2">
-            계속 진행하면 코레아 호이의 이용약관 및 개인정보 처리방침에 동의하는 것으로 간주됩니다.
+            {t('loginAgreementText')}
           </p>
         </form>
       </div>

@@ -40,10 +40,10 @@
     "demo": "현재 베타 서비스 중입니다."
   },
   "login": {
-    "subtitle": "로그인하고 기사에 댓글을 남겨보세요",
-    "google": "Google로 로그인",
-    "connecting": "연결 중...",
-    "browse": "로그인 없이 둘러보기"
+    "description": "요즘, 한국에는 무슨 일이 있을까?\n로그인하고 소식을 더욱 빠르게 만나보세요",
+    "google": "Google로 시작하기",
+    "loginAgreementText": "계속 진행하면 코레아 호이의 이용약관 및 개인정보 처리방침에 동의하는 것으로 간주됩니다.",
+    "loginError": "로그인에 실패했습니다."
   },
   "onboarding": {
     "welcome": "환영합니다! 👋",
