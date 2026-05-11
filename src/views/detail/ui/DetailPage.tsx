@@ -9,10 +9,9 @@ import { CommentCard, CommentForm, ShareModal } from '@/features/detail';
 import { getTextFromRichTextHtml } from '@/shared/ui/rich-text-editor/getTextFromRichTextHtml';
 import { RichTextEditor } from '@/shared/ui/rich-text-editor/RichTextEditor';
 import { sanitizeRichTextHtml } from '@/shared/ui/rich-text-editor/sanitizeRichTextHtml';
+import api from '@/shared/api';
+import { adminApi } from '@/features/admin/api/admin.api';
 
-const INITIAL_TITLE = '타이틀이 들어갑니다.';
-const INITIAL_BODY =
-  '<p>안녕하세요</p><p>오늘 소개해드릴 내용은 귀여운 고양이입니다.</p><p>반갑습니다.</p>';
 const SAVE_RETURN_DELAY_MS = 1200;
 
 type ToastState = {
@@ -20,11 +19,26 @@ type ToastState = {
   message: string;
 } | null;
 
+interface ArticleDetail {
+  id: string;
+  titleKo: string;
+  titleEs: string | null;
+  bodyKo: string;
+  bodyEs: string | null;
+  thumbnailUrl: string | null;
+  viewCount: number;
+  publishedAt: string | null;
+  category: { id: number; name: string; slug: string };
+  _count: { likes: number; comments: number };
+}
+
 export function DetailPage() {
   const [like, setLike] = useState(false);
   const [showModal, setShowModal] = useState(false);
-  const [editableTitle, setEditableTitle] = useState(INITIAL_TITLE);
-  const [editableBody, setEditableBody] = useState(INITIAL_BODY);
+  const [article, setArticle] = useState<ArticleDetail | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [editableTitle, setEditableTitle] = useState('');
+  const [editableBody, setEditableBody] = useState('');
   const [toast, setToast] = useState<ToastState>(null);
   const toastTimeoutRef = useRef<number | null>(null);
   const saveReturnTimeoutRef = useRef<number | null>(null);
@@ -35,36 +49,37 @@ export function DetailPage() {
   const contentId = params?.id as string | undefined;
   const isEditMode = searchParams?.get('mode') === 'edit';
   const isAdminView = searchParams?.get('admin') === 'true' || isEditMode;
+
+  useEffect(() => {
+    if (!contentId) return;
+
+    api
+      .get<{ success: boolean; data: ArticleDetail }>(`/api/articles/${contentId}`)
+      .then((res) => {
+        const data = res.data.data;
+        setArticle(data);
+        setEditableTitle(data.titleKo);
+        setEditableBody(data.bodyKo);
+      })
+      .catch(() => {
+        setArticle(null);
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
+  }, [contentId]);
+
   const sanitizedBody = sanitizeRichTextHtml(editableBody);
-
-  const onModal = () => {
-    setShowModal(false);
-  };
-
-  const onlike = () => {
-    setLike(!like);
-  };
-
-  const handleEdit = () => {
-    router.push(`/detail/${contentId || 'mock'}?mode=edit`);
-  };
 
   useEffect(() => {
     return () => {
-      if (toastTimeoutRef.current) {
-        window.clearTimeout(toastTimeoutRef.current);
-      }
-      if (saveReturnTimeoutRef.current) {
-        window.clearTimeout(saveReturnTimeoutRef.current);
-      }
+      if (toastTimeoutRef.current) window.clearTimeout(toastTimeoutRef.current);
+      if (saveReturnTimeoutRef.current) window.clearTimeout(saveReturnTimeoutRef.current);
     };
   }, []);
 
   function showToast(nextToast: Exclude<ToastState, null>) {
-    if (toastTimeoutRef.current) {
-      window.clearTimeout(toastTimeoutRef.current);
-    }
-
+    if (toastTimeoutRef.current) window.clearTimeout(toastTimeoutRef.current);
     setToast(nextToast);
     toastTimeoutRef.current = window.setTimeout(() => {
       setToast(null);
@@ -72,32 +87,66 @@ export function DetailPage() {
     }, 3000);
   }
 
-  const handleSave = async () => {
-    const newTitle = editableTitle.trim();
-    const newBody = getTextFromRichTextHtml(editableBody);
+  function handleCancelEdit() {
+    if (article) {
+      setEditableTitle(article.titleKo);
+      setEditableBody(article.bodyKo);
+    }
+    router.push(`/detail/${contentId}?admin=true`);
+  }
 
-    if (!newTitle || !newBody) {
+  const handleEdit = () => {
+    router.push(`/detail/${contentId}?mode=edit`);
+  };
+
+  const handleSave = async () => {
+    if (!contentId) return;
+    const newTitle = editableTitle.trim();
+    if (!newTitle || !getTextFromRichTextHtml(editableBody)) {
       window.alert('제목과 본문을 모두 입력해주세요.');
       return;
     }
 
     try {
-      await new Promise((resolve) => setTimeout(resolve, 300));
-      showToast({
-        title: '수정 완료',
-        message: '콘텐츠 수정이 완료되었습니다.',
-      });
+      await adminApi.updateArticle(contentId, { titleKo: newTitle, bodyKo: editableBody });
+      setArticle((prev) => (prev ? { ...prev, titleKo: newTitle, bodyKo: editableBody } : prev));
+      showToast({ title: '수정 완료', message: '콘텐츠 수정이 완료되었습니다.' });
       saveReturnTimeoutRef.current = window.setTimeout(() => {
-        router.push(`/detail/${contentId || 'mock'}?admin=true`);
+        router.push(`/detail/${contentId}?admin=true`);
       }, SAVE_RETURN_DELAY_MS);
     } catch {
       window.alert('수정 중 오류가 발생했습니다.');
     }
   };
 
+  const formattedDate = article?.publishedAt
+    ? new Date(article.publishedAt).toISOString().slice(0, 10)
+    : '';
+
+  if (isLoading) {
+    return (
+      <div className="pt-5">
+        <div className="h-[20rem] w-full animate-pulse rounded-xl bg-gray-200" />
+        <div className="mt-8 space-y-4 px-4">
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="h-4 w-full animate-pulse rounded bg-gray-200" />
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  if (!article) {
+    return (
+      <div className="pt-20 text-center text-sm font-bold text-gray-400">
+        기사를 찾을 수 없습니다.
+      </div>
+    );
+  }
+
   return (
     <div className="pt-5">
-      {/* 관리자 툴바 (어드민 뷰일 때만 노출) */}
+      {/* 관리자 툴바 */}
       {isAdminView && (
         <div className="mb-4 flex flex-col gap-3 rounded-xl border border-gray-200 bg-gray-50 p-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex flex-col">
@@ -115,7 +164,7 @@ export function DetailPage() {
               <>
                 <button
                   type="button"
-                  onClick={() => router.push(`/detail/${contentId || 'mock'}?admin=true`)}
+                  onClick={handleCancelEdit}
                   className="rounded-lg border border-gray-200 bg-white px-4 py-2 text-xs font-black text-gray-600 shadow-sm transition-colors hover:bg-gray-50"
                 >
                   취소
@@ -144,11 +193,17 @@ export function DetailPage() {
       {/* 타이틀 헤더 */}
       <div className="relative">
         <div className="h-[20rem] w-full overflow-hidden">
-          <Image fill sizes="100vw" className="object-cover" src="/test.jpg" alt="" />
+          <Image
+            fill
+            sizes="100vw"
+            className="object-cover"
+            src={article.thumbnailUrl ?? '/test.jpg'}
+            alt=""
+          />
         </div>
 
         <div className="absolute top-0 left-0 flex flex-col justify-end items-start w-full h-[20rem] p-4 bg-black/40">
-          <Chip text="K-POP" color="red" />
+          <Chip text={article.category.name} color="red" />
           {isEditMode ? (
             <input
               value={editableTitle}
@@ -160,12 +215,12 @@ export function DetailPage() {
             <h1 className="!mt-2 text-[1.4rem] font-bold text-white">{editableTitle}</h1>
           )}
           <div className="flex justify-end w-full">
-            <span className="text-[0.8rem] text-white">2026-02-10</span>
+            <span className="text-[0.8rem] text-white">{formattedDate}</span>
           </div>
         </div>
       </div>
 
-      {/* 컨텐츠  */}
+      {/* 컨텐츠 */}
       {isEditMode ? (
         <div className="py-12">
           <RichTextEditor
@@ -189,13 +244,13 @@ export function DetailPage() {
           aria-label="좋아요 버튼"
           aria-pressed={like}
           className="flex items-center justify-start gap-2"
-          onClick={onlike}
+          onClick={() => setLike((prev) => !prev)}
         >
           <Heart className={like ? 'stroke-red-600' : 'stroke-black'} />
           <span
             className={`relative top-[0.1rem] text-base ${like ? 'text-red-600' : 'text-black'}`}
           >
-            35
+            {article._count.likes}
           </span>
         </button>
         <button type="button" aria-label="공유하기 버튼" onClick={() => setShowModal(true)}>
@@ -204,7 +259,7 @@ export function DetailPage() {
       </div>
 
       {/* 공유하기 모달 */}
-      <ShareModal show={showModal} onClick={onModal} />
+      <ShareModal show={showModal} onClick={() => setShowModal(false)} />
 
       {/* 댓글 */}
       <div className="mt-4 py-4 px-2 border-t border-t-gray-200">
