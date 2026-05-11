@@ -3,6 +3,23 @@
 import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
+type NavigateEvent = Event & {
+  hashChange: boolean;
+  navigationType: string;
+  destination: { url: string };
+  canIntercept: boolean;
+  intercept: (options: { handler: () => Promise<void> }) => void;
+};
+
+type NavigationObject = {
+  addEventListener: (type: string, handler: (e: NavigateEvent) => void, capture?: boolean) => void;
+  removeEventListener: (
+    type: string,
+    handler: (e: NavigateEvent) => void,
+    capture?: boolean,
+  ) => void;
+};
+
 type PendingNav =
   | { type: 'push'; url: string }
   | { type: 'back' }
@@ -63,7 +80,7 @@ export function useNavigationGuard() {
     window.addEventListener('beforeunload', onBeforeUnload);
 
     if ('navigation' in window) {
-      const nav = (window as Window & { navigation: EventTarget }).navigation;
+      const nav = (window as Window & { navigation: NavigationObject }).navigation;
 
       window.history.pushState({ __editGuard: true }, ''); // sentinel
       sentinelActiveRef.current = true;
@@ -108,6 +125,11 @@ export function useNavigationGuard() {
         document.removeEventListener('click', onLinkClick, true);
         window.removeEventListener('beforeunload', onBeforeUnload);
         nav.removeEventListener('navigate', onNavigate, true);
+        // sentinel이 소비되지 않은 채 언마운트될 경우(HMR, 즉시 언마운트 등) history에서 제거
+        if (sentinelActiveRef.current && window.location.pathname === editPath) {
+          sentinelActiveRef.current = false;
+          history.go(-1);
+        }
       };
     }
 
