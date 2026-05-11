@@ -28,6 +28,7 @@ function SafeImage({ src, alt, ...props }: { src: string; alt: string; [key: str
 
   return (
     <Image
+      unoptimized
       {...props}
       src={imgSrc}
       alt={alt}

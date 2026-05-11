@@ -60,10 +60,14 @@ export const adminApi = {
     api.post<{ success: boolean; data: NewsCandidate[] }>('/api/admin/pipeline/search'),
 
   generateContent: (data: { mode: 'generate'; title: string; content: string }) =>
-    api.post<{ success: boolean; data: GenerateResult }>('/api/admin/pipeline/generate', data),
+    api.post<{ success: boolean; data: GenerateResult }>('/api/admin/pipeline/generate', data, {
+      timeout: 120000,
+    }),
 
   translateContent: (data: { mode: 'translate'; titleKo: string; bodyKo: string }) =>
-    api.post<{ success: boolean; data: TranslateResult }>('/api/admin/pipeline/generate', data),
+    api.post<{ success: boolean; data: TranslateResult }>('/api/admin/pipeline/generate', data, {
+      timeout: 120000,
+    }),
 
   getAdminArticles: (params?: {
     status?: 'DRAFT' | 'PUBLISHED' | 'ARCHIVED';

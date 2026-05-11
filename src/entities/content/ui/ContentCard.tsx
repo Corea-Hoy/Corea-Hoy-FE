@@ -30,6 +30,7 @@ export default function ContentCard({ content, isKo }: ContentCardProps) {
       {/* Thumbnail */}
       <div className="relative h-36 sm:h-44 md:h-48 w-full">
         <Image
+          unoptimized
           src={imgSrc}
           alt={isKo ? content.titleKo : content.titleEs}
           fill
