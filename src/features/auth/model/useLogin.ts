@@ -11,7 +11,13 @@ export const useLogin = () => {
   const { mutate, isPending } = useMutation({
     mutationFn: googleLogin,
     onSuccess: (res) => {
-      login(res.data.user);
+      login({
+        id: res.data.user.id ?? 'id확인',
+        email: res.data.user.email ?? 'email확인',
+        name: res.data.user.nickname ?? 'name확인',
+        role: res.data.user.role ?? 'role확인',
+        image: res.data.user.avatarEmoji || res.data.user.image || undefined,
+      });
       router.push('/');
     },
     onError: (error) => {

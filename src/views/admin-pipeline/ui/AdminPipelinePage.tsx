@@ -69,12 +69,16 @@ function pipelineStepToDraftStep(
 }
 
 const categoryMap: Record<string, ManagedContent['category']> = {
-  정치: 'politics',
-  경제: 'economy',
-  사회: 'society',
-  문화: 'culture',
-  'IT/과학': 'it',
-  국제: 'world',
+  정치: '뉴스',
+  경제: '뉴스',
+  사회: '뉴스',
+  문화: '문화',
+  'IT/과학': '뉴스',
+  국제: '뉴스',
+  'K-POP': 'K-POP',
+  드라마: '드라마',
+  스포츠: '스포츠',
+  음식: '음식',
 };
 
 function mapAdminArticleToManagedContent(article: AdminArticle): ManagedContent {
@@ -97,7 +101,7 @@ function mapAdminArticleToManagedContent(article: AdminArticle): ManagedContent 
   return {
     id: article.id,
     title: article.titleKo,
-    category: categoryMap[article.category.name] ?? ('other' as ManagedContent['category']),
+    category: categoryMap[article.category.name] ?? '뉴스',
     status,
     currentStep,
     language: 'es',

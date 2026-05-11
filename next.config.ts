@@ -16,15 +16,13 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: 'https',
-        hostname: 'images.unsplash.com',
+        hostname: '**.co.kr',
+        pathname: '/**',
       },
       {
         protocol: 'https',
-        hostname: 'img.yna.co.kr',
-      },
-      {
-        protocol: 'https',
-        hostname: 'pimg.mk.co.kr',
+        hostname: 'lh3.googleusercontent.com',
+        pathname: '/**',
       },
     ],
   },

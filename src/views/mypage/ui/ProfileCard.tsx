@@ -2,19 +2,19 @@
 
 import { useTranslations } from 'next-intl';
 import { Avatar } from '@/shared/ui';
-import { UserProfile, AVATAR_PRESETS } from '@/entities/user';
+import { User, AVATAR_PRESETS } from '@/entities/user';
 
 interface ProfileCardProps {
-  user: UserProfile;
+  user: User;
   editing: boolean;
   tempNickname: string;
-  tempAvatar: { emoji: string; color: string };
+  tempAvatar: { id: string; emoji: string; color: string };
   nicknameError: string;
-  stats: { likes: number; comments: number };
+  stats: { likes: number };
   onStartEdit: () => void;
   onSave: () => void;
   onCancelEdit: () => void;
-  onAvatarChange: (preset: { emoji: string; color: string }) => void;
+  onAvatarChange: (preset: { id: string; emoji: string; color: string }) => void;
   onNicknameChange: (val: string) => void;
   onLogout: () => void;
   onDeleteAccount: () => void;
@@ -44,8 +44,25 @@ export function ProfileCard({
           {/* Avatar + name */}
           <div className="flex items-center gap-4 mb-5">
             <Avatar
-              emoji={editing ? tempAvatar.emoji : user.avatarEmoji}
-              color={editing ? tempAvatar.color : user.avatarColor}
+              src={
+                editing
+                  ? undefined
+                  : user.image?.startsWith('http') || user.image?.startsWith('/')
+                    ? user.image
+                    : undefined
+              }
+              emoji={
+                editing
+                  ? tempAvatar.emoji
+                  : AVATAR_PRESETS.find((p) => p.id === user.image || p.emoji === user.image)
+                      ?.emoji || '👤'
+              }
+              color={
+                editing
+                  ? tempAvatar.color
+                  : AVATAR_PRESETS.find((p) => p.id === user.image || p.emoji === user.image)
+                      ?.color || '#f3f4f6'
+              }
             />
             <div className="flex-1 min-w-0">
               <div className="text-lg font-bold truncate">{user.name}</div>
@@ -59,10 +76,6 @@ export function ProfileCard({
               <div className="text-center">
                 <div className="text-2xl font-black">{stats.likes}</div>
                 <div className="text-xs text-gray-400 mt-0.5">{t('likes')}</div>
-              </div>
-              <div className="text-center">
-                <div className="text-2xl font-black">{stats.comments}</div>
-                <div className="text-xs text-gray-400 mt-0.5">{t('comments')}</div>
               </div>
             </div>
           )}
@@ -81,7 +94,7 @@ export function ProfileCard({
                 <div className="text-sm font-bold mb-2">{t('avatarLabel')}</div>
                 <div className="grid grid-cols-6 gap-1.5">
                   {AVATAR_PRESETS.map((preset) => {
-                    const isSelected = tempAvatar.emoji === preset.emoji;
+                    const isSelected = tempAvatar.id === preset.id;
                     return (
                       <button
                         key={preset.emoji}
