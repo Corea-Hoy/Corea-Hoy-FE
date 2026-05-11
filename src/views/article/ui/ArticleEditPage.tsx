@@ -2,10 +2,14 @@
 
 import { RichTextEditor } from '@/shared/ui/rich-text-editor/RichTextEditor';
 import { useArticleManage } from '@/features/article/model/useArticleManage';
+import { useNavigationGuard } from '@/features/article/model/useNavigationGuard';
 import { useTranslations } from 'next-intl';
 import { ConfirmModal, Loading } from '@/shared/ui';
 
 export function ArticleEditPage() {
+  const { showNavGuardModal, onNavGuardConfirm, onNavGuardCancel, allowNextNavigation } =
+    useNavigationGuard();
+
   const {
     titleValue,
     editValue,
@@ -17,10 +21,7 @@ export function ArticleEditPage() {
     setShowDeletePostModal,
     showDeletePostModal,
     onDeletePostModal,
-    showEditExitModal,
-    onEditExitModal,
-    setShowEditExitModal,
-  } = useArticleManage();
+  } = useArticleManage(allowNextNavigation);
 
   const t = useTranslations();
 
@@ -81,12 +82,12 @@ export function ArticleEditPage() {
         onClose={() => setShowDeletePostModal(false)}
       />
 
-      {/* 게시글 수정 이탈 확인 모달 */}
+      {/* 페이지 이탈 확인 모달 */}
       <ConfirmModal
-        show={showEditExitModal}
+        show={showNavGuardModal}
         text={t('admin.editExitModal')}
-        onConfirm={onEditExitModal}
-        onClose={() => setShowEditExitModal(false)}
+        onConfirm={onNavGuardConfirm}
+        onClose={onNavGuardCancel}
       />
     </div>
   );
