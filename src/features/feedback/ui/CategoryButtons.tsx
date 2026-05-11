@@ -23,7 +23,7 @@ export function CategoryButtons({ buttons, activeIndex, onChange }: Props) {
           onClick={() => onChange(i, item.value)}
         >
           <img className="w-[3.5rem]" src={item.image} alt="" />
-          <span>{item.text}</span>
+          <span className="break-all">{item.text}</span>
         </button>
       ))}
     </>

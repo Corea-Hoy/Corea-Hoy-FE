@@ -4,6 +4,7 @@ import { CategoryButtons } from '@/features/feedback';
 import { useState } from 'react';
 import { CategoryButton } from '@/features/feedback/ui/CategoryButtons';
 import { FeedbackType } from '@/entities/feedback/model/types';
+import { useTranslations } from 'next-intl';
 
 interface Props {
   onChange: (index: number, value: FeedbackType) => void;
@@ -13,35 +14,36 @@ interface Props {
 }
 
 export function Step1({ onClick, onChange, other, onOtherChange }: Props) {
+  const t = useTranslations();
   const buttons: CategoryButton[] = [
     {
       image: '/images/illu/illu-design.webp',
-      text: '디자인 / 사용',
+      text: t('feedback.designUsage'),
       value: 'ui',
     },
     {
       image: '/images/illu/illu-content.webp',
-      text: '콘텐츠 퀄리티',
+      text: t('feedback.contentQuality'),
       value: 'content',
     },
     {
       image: '/images/illu/illu-mistranslations.webp',
-      text: '오역 및 번역 제안',
+      text: t('feedback.translationSuggestion'),
       value: 'translation',
     },
     {
       image: '/images/illu/illu-new.webp',
-      text: '새로운 기능 제안',
+      text: t('feedback.featureSuggestion'),
       value: 'feature',
     },
     {
       image: '/images/illu/illu-bug.webp',
-      text: '버그 및 오류',
+      text: t('bugError'),
       value: 'bug',
     },
     {
       image: '/images/illu/illu-comments.webp',
-      text: '기타 의견',
+      text: t('feedback.other'),
       value: 'other',
     },
   ];
@@ -65,12 +67,12 @@ export function Step1({ onClick, onChange, other, onOtherChange }: Props) {
       {activeButton === 5 && (
         <div className="mt-[1.4rem]">
           <label htmlFor="otherInput" className="sr-only">
-            기타 카테고리 입력
+            other category input
           </label>
           <input
             id="otherInput"
             type="text"
-            placeholder="카테고리를 입력해주세요."
+            placeholder="category input"
             className="w-full py-2 px-4 rounded-2xl bg-white outline-none"
             value={other}
             onChange={(e) => onOtherChange(e.target.value)}
@@ -79,7 +81,7 @@ export function Step1({ onClick, onChange, other, onOtherChange }: Props) {
       )}
       <button
         type="button"
-        className={`mt-12 ml-auto block w-[4rem] h-[2.5rem] rounded-xl text-base text-white font-bold ${
+        className={`mt-12 ml-auto block min-w-[4rem] w-auto h-[2.5rem] px-[0.4rem] rounded-xl text-base text-white font-bold ${
           activeButton == null ? 'bg-gray-400 cursor-not-allowed' : 'bg-green-700 cursor-pointer'
         }`}
         disabled={activeButton == null}
@@ -90,7 +92,7 @@ export function Step1({ onClick, onChange, other, onOtherChange }: Props) {
         }}
         aria-disabled={activeButton == null}
       >
-        다음
+        {t('common.next')}
       </button>
     </>
   );

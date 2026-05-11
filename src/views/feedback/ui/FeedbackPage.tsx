@@ -4,6 +4,7 @@ import { Step1 } from '@/views/feedback/ui/Step1';
 import { Step2 } from '@/views/feedback/ui/Step2';
 import { ConfirmModal, Loading, Stepper } from '@/shared/ui';
 import { useFeedbackForm } from '@/features/feedback';
+import { useTranslations } from 'next-intl';
 
 export function FeedbackPage() {
   const {
@@ -26,12 +27,13 @@ export function FeedbackPage() {
     onConfirm,
     onSuccessConfirm,
   } = useFeedbackForm();
+  const t = useTranslations('feedback');
 
   return (
     <div className="pt-[4rem]">
       <div className="pb-[3.5rem] text-center">
-        <h2 className="text-[1.3rem] font-bold">Corea Hoy에 대한 의견을 남겨주시겠어요?</h2>
-        <p className="mt-[0.4rem] text-base">여러분의 의견은 Corea Hoy에 큰 도움이 됩니다.</p>
+        <h2 className="text-[1.3rem] font-bold">{t('title')}</h2>
+        <p className="mt-[0.4rem] text-base">{t('subtitle')}</p>
       </div>
 
       {/* 컨텐츠 */}
@@ -71,7 +73,7 @@ export function FeedbackPage() {
         {/* 확인 모달 */}
         <ConfirmModal
           show={confirmModal}
-          text={'작성한 내용을 제출하시겠습니까?\n제출 후 수정이 제한됩니다.'}
+          text={t('submitMessage')}
           onConfirm={onConfirm}
           onClose={() => setConfirmModal(false)}
         />
@@ -79,7 +81,7 @@ export function FeedbackPage() {
         {/* 제출 완료 모달 */}
         <ConfirmModal
           show={successModal}
-          text={'제출이 완료되었습니다.'}
+          text={t('submitSuccess')}
           onConfirm={onSuccessConfirm}
           onClose={onSuccessConfirm}
         />

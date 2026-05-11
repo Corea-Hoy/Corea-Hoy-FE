@@ -92,7 +92,7 @@ export function ShareModal({ show, onClick, title = '', imageUrl = '' }: Props) 
       {/* 링크 확인 모달 */}
       <ConfirmModal
         show={showModal}
-        text="링크가 복사되었습니다."
+        text={t('shareSuccess')}
         cancelBtn={false}
         onConfirm={() => setShowModal(false)}
       />

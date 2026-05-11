@@ -95,7 +95,9 @@
     "noSummary": "No hay resumen disponible.",
     "shareModal": "¡Comparte esta noticia con todos!",
     "likeWithoutLogin": "Si te ha gustado, inicia sesión y dale “me gusta",
-    "likeError": "No se pudo procesar el 'me gusta'."
+    "likeError": "No se pudo procesar el 'me gusta'.",
+    "shareSuccess": "El enlace se ha copiado.",
+    "deleteConfirm": "¿Realmente deseas eliminar esta publicación?"
   },
   "comment": {
     "commentError": "No se pudo publicar el comentario.",
@@ -103,22 +105,27 @@
     "commentDeleteError": "No se pudo eliminar el comentario."
   },
   "feedback": {
-    "title": "Feedback",
-    "subtitle": "Ayúdanos a mejorar Corea Hoy. Toda opinión es bienvenida.",
+    "title": "¿Podrías dejar tu opinión sobre Corea Hoy?",
+    "subtitle": "Tus comentarios son de gran ayuda para Corea Hoy.",
     "categoryLabel": "Categoría",
-    "feedbackLabel": "Tu opinión",
     "placeholder": "¿Qué te gustaría que mejoráramos? Escribe libremente.",
     "submit": "Enviar",
     "successTitle": "¡Gracias!",
     "successDesc": "Hemos recibido tu opinión. La tendremos en cuenta para mejorar el servicio.",
     "another": "Enviar otra opinión",
     "notice": "Esta es la versión demo. En el servicio real, el feedback enviado se guardará.",
-    "catUi": "UI / Diseño",
-    "catContent": "Contenido",
-    "catFeature": "Sugerencia de función",
-    "catBug": "Reportar error",
-    "catOther": "Otro",
-    "feedbackPlaceholder": "Puedes introducir entre 10 y 1000 caracteres."
+    "feedbackPlaceholder": "Puedes introducir entre 10 y 1000 caracteres.",
+    "designUsage": "Diseño/uso",
+    "contentQuality": "Calidad del contenido",
+    "translationSuggestion": "Errores de traducción y sugerencias",
+    "featureSuggestion": "Sugerencia de nuevas funciones",
+    "bugError": "Errores y fallos",
+    "other": "Otros comentarios",
+    "submitMessage": "¿Deseas enviar el contenido que has escrito?\nDespués de enviarlo, la edición será limitada.",
+    "submitSuccess": "El envío se ha completado.",
+    "emailTitle": "Dirección de correo electrónico",
+    "contentTitle": "Cuéntanos los detalles",
+    "lengthMessage": "Debes introducir entre {min} y {max} caracteres."
   },
   "admin": {
     "title": "Consola de Administración",
@@ -171,6 +178,10 @@
     "cancel": "Cancelar",
     "confirm": "Confirmar",
     "more": "Ver más",
-    "titlePlaceholder": "Introduce un título"
+    "titlePlaceholder": "Introduce un título",
+    "submit": "Enviar",
+    "contentRequired": "Por favor, introduce el contenido.",
+    "emailRequired": "Por favor, introduce tu correo electrónico.",
+    "emailInvalid": "El formato del correo electrónico no es válido."
   }
 }

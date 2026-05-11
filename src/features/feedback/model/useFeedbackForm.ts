@@ -7,9 +7,11 @@ import { FeedbackType } from '@/entities/feedback/model/types';
 import { validateEmail } from '@/shared/utils/email';
 import { validateContent } from '@/features/feedback/model/validate';
 import { feedbackContent } from '@/features/feedback/api/feedback.api';
+import { useTranslations } from 'next-intl';
 
 export const useFeedbackForm = () => {
   const router = useRouter();
+  const t = useTranslations();
 
   const [currentStep, setCurrentStep] = useState(0);
   const [categoryButtonType, setCategoryButtonType] = useState<FeedbackType | null>(null);
@@ -57,8 +59,8 @@ export const useFeedbackForm = () => {
    * - 에러 없을 때만 확인 모달 오픈
    */
   const onSubmit = () => {
-    const emailError = validateEmail(email);
-    const contentError = validateContent(contents);
+    const emailError = validateEmail(email, t);
+    const contentError = validateContent(contents, t);
 
     setEmailMessage(emailError);
     setContentMessage(contentError);
