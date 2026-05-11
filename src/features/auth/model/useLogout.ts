@@ -8,8 +8,6 @@ export const useLogout = () => {
   const storeLogout = useUsersStore((state) => state.logout);
   const queryClient = useQueryClient();
 
-  const queryClient = useQueryClient();
-
   const { mutate: onLogout, isPending } = useMutation({
     mutationFn: logout,
     onSettled: () => {
