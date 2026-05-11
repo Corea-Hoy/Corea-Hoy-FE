@@ -28,7 +28,7 @@ export function MyCommentsList({ comments }: MyCommentsListProps) {
           {comments.map((cm) => (
             <div key={cm.id} className="border border-gray-100 bg-white rounded-xl p-4">
               <Link
-                href={`/detail/${cm.contentId}`}
+                href={`/article/${cm.contentId}`}
                 className="text-sm text-blue-500 font-semibold hover:underline"
               >
                 {cm.contentTitle}

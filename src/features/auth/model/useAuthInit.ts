@@ -13,6 +13,7 @@ export const useAuthInit = () => {
     queryFn: getMe,
     retry: false,
     staleTime: 1000 * 60 * 5, // 5분
+    refetchOnWindowFocus: false,
   });
 
   useEffect(() => {

@@ -89,7 +89,12 @@
     "comments": "Comentarios",
     "commentPlaceholder": "Escribe un comentario...",
     "submit": "Enviar",
-    "firstComment": "Aún no hay comentarios."
+    "firstComment": "Aún no hay comentarios.",
+    "deleteCommentConfirm": "¿Seguro que quieres eliminar este comentario?",
+    "culturalNoteTitle": "Una pizca de Corea hoy",
+    "noSummary": "No hay resumen disponible.",
+    "shareModal": "¡Comparte esta noticia con todos!",
+    "likeWithoutLogin": "Si te ha gustado, inicia sesión y dale “me gusta"
   },
   "feedback": {
     "title": "Feedback",
@@ -148,5 +153,10 @@
     "translationLabel": "Traducción",
     "noDirtyHint": "Sin modificaciones. Puede traducir directamente.",
     "dirtyHint": "{count} párrafo(s) modificado(s)."
+  },
+  "common": {
+    "cancel": "Cancelar",
+    "confirm": "Confirmar",
+    "more": "Ver más"
   }
 }

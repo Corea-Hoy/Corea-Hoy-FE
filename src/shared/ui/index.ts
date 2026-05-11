@@ -4,3 +4,4 @@ export { ConfirmModal } from './modal/ConfirmModal';
 export { AlertModal } from './modal/AlertModal';
 export { Loading } from './loading/Loading';
 export { Avatar } from './avatar/Avatar';
+export { NoData } from './noData/NoData';

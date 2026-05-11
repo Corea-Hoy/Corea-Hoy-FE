@@ -13,6 +13,7 @@ export interface User {
 interface UserState {
   user: User | null;
   isLoggedIn: boolean;
+  likedContentIds: string[];
   login: (user: User) => void;
   logout: () => void;
   updateProfile: (name: string, image: string) => void;
@@ -24,8 +25,9 @@ export const useUsersStore = create<UserState>()(
     (set) => ({
       user: null,
       isLoggedIn: false,
+      likedContentIds: [],
       login: (user) => set({ user, isLoggedIn: true }),
-      logout: () => set({ user: null, isLoggedIn: false }),
+      logout: () => set({ user: null, isLoggedIn: false, likedContentIds: [] }),
       updateProfile: (name, image) =>
         set((state) => {
           if (state.user) {
@@ -34,21 +36,13 @@ export const useUsersStore = create<UserState>()(
           return state;
         }),
       toggleLike: (contentId) =>
-        set((state) => {
-          if (!state.user) return state;
-          const likedContentIds = state.user.likedContentIds || [];
-          const isLiked = likedContentIds.includes(contentId);
-          return {
-            user: {
-              ...state.user,
-              likedContentIds: isLiked
-                ? likedContentIds.filter((id) => id !== contentId)
-                : [...likedContentIds, contentId],
-            },
-          };
-        }),
+        set((state) => ({
+          likedContentIds: state.likedContentIds.includes(contentId)
+            ? state.likedContentIds.filter((id) => id !== contentId)
+            : [...state.likedContentIds, contentId],
+        })),
     }),
-    { name: 'coreahoy-google-user' },
+    { name: 'coreahoy-user' },
   ),
 );
 

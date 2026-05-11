@@ -6,6 +6,7 @@ import { useUsersStore } from '@/entities/user/model/user.store';
 export const useLogout = () => {
   const router = useRouter();
   const storeLogout = useUsersStore((state) => state.logout);
+  const queryClient = useQueryClient();
 
   const queryClient = useQueryClient();
 
@@ -14,6 +15,7 @@ export const useLogout = () => {
     onSettled: () => {
       queryClient.removeQueries({ queryKey: ['me'] });
       storeLogout();
+      queryClient.clear();
       router.push('/login');
     },
   });

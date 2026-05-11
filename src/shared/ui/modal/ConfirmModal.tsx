@@ -1,24 +1,32 @@
 import { ReactNode } from 'react';
+import { useTranslations } from 'next-intl';
 
 interface Props {
   show: boolean;
   title?: string;
   text: ReactNode;
+  cancelBtn?: boolean;
   confirmText?: string;
   cancelText?: string;
+
   onConfirm: () => void;
-  onClose: () => void;
+  onClose?: () => void;
 }
 
 export function ConfirmModal({
   show,
   title,
   text,
-  confirmText = '확인',
-  cancelText = '취소',
+  cancelBtn = true,
+  confirmText,
+  cancelText,
   onConfirm,
   onClose,
 }: Props) {
+  const t = useTranslations('common');
+  const finalConfirmText = confirmText || t('confirm');
+  const finalCancelText = cancelText || t('cancel');
+
   if (!show) return null;
 
   return (
@@ -47,19 +55,22 @@ export function ConfirmModal({
 
         {/* 푸터 */}
         <div className="flex gap-3 p-5">
-          <button
-            type="button"
-            className="flex-1 h-[3rem] text-base text-gray-600 font-bold rounded-2xl bg-gray-100 hover:bg-gray-200 transition-colors cursor-pointer"
-            onClick={onClose}
-          >
-            {cancelText}
-          </button>
+          {cancelBtn && (
+            <button
+              type="button"
+              className="flex-1 h-[3rem] text-base text-gray-600 font-bold rounded-2xl bg-gray-100 hover:bg-gray-200 transition-colors cursor-pointer"
+              onClick={onClose}
+            >
+              {finalCancelText}
+            </button>
+          )}
+
           <button
             type="button"
             className="flex-1 h-[3rem] text-base text-white font-bold rounded-2xl bg-green-600 hover:bg-green-700 transition-colors cursor-pointer"
             onClick={onConfirm}
           >
-            {confirmText}
+            {finalConfirmText}
           </button>
         </div>
       </div>
