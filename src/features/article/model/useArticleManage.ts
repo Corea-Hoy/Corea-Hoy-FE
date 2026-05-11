@@ -11,7 +11,7 @@ import { getLocalizedField, Locale } from '@/features/article/model/getLocalized
 import { useLocale, useTranslations } from 'next-intl';
 import { articleKeys } from '@/features/article/model/queryKeys';
 
-export const useArticleManage = () => {
+export const useArticleManage = (allowNextNavigation?: () => void) => {
   const route = useRouter();
   const { id } = useParams<{ id: string }>();
   const queryClient = useQueryClient();
@@ -40,6 +40,7 @@ export const useArticleManage = () => {
       queryClient.removeQueries({ queryKey: articleKeys.detail(id) });
       queryClient.removeQueries({ queryKey: articleKeys.comments(id) });
       toast.success(t('deleteArticle'));
+      allowNextNavigation?.();
       route.push('/');
     },
     onError: () => {
@@ -53,7 +54,6 @@ export const useArticleManage = () => {
   const [titleOverride, setTitleOverride] = useState<string | null>(null);
   const [editOverride, setEditOverride] = useState<string | null>(null);
   const [showDeletePostModal, setShowDeletePostModal] = useState(false);
-  const [showEditExitModal, setShowEditExitModal] = useState(false);
 
   const titleValue = titleOverride ?? serverTitle;
   const editValue = editOverride ?? serverBody;
@@ -100,13 +100,6 @@ export const useArticleManage = () => {
     newsDelete.mutate(id);
   };
 
-  /**
-   * 게시글 수정화면 이탈 시 모달 확인
-   **/
-  const onEditExitModal = () => {
-    setShowEditExitModal(false);
-  };
-
   return {
     data: newsQuery.data,
     titleValue,
@@ -119,8 +112,5 @@ export const useArticleManage = () => {
     onEdit,
     onDeletePostModal,
     onDeletePost,
-    showEditExitModal,
-    setShowEditExitModal,
-    onEditExitModal,
   };
 };

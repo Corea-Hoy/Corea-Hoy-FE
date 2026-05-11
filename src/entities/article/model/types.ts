@@ -18,6 +18,7 @@ export type ArticleRequest = {
   category: Category;
   sources: Sources[];
   _count: Count;
+  isLiked: boolean;
 };
 
 type Category = {

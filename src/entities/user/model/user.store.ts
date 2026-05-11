@@ -7,17 +7,15 @@ export interface User {
   name: string;
   role: string;
   image?: string;
-  likedContentIds?: string[];
+
 }
 
 interface UserState {
   user: User | null;
   isLoggedIn: boolean;
-  likedContentIds: string[];
   login: (user: User) => void;
   logout: () => void;
   updateProfile: (name: string, image: string) => void;
-  toggleLike: (contentId: string) => void;
 }
 
 export const useUsersStore = create<UserState>()(
@@ -25,9 +23,8 @@ export const useUsersStore = create<UserState>()(
     (set) => ({
       user: null,
       isLoggedIn: false,
-      likedContentIds: [],
       login: (user) => set({ user, isLoggedIn: true }),
-      logout: () => set({ user: null, isLoggedIn: false, likedContentIds: [] }),
+      logout: () => set({ user: null, isLoggedIn: false }),
       updateProfile: (name, image) =>
         set((state) => {
           if (state.user) {
@@ -35,12 +32,6 @@ export const useUsersStore = create<UserState>()(
           }
           return state;
         }),
-      toggleLike: (contentId) =>
-        set((state) => ({
-          likedContentIds: state.likedContentIds.includes(contentId)
-            ? state.likedContentIds.filter((id) => id !== contentId)
-            : [...state.likedContentIds, contentId],
-        })),
     }),
     { name: 'coreahoy-user' },
   ),
