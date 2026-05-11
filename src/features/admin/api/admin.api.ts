@@ -28,7 +28,7 @@ export interface AdminArticle {
   titleKo: string;
   titleEs: string | null;
   status: 'DRAFT' | 'PUBLISHED' | 'ARCHIVED';
-  draftStep: 'select' | 'review_ko' | 'review_es' | 'preview';
+  draftStep: 'select' | 'review-ko' | 'review-es' | 'preview';
   langStatusKo: 'pending' | 'done';
   langStatusEs: 'pending' | 'done';
   viewCount: number;
@@ -64,7 +64,12 @@ export const adminApi = {
       timeout: 120000,
     }),
 
-  translateContent: (data: { mode: 'translate'; titleKo: string; bodyKo: string }) =>
+  translateContent: (data: {
+    mode: 'translate';
+    titleKo: string;
+    bodyKo: string;
+    culturalNoteKo?: string;
+  }) =>
     api.post<{ success: boolean; data: TranslateResult }>('/api/admin/pipeline/generate', data, {
       timeout: 120000,
     }),

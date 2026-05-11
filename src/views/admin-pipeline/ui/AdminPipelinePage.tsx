@@ -47,8 +47,8 @@ type SavedDraft = {
 
 function draftStepToContentStep(draftStep: AdminArticle['draftStep']): ContentStep {
   if (draftStep === 'select') return 'select_article';
-  if (draftStep === 'review_ko') return 'review_content';
-  if (draftStep === 'review_es') return 'review_translation';
+  if (draftStep === 'review-ko') return 'review_content';
+  if (draftStep === 'review-es') return 'review_translation';
   return 'preview';
 }
 
@@ -68,19 +68,41 @@ function pipelineStepToDraftStep(
   return 'preview';
 }
 
+const categoryMap: Record<string, ManagedContent['category']> = {
+  정치: 'politics',
+  경제: 'economy',
+  사회: 'society',
+  문화: 'culture',
+  'IT/과학': 'it',
+  국제: 'world',
+};
+
 function mapAdminArticleToManagedContent(article: AdminArticle): ManagedContent {
   const status: ManagedContent['status'] = article.status === 'PUBLISHED' ? 'published' : 'draft';
   const currentStep: ContentStep =
     status === 'published' ? 'published' : draftStepToContentStep(article.draftStep);
+
+  let dateString = article.updatedAt;
+  try {
+    const d = new Date(article.updatedAt);
+    if (!isNaN(d.getTime())) {
+      dateString = d.toISOString().slice(0, 10);
+    } else {
+      dateString = new Date().toISOString().slice(0, 10);
+    }
+  } catch {
+    dateString = new Date().toISOString().slice(0, 10);
+  }
+
   return {
     id: article.id,
     title: article.titleKo,
-    category: article.category.name as ManagedContent['category'],
+    category: categoryMap[article.category.name] ?? ('other' as ManagedContent['category']),
     status,
     currentStep,
     language: 'es',
     views: article.viewCount,
-    updatedAt: article.updatedAt.slice(0, 10),
+    updatedAt: dateString,
   };
 }
 
@@ -116,7 +138,11 @@ export function AdminPipelinePage() {
   const [categories, setCategories] = useState<DbCategory[]>([]);
   const [adminArticles, setAdminArticles] = useState<AdminArticle[]>([]);
   const [isLoadingArticles, setIsLoadingArticles] = useState(false);
-
+  const [categoriesError, setCategoriesError] = useState(false);
+  const [newsError, setNewsError] = useState(false);
+  const [articlesError, setArticlesError] = useState(false);
+  const [isSavingDraft, setIsSavingDraft] = useState(false);
+  const [isPublishing, setIsPublishing] = useState(false);
   const previousStepRef = useRef<PipelineStep>(currentStep);
   const toastTimeoutRef = useRef<number | null>(null);
   const publishReturnTimeoutRef = useRef<number | null>(null);
@@ -139,8 +165,11 @@ export function AdminPipelinePage() {
   };
 
   const getCategoryId = useCallback(
-    (slug: string) => categories.find((c) => c.slug === slug)?.id ?? null,
-    [categories],
+    (slug: string) => {
+      if (categoriesError) return null;
+      return categories.find((c) => c.slug === slug)?.id ?? null;
+    },
+    [categories, categoriesError],
   );
 
   function openDraftContentInPipeline(
@@ -192,7 +221,11 @@ export function AdminPipelinePage() {
     adminApi
       .getCategories()
       .then((res) => setCategories(res.data.data))
-      .catch(() => {});
+      .catch((error) => {
+        console.error('Failed to load categories:', error);
+        setCategoriesError(true);
+        showToast({ title: '오류', message: '카테고리 정보를 불러오지 못했습니다.' });
+      });
   }, []);
 
   // Load candidate articles when pipeline section opens
@@ -216,8 +249,10 @@ export function AdminPipelinePage() {
           date: c.publishedAt ?? '',
         }));
         setCandidateArticles(mapped);
-      } catch {
-        // ignore
+      } catch (error) {
+        console.error('Failed to load candidate articles:', error);
+        setNewsError(true);
+        showToast({ title: '오류', message: '뉴스 기사를 불러오지 못했습니다.' });
       } finally {
         setIsLoadingCandidates(false);
       }
@@ -234,8 +269,10 @@ export function AdminPipelinePage() {
       try {
         const res = await adminApi.getAdminArticles({ limit: 50 });
         setAdminArticles(res.data.data.articles);
-      } catch {
-        // ignore
+      } catch (error) {
+        console.error('Failed to load admin articles:', error);
+        setArticlesError(true);
+        showToast({ title: '오류', message: '관리자 기사를 불러오지 못했습니다.' });
       } finally {
         setIsLoadingArticles(false);
       }
@@ -253,7 +290,16 @@ export function AdminPipelinePage() {
       const urlParams = new URLSearchParams(window.location.search);
       const querySection = urlParams.get('section');
       const contentId = urlParams.get('contentId');
-      const contentStep = urlParams.get('step') as ContentStep | null;
+      const rawContentStep = urlParams.get('step');
+      const validSteps: ContentStep[] = [
+        'select_article',
+        'review_content',
+        'review_translation',
+        'preview',
+      ];
+      const contentStep = validSteps.includes(rawContentStep as ContentStep)
+        ? (rawContentStep as ContentStep)
+        : null;
 
       if (querySection === 'pipeline' && contentId && contentStep) {
         openDraftContentInPipeline(contentId, contentStep);
@@ -443,6 +489,7 @@ export function AdminPipelinePage() {
         mode: 'translate',
         titleKo: generatedContent.title,
         bodyKo: generatedContent.body,
+        culturalNoteKo: generatedContent.culturalNoteKo,
       });
       const { titleEs, bodyEs, culturalNoteEs } = res.data.data;
       setTranslatedContent((current) => ({
@@ -509,68 +556,60 @@ export function AdminPipelinePage() {
     setCurrentStep(step);
   }
 
+  async function persistArticle(params: {
+    draftStep: 'select' | 'review-ko' | 'review-es' | 'preview';
+    langStatusKo: 'pending' | 'done';
+    langStatusEs: 'pending' | 'done';
+  }) {
+    let articleId = savedArticleId;
+    const categoryId = selectedArticle ? (getCategoryId(selectedArticle.category) ?? 1) : 1;
+
+    if (!articleId) {
+      const res = await adminApi.createDraftArticle({
+        titleKo: generatedContent?.title ?? selectedArticle?.title ?? '',
+        bodyKo: generatedContent?.body ?? selectedArticle?.summary ?? selectedArticle?.title ?? '',
+        culturalNoteKo: generatedContent?.culturalNoteKo,
+        titleEs: translatedContent?.esTitle,
+        bodyEs: translatedContent?.esBody,
+        culturalNoteEs: translatedContent?.culturalNoteEs,
+        thumbnailUrl: selectedArticle?.thumbnailUrl ?? undefined,
+        categoryId,
+        sourceUrl: selectedArticle?.url ?? '',
+        sourceTitle: selectedArticle?.title,
+        ...params,
+      });
+      articleId = res.data.data.id;
+      setSavedArticleId(articleId);
+    } else {
+      await adminApi.updateArticle(articleId, {
+        titleKo: generatedContent?.title,
+        bodyKo: generatedContent?.body,
+        culturalNoteKo: generatedContent?.culturalNoteKo,
+        titleEs: translatedContent?.esTitle,
+        bodyEs: translatedContent?.esBody,
+        culturalNoteEs: translatedContent?.culturalNoteEs,
+        ...params,
+      });
+    }
+    return articleId;
+  }
+
   async function handleSaveDraft() {
-    if (!generatedContent) {
-      localStorage.setItem(
-        DRAFT_STORAGE_KEY,
-        JSON.stringify({
-          savedArticleId,
-          currentStep,
-          selectedArticleId,
-          generatedContent,
-          translatedContent,
-          translationTargetLanguage,
-          hasCompletedContentReview,
-          hasReviewedTranslation,
-          isPublished,
-          saved: true,
-        }),
-      );
-      setSaveStatus('saved');
-      showToast({ title: '임시저장 완료', message: '현재 파이프라인 작업이 저장되었습니다.' });
+    if (isSavingDraft) return;
+
+    if (!generatedContent && !selectedArticle) {
+      showToast({ title: '알림', message: '기사를 먼저 선택해주세요.' });
       return;
     }
 
-    const draftStep = pipelineStepToDraftStep(currentStep);
-    const langStatusKo: 'pending' | 'done' =
-      hasCompletedContentReview || currentStep === 'preview' ? 'done' : 'pending';
-    const langStatusEs: 'pending' | 'done' = hasReviewedTranslation ? 'done' : 'pending';
-
+    setIsSavingDraft(true);
     try {
-      let articleId = savedArticleId;
+      const draftStep = pipelineStepToDraftStep(currentStep);
+      const langStatusKo: 'pending' | 'done' =
+        hasCompletedContentReview || currentStep === 'preview' ? 'done' : 'pending';
+      const langStatusEs: 'pending' | 'done' = hasReviewedTranslation ? 'done' : 'pending';
 
-      if (!articleId) {
-        const categoryId = selectedArticle ? (getCategoryId(selectedArticle.slug) ?? 1) : 1;
-        const res = await adminApi.createDraftArticle({
-          titleKo: generatedContent.title,
-          bodyKo: generatedContent.body,
-          culturalNoteKo: generatedContent.culturalNoteKo,
-          titleEs: translatedContent?.esTitle,
-          bodyEs: translatedContent?.esBody,
-          culturalNoteEs: translatedContent?.culturalNoteEs,
-          thumbnailUrl: selectedArticle?.thumbnailUrl ?? undefined,
-          categoryId,
-          sourceUrl: selectedArticle?.url ?? '',
-          sourceTitle: selectedArticle?.title,
-          draftStep,
-          langStatusKo,
-          langStatusEs,
-        });
-        articleId = res.data.data.id;
-        setSavedArticleId(articleId);
-      } else {
-        await adminApi.updateArticle(articleId, {
-          titleKo: generatedContent.title,
-          bodyKo: generatedContent.body,
-          culturalNoteKo: generatedContent.culturalNoteKo,
-          titleEs: translatedContent?.esTitle,
-          bodyEs: translatedContent?.esBody,
-          culturalNoteEs: translatedContent?.culturalNoteEs,
-          draftStep,
-          langStatusKo,
-          langStatusEs,
-        });
-      }
+      const articleId = await persistArticle({ draftStep, langStatusKo, langStatusEs });
 
       localStorage.setItem(
         DRAFT_STORAGE_KEY,
@@ -591,56 +630,35 @@ export function AdminPipelinePage() {
       showToast({ title: '임시저장 완료', message: '현재 파이프라인 작업이 저장되었습니다.' });
     } catch {
       showToast({ title: '오류', message: '임시저장에 실패했습니다. 다시 시도해주세요.' });
+    } finally {
+      setIsSavingDraft(false);
     }
   }
 
   async function handlePublish() {
+    if (isPublishing) return;
+
     if (!translatedContent?.esTitle?.trim() || !getTextFromRichTextHtml(translatedContent.esBody)) {
       return;
     }
     if (!generatedContent) return;
 
+    setIsPublishing(true);
     try {
-      let articleId = savedArticleId;
-
-      if (!articleId) {
-        const categoryId = selectedArticle ? (getCategoryId(selectedArticle.slug) ?? 1) : 1;
-        const res = await adminApi.createDraftArticle({
-          titleKo: generatedContent.title,
-          bodyKo: generatedContent.body,
-          culturalNoteKo: generatedContent.culturalNoteKo,
-          titleEs: translatedContent.esTitle,
-          bodyEs: translatedContent.esBody,
-          culturalNoteEs: translatedContent.culturalNoteEs,
-          thumbnailUrl: selectedArticle?.thumbnailUrl ?? undefined,
-          categoryId,
-          sourceUrl: selectedArticle?.url ?? '',
-          sourceTitle: selectedArticle?.title,
-          draftStep: 'preview',
-          langStatusKo: 'done',
-          langStatusEs: 'done',
-        });
-        articleId = res.data.data.id;
-        setSavedArticleId(articleId);
-      } else {
-        await adminApi.updateArticle(articleId, {
-          titleKo: generatedContent.title,
-          bodyKo: generatedContent.body,
-          culturalNoteKo: generatedContent.culturalNoteKo,
-          titleEs: translatedContent.esTitle,
-          bodyEs: translatedContent.esBody,
-          culturalNoteEs: translatedContent.culturalNoteEs,
-          draftStep: 'preview',
-          langStatusKo: 'done',
-          langStatusEs: 'done',
-        });
-      }
+      const articleId = await persistArticle({
+        draftStep: 'preview',
+        langStatusKo: 'done',
+        langStatusEs: 'done',
+      });
 
       await adminApi.publishArticle(articleId);
 
       localStorage.removeItem(DRAFT_STORAGE_KEY);
+      sessionStorage.removeItem(SESSION_STORAGE_KEY);
       setIsPublished(true);
-      setSaveStatus('dirty');
+      setSaveStatus('saved');
+      setSavedArticleId(null);
+      setSelectedArticleId(null);
       showToast({ title: '발행 완료', message: '콘텐츠가 발행 처리되었습니다.' });
 
       publishReturnTimeoutRef.current = window.setTimeout(() => {
@@ -649,6 +667,8 @@ export function AdminPipelinePage() {
       }, PUBLISH_RETURN_DELAY_MS);
     } catch {
       showToast({ title: '오류', message: '발행에 실패했습니다. 다시 시도해주세요.' });
+    } finally {
+      setIsPublishing(false);
     }
   }
 
@@ -702,8 +722,14 @@ export function AdminPipelinePage() {
   }
 
   async function handleDeleteContent(contentId: string) {
-    await adminApi.deleteArticle(contentId);
-    setAdminArticles((prev) => prev.filter((a) => a.id !== contentId));
+    if (!window.confirm('정말 삭제하시겠습니까?')) return;
+    try {
+      await adminApi.deleteArticle(contentId);
+      setAdminArticles((prev) => prev.filter((a) => a.id !== contentId));
+    } catch (error) {
+      console.error('Failed to delete content:', error);
+      showToast({ title: '오류', message: '삭제에 실패했습니다.' });
+    }
   }
 
   if (!hasHydratedDraft) {

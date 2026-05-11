@@ -166,6 +166,9 @@ export function ContentManagementPage({
     setDeletingIds((prev) => new Set(prev).add(contentId));
     try {
       await onDeleteContent(contentId);
+    } catch (error) {
+      console.error('Failed to delete content:', error);
+      alert('삭제에 실패했습니다.');
     } finally {
       setDeletingIds((prev) => {
         const next = new Set(prev);
