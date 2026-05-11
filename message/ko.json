@@ -94,7 +94,13 @@
     "culturalNoteTitle": "오늘의 한국 한 스푼",
     "noSummary": "요약이 존재하지 않습니다.",
     "shareModal": "이 소식을 함께 나눠보세요.",
-    "likeWithoutLogin": "마음에 드셨다면 로그인 후 좋아요를 눌러보세요."
+    "likeWithoutLogin": "마음에 드셨다면 로그인 후 좋아요를 눌러보세요.",
+    "likeError": "좋아요 처리에 실패했습니다."
+  },
+  "comment" : {
+    "commentError": "댓글 등록에 실패했습니다.",
+    "commentEditError": "댓글 수정을 실패했습니다.",
+    "commentDeleteError": "댓글 삭제를 실패했습니다."
   },
   "feedback": {
     "title": "피드백",
@@ -111,7 +117,8 @@
     "catContent": "컨텐츠",
     "catFeature": "기능 제안",
     "catBug": "오류 신고",
-    "catOther": "기타"
+    "catOther": "기타",
+    "feedbackPlaceholder": "최소 10자, 최대 1000자까지 입력할 수 있습니다."
   },
   "admin": {
     "title": "관리자 콘솔",
