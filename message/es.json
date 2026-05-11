@@ -125,7 +125,8 @@
     "submitSuccess": "El envío se ha completado.",
     "emailTitle": "Dirección de correo electrónico",
     "contentTitle": "Cuéntanos los detalles",
-    "lengthMessage": "Debes introducir entre {min} y {max} caracteres."
+    "lengthMessage": "Debes introducir entre {min} y {max} caracteres.",
+    "submitError": "Se produjo un error al enviar. Por favor, inténtalo de nuevo."
   },
   "admin": {
     "title": "Consola de Administración",

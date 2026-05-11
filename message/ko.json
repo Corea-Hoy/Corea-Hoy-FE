@@ -125,7 +125,8 @@
     "submitSuccess": "제출이 완료되었습니다.",
     "emailTitle": "이메일 주소",
     "contentTitle": "자세한 내용을 들려주세요",
-    "lengthMessage": "최소 {min}자, 최대 {max}자까지 입력할 수 있습니다."
+    "lengthMessage": "최소 {min}자, 최대 {max}자까지 입력할 수 있습니다.",
+    "submitError": "제출 중 오류가 발생했습니다. 다시 시도해주세요."
   },
   "admin": {
     "title": "관리자 콘솔",

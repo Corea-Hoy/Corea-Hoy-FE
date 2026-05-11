@@ -38,7 +38,7 @@ export function Step1({ onClick, onChange, other, onOtherChange }: Props) {
     },
     {
       image: '/images/illu/illu-bug.webp',
-      text: t('bugError'),
+      text: t('feedback.bugError'),
       value: 'bug',
     },
     {

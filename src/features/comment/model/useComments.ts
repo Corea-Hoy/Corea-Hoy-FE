@@ -35,7 +35,7 @@ export const useComments = () => {
       queryClient.invalidateQueries({ queryKey: articleKeys.comments(id) });
     },
     onError: () => {
-      toast.error(t('commentError'));
+      toast.error(t('comment.commentError'));
     },
   });
 
@@ -46,7 +46,7 @@ export const useComments = () => {
       setEditCommentId(null);
     },
     onError: () => {
-      toast.error(t('commentEditError'));
+      toast.error(t('comment.commentEditError'));
     },
   });
 
@@ -56,7 +56,7 @@ export const useComments = () => {
       queryClient.invalidateQueries({ queryKey: articleKeys.comments(id) });
     },
     onError: () => {
-      toast.error(t('commentDeleteError'));
+      toast.error(t('comment.commentDeleteError'));
     },
   });
 
