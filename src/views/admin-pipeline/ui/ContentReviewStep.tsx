@@ -1,11 +1,10 @@
 import Image from 'next/image';
-import {
-  createMockArticleOriginalText,
-  TRANSLATION_TARGET_LANGUAGES,
-  type AdminCandidateArticle,
-  type GeneratedContent,
-  type TranslationTargetLanguageSelection,
-} from '../model/mockArticles';
+import { TRANSLATION_TARGET_LANGUAGES } from '../model/labels';
+import type {
+  AdminCandidateArticle,
+  GeneratedContent,
+  TranslationTargetLanguageSelection,
+} from '../model/types';
 import { RichTextEditor } from '@/shared/ui/rich-text-editor/RichTextEditor';
 
 interface ContentReviewStepProps {
@@ -16,6 +15,7 @@ interface ContentReviewStepProps {
   onChange: (content: GeneratedContent) => void;
   onSaveDraft: () => void;
   saveStatus: 'idle' | 'saved' | 'dirty';
+  isTranslating: boolean;
   onNext: () => void;
   onPrev: () => void;
 }
@@ -28,10 +28,10 @@ export function ContentReviewStep({
   onChange,
   onSaveDraft,
   saveStatus,
+  isTranslating,
   onNext,
   onPrev,
 }: ContentReviewStepProps) {
-  const originalText = createMockArticleOriginalText(article);
   const canGoNext = Boolean(targetLanguage);
 
   return (
@@ -60,7 +60,7 @@ export function ContentReviewStep({
           </div>
 
           <h3 className="mb-4 text-base font-black leading-snug text-black">{article.title}</h3>
-          <p className="whitespace-pre-wrap text-sm leading-7 text-gray-700">{originalText}</p>
+          <p className="whitespace-pre-wrap text-sm leading-7 text-gray-700">{article.summary}</p>
         </div>
 
         <div className="rounded-2xl border-2 border-black bg-white p-5 shadow-sm lg:max-h-[720px] lg:overflow-y-auto">
@@ -79,10 +79,11 @@ export function ContentReviewStep({
                 <span className="mb-1 block text-[11px] font-bold text-gray-500">번역 언어</span>
                 <select
                   value={targetLanguage}
+                  disabled={isTranslating}
                   onChange={(event) =>
                     onTargetLanguageChange(event.target.value as TranslationTargetLanguageSelection)
                   }
-                  className="w-full rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm font-bold outline-none transition-colors cursor-pointer focus:border-black"
+                  className="w-full rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm font-bold outline-none transition-colors cursor-pointer focus:border-black disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   <option value="">선택 없음</option>
                   {TRANSLATION_TARGET_LANGUAGES.map((language) => (
@@ -100,8 +101,9 @@ export function ContentReviewStep({
               <span className="mb-2 block text-xs font-bold text-gray-500">제목</span>
               <input
                 value={content.title}
+                disabled={isTranslating}
                 onChange={(event) => onChange({ ...content, title: event.target.value })}
-                className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm font-bold outline-none transition-colors focus:border-black"
+                className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm font-bold outline-none transition-colors focus:border-black disabled:cursor-not-allowed disabled:opacity-50"
               />
             </label>
 
@@ -112,6 +114,7 @@ export function ContentReviewStep({
                 onChange={(body) => onChange({ ...content, body })}
                 minHeightClassName="min-h-[360px]"
                 placeholder="한국어 콘텐츠 본문"
+                disabled={isTranslating}
               />
             </div>
           </div>
@@ -153,10 +156,10 @@ export function ContentReviewStep({
           <button
             type="button"
             onClick={onNext}
-            disabled={!canGoNext}
+            disabled={!canGoNext || isTranslating}
             className="w-full rounded-xl bg-black px-5 py-3 text-sm font-black text-white transition-opacity cursor-pointer hover:opacity-80 disabled:cursor-not-allowed disabled:opacity-30 sm:w-auto"
           >
-            다음 단계
+            {isTranslating ? 'AI 번역 중...' : '다음 단계'}
           </button>
         </div>
       </div>
