@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic';
 import { Suspense } from 'react';
 import { AdminPipelinePage } from '@/views/admin-pipeline/ui/AdminPipelinePage';
 
