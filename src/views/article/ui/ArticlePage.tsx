@@ -46,7 +46,7 @@ export function ArticlePage() {
       {/* 게시글 삭제 확인 모달 */}
       <ConfirmModal
         show={showDeletePostModal}
-        text={t('common.deleteConfirm')}
+        text={t('content.deleteConfirm')}
         onConfirm={onDeletePostModal}
         onClose={() => setShowDeletePostModal(false)}
       />
