@@ -7,8 +7,8 @@ import { FeedbackType } from '@/entities/feedback/model/types';
 import { useTranslations } from 'next-intl';
 
 interface Props {
-  onChange: (index: number, value: FeedbackType) => void;
-  onClick: (activeButton: number | null) => void;
+  onChange: (value: FeedbackType) => void;
+  onClick: () => void;
   other: string;
   onOtherChange: (value: string) => void;
 }
@@ -49,10 +49,14 @@ export function Step1({ onClick, onChange, other, onOtherChange }: Props) {
   ];
 
   const [activeButton, setActiveButton] = useState<number | null>(null);
+  const [activeButtonValue, setActiveButtonValue] = useState<FeedbackType | null>(null);
+  const nextDisabled =
+    activeButtonValue == null || (activeButtonValue === 'other' && other.trim().length === 0);
 
   const onSelectCategory = (index: number, value: FeedbackType) => {
     setActiveButton(index);
-    onChange(index, value);
+    setActiveButtonValue(value);
+    onChange(value);
   };
 
   return (
@@ -64,7 +68,7 @@ export function Step1({ onClick, onChange, other, onOtherChange }: Props) {
           onChange={(i, value) => onSelectCategory(i, value)}
         />
       </div>
-      {activeButton === 5 && (
+      {activeButtonValue === 'other' && (
         <div className="mt-[1.4rem]">
           <label htmlFor="otherInput" className="sr-only">
             other category input
@@ -72,7 +76,7 @@ export function Step1({ onClick, onChange, other, onOtherChange }: Props) {
           <input
             id="otherInput"
             type="text"
-            placeholder="category input"
+            placeholder={t('feedback.categoryInput')}
             className="w-full py-2 px-4 rounded-2xl bg-white outline-none"
             value={other}
             onChange={(e) => onOtherChange(e.target.value)}
@@ -81,16 +85,10 @@ export function Step1({ onClick, onChange, other, onOtherChange }: Props) {
       )}
       <button
         type="button"
-        className={`mt-12 ml-auto block min-w-[4rem] w-auto h-[2.5rem] px-[0.4rem] rounded-xl text-base text-white font-bold ${
-          activeButton == null ? 'bg-gray-400 cursor-not-allowed' : 'bg-green-700 cursor-pointer'
-        }`}
-        disabled={activeButton == null}
-        onClick={() => {
-          if (activeButton != null) {
-            onClick(activeButton);
-          }
-        }}
-        aria-disabled={activeButton == null}
+        className={`mt-12 ml-auto block min-w-[4rem] w-auto h-[2.5rem] px-[0.4rem] rounded-xl text-base text-white font-bold bg-green-700 cursor-pointer disabled:bg-black disabled:opacity-30 disabled:cursor-not-allowed`}
+        disabled={nextDisabled}
+        onClick={onClick}
+        aria-disabled={nextDisabled}
       >
         {t('common.next')}
       </button>

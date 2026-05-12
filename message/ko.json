@@ -121,6 +121,7 @@
     "featureSuggestion": "새로운 기능 제안",
     "bugError": "버그 및 오류",
     "other": "기타 의견",
+    "categoryInput": "카테고리를 입력해주세요",
     "submitMessage": "작성한 내용을 제출하시겠습니까?\n제출 후 수정이 제한됩니다.",
     "submitSuccess": "제출이 완료되었습니다.",
     "emailTitle": "이메일 주소",

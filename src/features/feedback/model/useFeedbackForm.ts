@@ -35,7 +35,7 @@ export const useFeedbackForm = () => {
         setContentMessage(res.data?.message ?? t('feedback.submitError'));
       }
     },
-    onError: (error) => {
+    onError: () => {
       setContentMessage(t('feedback.submitError'));
     },
     onSettled: () => {
@@ -45,12 +45,9 @@ export const useFeedbackForm = () => {
 
   /**
    * 다음 단계로 이동
-   * 버튼이 선택되지 않았으면 이동하지 않음
-   * @param activeButton
-   **/
-  const onNext = (activeButton: number | null) => {
-    if (activeButton == null) return;
-    setCurrentStep(currentStep + 1);
+   */
+  const onNext = () => {
+    setCurrentStep((prev) => prev + 1);
   };
 
   /**
@@ -59,7 +56,7 @@ export const useFeedbackForm = () => {
    * - 에러 없을 때만 확인 모달 오픈
    */
   const onSubmit = () => {
-    const emailError = validateEmail(email, t);
+    const emailError = validateEmail(email.trim(), t);
     const contentError = validateContent(contents, t);
 
     setEmailMessage(emailError);
@@ -74,8 +71,26 @@ export const useFeedbackForm = () => {
    * 피드백 카테고리 선택
    * - 버튼 클릭 시 카테고리 상태 업데이트
    */
-  const onSelectCategory = (index: number, value: FeedbackType) => {
+  const onSelectCategory = (value: FeedbackType) => {
     setCategoryButtonType(value);
+  };
+
+  /**
+   * 이메일 입력
+   * - 입력 시 에러 메시지 초기화
+   */
+  const onEmailChange = (value: string) => {
+    setEmail(value);
+    setEmailMessage('');
+  };
+
+  /**
+   * 내용 입력
+   * - 입력 시 에러 메시지 초기화
+   */
+  const onContentsChange = (value: string) => {
+    setContents(value);
+    setContentMessage('');
   };
 
   /**
@@ -111,14 +126,13 @@ export const useFeedbackForm = () => {
     isPending,
     emailMessage,
     contentMessage,
-    setEmail,
-    setContents,
     setOther,
     setConfirmModal,
-    setSuccessModal,
     onNext,
     onSubmit,
     onSelectCategory,
+    onEmailChange,
+    onContentsChange,
     onConfirm,
     onSuccessConfirm,
   };

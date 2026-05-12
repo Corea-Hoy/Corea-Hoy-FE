@@ -17,13 +17,13 @@ export function FeedbackPage() {
     isPending,
     emailMessage,
     contentMessage,
-    setEmail,
-    setContents,
     setOther,
     setConfirmModal,
     onNext,
     onSubmit,
     onSelectCategory,
+    onEmailChange,
+    onContentsChange,
     onConfirm,
     onSuccessConfirm,
   } = useFeedbackForm();
@@ -47,7 +47,7 @@ export function FeedbackPage() {
         {/* 1단계 */}
         {currentStep === 0 && (
           <Step1
-            onChange={(i, value) => onSelectCategory(i, value)}
+            onChange={onSelectCategory}
             onClick={onNext}
             other={other}
             onOtherChange={setOther}
@@ -61,8 +61,8 @@ export function FeedbackPage() {
             contents={contents}
             emailError={emailMessage}
             contentError={contentMessage}
-            onEmailChange={setEmail}
-            onContentsChange={setContents}
+            onEmailChange={onEmailChange}
+            onContentsChange={onContentsChange}
             onClick={onSubmit}
           />
         )}

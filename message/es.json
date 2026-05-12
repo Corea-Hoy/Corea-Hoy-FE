@@ -121,6 +121,7 @@
     "featureSuggestion": "Sugerencia de nuevas funciones",
     "bugError": "Errores y fallos",
     "other": "Otros comentarios",
+    "categoryInput": "Por favor, introduce una categoría.",
     "submitMessage": "¿Deseas enviar el contenido que has escrito?\nDespués de enviarlo, la edición será limitada.",
     "submitSuccess": "El envío se ha completado.",
     "emailTitle": "Dirección de correo electrónico",
