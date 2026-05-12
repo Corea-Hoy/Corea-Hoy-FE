@@ -40,10 +40,10 @@
     "demo": "현재 베타 서비스 중입니다."
   },
   "login": {
-    "subtitle": "로그인하고 기사에 댓글을 남겨보세요",
-    "google": "Google로 로그인",
-    "connecting": "연결 중...",
-    "browse": "로그인 없이 둘러보기"
+    "description": "요즘, 한국에는 무슨 일이 있을까?\n로그인하고 소식을 더욱 빠르게 만나보세요",
+    "google": "Google로 시작하기",
+    "loginAgreementText": "계속 진행하면 코레아 호이의 이용약관 및 개인정보 처리방침에 동의하는 것으로 간주됩니다.",
+    "loginError": "로그인에 실패했습니다."
   },
   "onboarding": {
     "welcome": "환영합니다! 👋",
@@ -94,24 +94,39 @@
     "culturalNoteTitle": "오늘의 한국 한 스푼",
     "noSummary": "요약이 존재하지 않습니다.",
     "shareModal": "이 소식을 함께 나눠보세요.",
-    "likeWithoutLogin": "마음에 드셨다면 로그인 후 좋아요를 눌러보세요."
+    "likeWithoutLogin": "마음에 드셨다면 로그인 후 좋아요를 눌러보세요.",
+    "likeError": "좋아요 처리에 실패했습니다.",
+    "shareSuccess": "링크가 복사되었습니다.",
+    "deleteConfirm": "정말 이 게시글을 삭제하시겠습니까?"
+  },
+  "comment" : {
+    "commentError": "댓글 등록에 실패했습니다.",
+    "commentEditError": "댓글 수정을 실패했습니다.",
+    "commentDeleteError": "댓글 삭제를 실패했습니다."
   },
   "feedback": {
-    "title": "피드백",
-    "subtitle": "Corea Hoy를 더 좋게 만들어 주세요. 어떤 의견이든 환영합니다.",
+    "title": "Corea Hoy에 대한 의견을 남겨주시겠어요?",
+    "subtitle": "여러분의 의견은 Corea Hoy에 큰 도움이 됩니다.",
     "categoryLabel": "카테고리",
-    "feedbackLabel": "의견을 적어주세요",
     "placeholder": "어떤 점이 개선되었으면 하나요? 자유롭게 작성해 주세요.",
     "submit": "제출하기",
     "successTitle": "감사합니다!",
     "successDesc": "소중한 의견을 남겨주셨어요. 더 나은 서비스를 위해 반영하겠습니다.",
     "another": "다른 의견 보내기",
-    "notice": "현재 데모 버전입니다. 실제 서비스에서는 제출된 피드백이 저장됩니다.",
-    "catUi": "UI / 디자인",
-    "catContent": "컨텐츠",
-    "catFeature": "기능 제안",
-    "catBug": "오류 신고",
-    "catOther": "기타"
+    "notice": "현재 데모 버전입니다. 실제 서비스에서는 제출된placeholder 피드백이 저장됩니다.",
+    "feedbackPlaceholder": "최소 10자, 최대 1000자까지 입력할 수 있습니다.",
+    "designUsage": "디자인/사용",
+    "contentQuality": "콘텐츠 퀄리티",
+    "translationSuggestion": "오역 및 번역 제안",
+    "featureSuggestion": "새로운 기능 제안",
+    "bugError": "버그 및 오류",
+    "other": "기타 의견",
+    "submitMessage": "작성한 내용을 제출하시겠습니까?\n제출 후 수정이 제한됩니다.",
+    "submitSuccess": "제출이 완료되었습니다.",
+    "emailTitle": "이메일 주소",
+    "contentTitle": "자세한 내용을 들려주세요",
+    "lengthMessage": "최소 {min}자, 최대 {max}자까지 입력할 수 있습니다.",
+    "submitError": "제출 중 오류가 발생했습니다. 다시 시도해주세요."
   },
   "admin": {
     "title": "관리자 콘솔",
@@ -155,7 +170,6 @@
     "dirtyHint": "{count}개 문단이 수정되었습니다.",
     "deleteArticle": "게시글이 성공적으로 삭제됐습니다.",
     "deleteArticleError": "게시글 삭제에 실패했습니다.",
-    "deleteModal": "정말 이 게시글을 삭제하시겠습니까?",
     "editExitModal": "페이지를 나가면 수정 중인 내용이 저장되지 않습니다. 정말 페이지를 나가시겠습니까?"
   },
   "common": {
@@ -164,6 +178,11 @@
     "cancel": "취소",
     "confirm": "확인",
     "more": "더보기",
-    "titlePlaceholder": "제목 입력"
+    "titlePlaceholder": "제목 입력",
+    "next": "다음",
+    "submit": "제출",
+    "contentRequired": "내용을 입력해주세요",
+    "emailRequired": "이메일을 입력해주세요.",
+    "emailInvalid": "이메일 형식이 올바르지 않습니다."
   }
 }

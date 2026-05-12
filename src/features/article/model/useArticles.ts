@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useLocale } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { getLocalizedField, Locale } from '@/features/article/model/getLocalizedField';
 import { getNewsDetail, toggleArticleLike } from '@/features/article/api/article.api';
 import { toast } from 'sonner';
@@ -17,6 +17,7 @@ export const useArticles = () => {
   const { id } = useParams<{ id: string }>();
   const queryClient = useQueryClient();
   const { isLoggedIn } = useUsersStore();
+  const t = useTranslations('content');
 
   const route = useRouter();
 
@@ -52,7 +53,7 @@ export const useArticles = () => {
       if (context) {
         queryClient.setQueryData(['newsDetail', id], context.previousData);
       }
-      toast.error('좋아요 처리에 실패했습니다.');
+      toast.error(t('likeError'));
     },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ['newsDetail', id] });

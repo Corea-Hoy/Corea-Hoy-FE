@@ -1,6 +1,7 @@
 'use client';
 
 import { FEEDBACK_MAX_LENGTH } from '@/features/feedback/model/constants';
+import { useTranslations } from 'next-intl';
 
 interface Props {
   email: string;
@@ -21,13 +22,16 @@ export function Step2({
   onContentsChange,
   onClick,
 }: Props) {
+  const t = useTranslations();
+
   return (
     <form>
       <div>
         {/* 이메일 */}
         <div className="flex flex-col gap-2">
           <label htmlFor="emailInput" className="font-bold text-[1.4rem]">
-            이메일 주소<em className="text-red-500">*</em>
+            {t('feedback.emailTitle')}
+            <em className="text-red-500">*</em>
           </label>
           <input
             id="emailInput"
@@ -44,14 +48,15 @@ export function Step2({
         {/* 컨텐츠 */}
         <div className="mt-8 flex flex-col gap-2">
           <label htmlFor="contentsInput" className="font-bold text-[1.4rem] outline-none">
-            자세한 내용을 들려주세요<em className="text-red-500">*</em>
+            {t('feedback.contentTitle')}
+            <em className="text-red-500">*</em>
           </label>
           <div className="p-4 rounded-2xl bg-white ">
             <textarea
               id="contentsInput"
               rows={6}
               className="w-full text-base resize-none outline-none"
-              placeholder="최소 10자, 최대 1000자까지 입력할 수 있습니다."
+              placeholder={t('feedbackPlaceholder')}
               required
               maxLength={FEEDBACK_MAX_LENGTH}
               value={contents}
@@ -66,7 +71,7 @@ export function Step2({
         className="mt-12 ml-auto inline-block w-full h-[3rem] rounded-xl text-base text-white font-bold bg-green-700 cursor-pointer"
         onClick={onClick}
       >
-        제출
+        {t('common.submit')}
       </button>
     </form>
   );

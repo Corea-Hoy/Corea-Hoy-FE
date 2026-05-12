@@ -9,6 +9,7 @@ import {
 import { useInfiniteQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { articleKeys } from '@/features/article/model/queryKeys';
+import { useTranslations } from 'next-intl';
 
 export const useComments = () => {
   const [textarea, setTextarea] = useState('');
@@ -19,6 +20,7 @@ export const useComments = () => {
 
   const { id } = useParams<{ id: string }>();
   const queryClient = useQueryClient();
+  const t = useTranslations();
 
   const commentQuery = useInfiniteQuery({
     queryKey: articleKeys.comments(id),
@@ -33,7 +35,7 @@ export const useComments = () => {
       queryClient.invalidateQueries({ queryKey: articleKeys.comments(id) });
     },
     onError: () => {
-      toast.error('댓글 등록에 실패했습니다.');
+      toast.error(t('comment.commentError'));
     },
   });
 
@@ -44,7 +46,7 @@ export const useComments = () => {
       setEditCommentId(null);
     },
     onError: () => {
-      toast.error('댓글 수정을 실패했습니다.');
+      toast.error(t('comment.commentEditError'));
     },
   });
 
@@ -54,7 +56,7 @@ export const useComments = () => {
       queryClient.invalidateQueries({ queryKey: articleKeys.comments(id) });
     },
     onError: () => {
-      toast.error('댓글 삭제를 실패했습니다.');
+      toast.error(t('comment.commentDeleteError'));
     },
   });
 
