@@ -11,6 +11,7 @@ export const useAuthInit = () => {
   const { data } = useQuery({
     queryKey: ['me'],
     queryFn: getMe,
+    enabled: isLoggedIn,
     retry: false,
     staleTime: 1000 * 60 * 5, // 5분
     refetchOnWindowFocus: false,
