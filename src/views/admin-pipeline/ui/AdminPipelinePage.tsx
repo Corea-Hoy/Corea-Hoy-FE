@@ -11,7 +11,7 @@ import type {
   TranslationTargetLanguageSelection,
 } from '../model/types';
 import { ContentManagementPage } from '@/views/content-management/ui/ContentManagementPage';
-import type { ContentStep } from '@/views/content-management/model/types';
+
 import { getTextFromRichTextHtml } from '@/shared/ui/rich-text-editor/getTextFromRichTextHtml';
 import { ArticleSelectCard } from './ArticleSelectCard';
 import { ContentReviewStep } from './ContentReviewStep';
@@ -20,13 +20,15 @@ import { PreviewPublishStep } from './PreviewPublishStep';
 import { TranslationReviewStep } from './TranslationReviewStep';
 import { WorkflowControlPanel } from './WorkflowControlPanel';
 import { adminApi, type AdminArticle, type DbCategory } from '@/features/admin/api/admin.api';
-import type { ManagedContent } from '@/views/content-management/model/types';
+import type { ManagedContent, ContentStep } from '@/views/content-management/model/types';
+import { ContentEditStep, type EditFormData } from './ContentEditStep';
+import { useTranslations } from 'next-intl';
 
 const DRAFT_STORAGE_KEY = 'coreahoy-admin-pipeline-draft';
 const SESSION_STORAGE_KEY = 'coreahoy-admin-pipeline-session';
 const PUBLISH_RETURN_DELAY_MS = 2000;
 
-type AdminSection = 'home' | 'pipeline' | 'content-management';
+type AdminSection = 'home' | 'pipeline' | 'content-management' | 'content-edit';
 type ToastState = {
   title: string;
   message: string;
@@ -47,8 +49,8 @@ type SavedDraft = {
 
 function draftStepToContentStep(draftStep: AdminArticle['draftStep']): ContentStep {
   if (draftStep === 'select') return 'select_article';
-  if (draftStep === 'review-ko') return 'review_content';
-  if (draftStep === 'review-es') return 'review_translation';
+  if (draftStep === 'review_ko') return 'review_content';
+  if (draftStep === 'review_es') return 'review_translation';
   return 'preview';
 }
 
@@ -61,10 +63,10 @@ function getPipelineStepFromContentStep(step: ContentStep): PipelineStep {
 
 function pipelineStepToDraftStep(
   step: PipelineStep,
-): 'select' | 'review-ko' | 'review-es' | 'preview' {
+): 'select' | 'review_ko' | 'review_es' | 'preview' {
   if (step === 'select-article') return 'select';
-  if (step === 'review-content') return 'review-ko';
-  if (step === 'review-translation') return 'review-es';
+  if (step === 'review-content') return 'review_ko';
+  if (step === 'review-translation') return 'review_es';
   return 'preview';
 }
 
@@ -114,10 +116,18 @@ export function AdminPipelinePage() {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const t = useTranslations('admin');
 
   const sectionQuery = searchParams.get('section');
   const activeAdminSection: AdminSection =
-    sectionQuery === 'pipeline' || sectionQuery === 'content-management' ? sectionQuery : 'home';
+    sectionQuery === 'pipeline' ||
+    sectionQuery === 'content-management' ||
+    sectionQuery === 'content-edit'
+      ? sectionQuery
+      : 'home';
+
+  const editingContentId =
+    activeAdminSection === 'content-edit' ? searchParams.get('contentId') : null;
 
   // Pipeline state
   const [savedArticleId, setSavedArticleId] = useState<string | null>(null);
@@ -143,10 +153,10 @@ export function AdminPipelinePage() {
   const [adminArticles, setAdminArticles] = useState<AdminArticle[]>([]);
   const [isLoadingArticles, setIsLoadingArticles] = useState(false);
   const [categoriesError, setCategoriesError] = useState(false);
-  const [newsError, setNewsError] = useState(false);
-  const [articlesError, setArticlesError] = useState(false);
   const [isSavingDraft, setIsSavingDraft] = useState(false);
   const [isPublishing, setIsPublishing] = useState(false);
+  const [isEditSaving, setIsEditSaving] = useState(false);
+  const [isLoadingDraft, setIsLoadingDraft] = useState(false);
   const previousStepRef = useRef<PipelineStep>(currentStep);
   const toastTimeoutRef = useRef<number | null>(null);
   const publishReturnTimeoutRef = useRef<number | null>(null);
@@ -176,48 +186,79 @@ export function AdminPipelinePage() {
     [categories, categoriesError],
   );
 
-  function openDraftContentInPipeline(
-    contentId: string | null,
-    contentStep: ContentStep | null,
-    article?: AdminArticle,
-  ) {
-    if (!contentId || !contentStep) return false;
+  async function openDraftContentInPipeline(contentId: string) {
+    if (!contentId) return false;
 
-    const nextStep = getPipelineStepFromContentStep(contentStep);
+    setIsLoadingDraft(true);
+    try {
+      const res = await adminApi.getAdminArticle(contentId);
+      const article = res.data.data;
 
-    setSavedArticleId(contentId);
-    setCurrentStep(nextStep);
-    setSelectedArticleId(null);
-    setGeneratedContent(null);
-    setTranslatedContent(null);
-    setTranslationTargetLanguage(nextStep === 'select-article' ? '' : 'es');
-    setHasCompletedContentReview(nextStep === 'review-translation' || nextStep === 'preview');
-    setHasReviewedTranslation(nextStep === 'preview');
-    setIsPublished(false);
-    setSaveStatus('saved');
+      const contentStep = draftStepToContentStep(article.draftStep);
+      const nextStep = getPipelineStepFromContentStep(contentStep);
 
-    if (article && nextStep !== 'select-article') {
-      const genContent: GeneratedContent = {
-        title: article.titleKo,
-        body: '',
-        culturalNoteKo: '',
-        category: article.category.name,
-      };
-      setGeneratedContent(genContent);
+      const source = article.sources[0];
+      if (source) {
+        const syntheticArticle: AdminCandidateArticle = {
+          id: source.url,
+          title: source.title,
+          summary: '',
+          url: source.url,
+          thumbnailUrl: article.thumbnailUrl,
+          source: source.url,
+          category: article.category.name,
+          slug: article.category.slug,
+          date: article.createdAt,
+        };
+        setCandidateArticles((prev) => {
+          const exists = prev.some((a) => a.id === source.url);
+          return exists ? prev : [...prev, syntheticArticle];
+        });
+        setSelectedArticleId(source.url);
+      } else {
+        setSelectedArticleId(null);
+      }
+
+      setSavedArticleId(contentId);
+      setCurrentStep(nextStep);
+      setTranslationTargetLanguage(nextStep === 'select-article' ? '' : 'es');
+      setHasCompletedContentReview(nextStep === 'review-translation' || nextStep === 'preview');
+      setHasReviewedTranslation(nextStep === 'preview');
+      setIsPublished(false);
+      setSaveStatus('saved');
+
+      if (nextStep !== 'select-article') {
+        setGeneratedContent({
+          title: article.titleKo,
+          body: article.bodyKo ?? '',
+          culturalNoteKo: article.culturalNoteKo ?? '',
+          category: article.category.name,
+        });
+      } else {
+        setGeneratedContent(null);
+      }
 
       if (nextStep === 'review-translation' || nextStep === 'preview') {
         setTranslatedContent({
           koTitle: article.titleKo,
-          koBody: '',
-          culturalNoteKo: '',
+          koBody: article.bodyKo ?? '',
+          culturalNoteKo: article.culturalNoteKo ?? '',
           esTitle: article.titleEs ?? '',
-          esBody: '',
-          culturalNoteEs: '',
+          esBody: article.bodyEs ?? '',
+          culturalNoteEs: article.culturalNoteEs ?? '',
         });
+      } else {
+        setTranslatedContent(null);
       }
-    }
 
-    return true;
+      return true;
+    } catch (error) {
+      console.error('Failed to load draft article:', error);
+      showToast({ title: '오류', message: '작업 내용을 불러오지 못했습니다.' });
+      return false;
+    } finally {
+      setIsLoadingDraft(false);
+    }
   }
 
   // Load categories on mount
@@ -255,7 +296,6 @@ export function AdminPipelinePage() {
         setCandidateArticles(mapped);
       } catch (error) {
         console.error('Failed to load candidate articles:', error);
-        setNewsError(true);
         showToast({ title: '오류', message: '뉴스 기사를 불러오지 못했습니다.' });
       } finally {
         setIsLoadingCandidates(false);
@@ -275,7 +315,6 @@ export function AdminPipelinePage() {
         setAdminArticles(res.data.data.articles);
       } catch (error) {
         console.error('Failed to load admin articles:', error);
-        setArticlesError(true);
         showToast({ title: '오류', message: '관리자 기사를 불러오지 못했습니다.' });
       } finally {
         setIsLoadingArticles(false);
@@ -294,20 +333,15 @@ export function AdminPipelinePage() {
       const urlParams = new URLSearchParams(window.location.search);
       const querySection = urlParams.get('section');
       const contentId = urlParams.get('contentId');
-      const rawContentStep = urlParams.get('step');
-      const validSteps: ContentStep[] = [
-        'select_article',
-        'review_content',
-        'review_translation',
-        'preview',
-      ];
-      const contentStep = validSteps.includes(rawContentStep as ContentStep)
-        ? (rawContentStep as ContentStep)
-        : null;
 
-      if (querySection === 'pipeline' && contentId && contentStep) {
-        openDraftContentInPipeline(contentId, contentStep);
-        setHasHydratedDraft(true);
+      if (querySection === 'pipeline' && contentId) {
+        openDraftContentInPipeline(contentId)
+          .then(() => {
+            if (!isCancelled) setHasHydratedDraft(true);
+          })
+          .catch(() => {
+            if (!isCancelled) setHasHydratedDraft(true);
+          });
         return;
       }
 
@@ -561,7 +595,7 @@ export function AdminPipelinePage() {
   }
 
   async function persistArticle(params: {
-    draftStep: 'select' | 'review-ko' | 'review-es' | 'preview';
+    draftStep: 'select' | 'review_ko' | 'review_es' | 'preview';
     langStatusKo: 'pending' | 'done';
     langStatusEs: 'pending' | 'done';
   }) {
@@ -632,6 +666,8 @@ export function AdminPipelinePage() {
       );
       setSaveStatus('saved');
       showToast({ title: '임시저장 완료', message: '현재 파이프라인 작업이 저장되었습니다.' });
+      sessionStorage.setItem('coreahoy-content-management-tab', 'draft');
+      openContentManagement();
     } catch {
       showToast({ title: '오류', message: '임시저장에 실패했습니다. 다시 시도해주세요.' });
     } finally {
@@ -717,6 +753,38 @@ export function AdminPipelinePage() {
     router.push(`${pathname}?${params.toString()}`);
   }
 
+  function openContentEdit(contentId: string) {
+    const params = new URLSearchParams(searchParams.toString());
+    params.set('section', 'content-edit');
+    params.set('contentId', contentId);
+    params.delete('step');
+    router.push(`${pathname}?${params.toString()}`);
+  }
+
+  async function handleSaveEdit(data: EditFormData) {
+    if (isEditSaving || !editingContentId) return;
+    setIsEditSaving(true);
+    try {
+      await adminApi.updateArticle(editingContentId, {
+        titleKo: data.titleKo,
+        bodyKo: data.bodyKo,
+        titleEs: data.titleEs,
+        bodyEs: data.bodyEs,
+      });
+      setAdminArticles((prev) =>
+        prev.map((a) =>
+          a.id === editingContentId ? { ...a, titleKo: data.titleKo, titleEs: data.titleEs } : a,
+        ),
+      );
+      showToast({ title: '수정 완료', message: '콘텐츠가 성공적으로 수정되었습니다.' });
+      openContentManagement();
+    } catch {
+      showToast({ title: '오류', message: '수정에 실패했습니다. 다시 시도해주세요.' });
+    } finally {
+      setIsEditSaving(false);
+    }
+  }
+
   function goHome() {
     const params = new URLSearchParams(searchParams.toString());
     params.delete('section');
@@ -740,7 +808,7 @@ export function AdminPipelinePage() {
     return (
       <div className="py-6 pb-10 md:py-10">
         <header className="mb-7">
-          <h1 className="mb-1 text-3xl font-black text-black">관리자 콘솔</h1>
+          <h1 className="mb-1 text-3xl font-black text-black">{t('title')}</h1>
         </header>
 
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
@@ -755,8 +823,8 @@ export function AdminPipelinePage() {
   return (
     <div className="py-6 pb-10 md:py-10">
       <header className="mb-7">
-        <h1 className="mb-1 text-3xl font-black text-black">관리자 콘솔</h1>
-        <p className="text-sm font-medium text-gray-400">콘텐츠 생성 파이프라인을 시작하세요.</p>
+        <h1 className="mb-1 text-3xl font-black text-black">{t('title')}</h1>
+        <p className="text-sm font-medium text-gray-400">{t('pipelineSubtitle')}</p>
       </header>
 
       {activeAdminSection !== 'home' && (
@@ -766,17 +834,13 @@ export function AdminPipelinePage() {
             onClick={goHome}
             className="w-fit rounded-xl border border-gray-200 px-4 py-2 text-sm font-bold text-gray-500 transition-colors cursor-pointer hover:border-black hover:text-black"
           >
-            관리자 홈
+            {t('homeButton')}
           </button>
         </div>
       )}
 
       {activeAdminSection === 'home' && (
-        <section
-          className="flex flex-col gap-3 sm:flex-row"
-          role="tablist"
-          aria-label="관리자 화면 선택"
-        >
+        <section className="flex flex-col gap-3 sm:flex-row" role="tablist">
           <button
             type="button"
             role="tab"
@@ -784,7 +848,7 @@ export function AdminPipelinePage() {
             onClick={openPipeline}
             className="rounded-xl border border-gray-200 bg-white px-5 py-3 text-sm font-extrabold text-gray-700 transition-colors cursor-pointer hover:border-black hover:text-black sm:min-w-40"
           >
-            파이프라인 실행
+            {t('tabCreate')}
           </button>
           <button
             type="button"
@@ -793,12 +857,20 @@ export function AdminPipelinePage() {
             onClick={openContentManagement}
             className="rounded-xl border border-gray-200 bg-white px-5 py-3 text-sm font-extrabold text-gray-700 transition-colors cursor-pointer hover:border-black hover:text-black sm:min-w-40"
           >
-            콘텐츠 관리
+            {t('tabList')}
           </button>
         </section>
       )}
 
-      {activeAdminSection === 'pipeline' && (
+      {activeAdminSection === 'pipeline' && isLoadingDraft && (
+        <div className="animate-fade-in flex flex-col gap-4">
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="h-28 rounded-2xl bg-gray-100 animate-pulse" />
+          ))}
+        </div>
+      )}
+
+      {activeAdminSection === 'pipeline' && !isLoadingDraft && (
         <PipelineSteps
           currentStep={currentStep}
           canNavigateToStep={canNavigateToStep}
@@ -806,7 +878,7 @@ export function AdminPipelinePage() {
         />
       )}
 
-      {activeAdminSection === 'pipeline' && currentStep === 'select-article' && (
+      {activeAdminSection === 'pipeline' && !isLoadingDraft && currentStep === 'select-article' && (
         <section className="animate-fade-in lg:grid lg:grid-cols-[1fr_360px] lg:gap-8">
           <div className="flex flex-col gap-3">
             {isLoadingCandidates ? (
@@ -815,7 +887,7 @@ export function AdminPipelinePage() {
               ))
             ) : candidateArticles.length === 0 ? (
               <div className="rounded-2xl border border-gray-200 bg-white p-8 text-center text-sm font-bold text-gray-400">
-                수집된 기사가 없습니다.
+                {t('noArticles')}
               </div>
             ) : (
               candidateArticles.map((article) => (
@@ -833,13 +905,12 @@ export function AdminPipelinePage() {
             hasSelectedArticle={Boolean(selectedArticle)}
             isGenerating={isGenerating}
             onGenerate={handleGenerateContent}
-            onSaveDraft={handleSaveDraft}
-            saveStatus={saveStatus}
           />
         </section>
       )}
 
       {activeAdminSection === 'pipeline' &&
+        !isLoadingDraft &&
         currentStep === 'review-content' &&
         selectedArticle &&
         generatedContent && (
@@ -858,6 +929,7 @@ export function AdminPipelinePage() {
         )}
 
       {activeAdminSection === 'pipeline' &&
+        !isLoadingDraft &&
         currentStep === 'review-translation' &&
         translatedContent && (
           <TranslationReviewStep
@@ -870,7 +942,7 @@ export function AdminPipelinePage() {
           />
         )}
 
-      {activeAdminSection === 'pipeline' && currentStep === 'preview' && (
+      {activeAdminSection === 'pipeline' && !isLoadingDraft && currentStep === 'preview' && (
         <PreviewPublishStep
           previewData={previewData}
           isPublished={isPublished}
@@ -886,18 +958,40 @@ export function AdminPipelinePage() {
           contents={managedContents}
           isLoading={isLoadingArticles}
           onDeleteContent={handleDeleteContent}
-          onContinueDraft={(contentId, contentStep) => {
-            const article = adminArticles.find((a) => a.id === contentId);
-            openDraftContentInPipeline(contentId, contentStep, article);
-
+          onEditPublished={openContentEdit}
+          onContinueDraft={(contentId) => {
+            openDraftContentInPipeline(contentId);
             const params = new URLSearchParams(searchParams.toString());
             params.set('section', 'pipeline');
             params.set('contentId', contentId);
-            params.set('step', contentStep);
+            params.delete('step');
             router.push(`${pathname}?${params.toString()}`);
           }}
         />
       )}
+
+      {activeAdminSection === 'content-edit' &&
+        (editingContentId ? (
+          <ContentEditStep
+            articleId={editingContentId}
+            isSaving={isEditSaving}
+            onSave={handleSaveEdit}
+            onCancel={openContentManagement}
+          />
+        ) : (
+          <div className="rounded-2xl border border-gray-200 bg-white p-12 text-center shadow-sm">
+            <p className="text-sm font-bold text-gray-500">
+              {t('selectContentToEdit') ?? '수정할 콘텐츠를 선택해주세요.'}
+            </p>
+            <button
+              type="button"
+              onClick={openContentManagement}
+              className="mt-4 rounded-xl bg-black px-6 py-3 text-sm font-black text-white transition-opacity hover:opacity-80"
+            >
+              {t('tabList')}
+            </button>
+          </div>
+        ))}
 
       {toast && (
         <div

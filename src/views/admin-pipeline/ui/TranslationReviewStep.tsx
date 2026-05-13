@@ -1,3 +1,4 @@
+import { useTranslations } from 'next-intl';
 import type { TranslatedContent } from '../model/types';
 import { RichTextEditor } from '@/shared/ui/rich-text-editor/RichTextEditor';
 
@@ -18,20 +19,24 @@ export function TranslationReviewStep({
   onNext,
   onPrev,
 }: TranslationReviewStepProps) {
+  const t = useTranslations('admin');
+
   return (
     <section className="animate-fade-in">
       <div className="mb-5">
-        <p className="text-xs font-black uppercase tracking-widest text-gray-400">번역 검수</p>
-        <h2 className="mt-1 text-xl font-black text-black">원문과 번역문을 확인하세요</h2>
+        <p className="text-xs font-black uppercase tracking-widest text-gray-400">
+          {t('reviewTranslationHeading')}
+        </p>
+        <h2 className="mt-1 text-xl font-black text-black">{t('reviewTranslationTitle')}</h2>
       </div>
 
       <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
         <div className="rounded-2xl border border-gray-100 bg-gray-50 p-5">
           <h3 className="mb-4 text-xs font-black uppercase tracking-widest text-gray-500">
-            한국어 원문
+            {t('koOriginalLabel')}
           </h3>
           <label className="block">
-            <span className="mb-2 block text-xs font-bold text-gray-500">제목</span>
+            <span className="mb-2 block text-xs font-bold text-gray-500">{t('titleLabel')}</span>
             <input
               value={content.koTitle}
               onChange={(event) => onChange({ ...content, koTitle: event.target.value })}
@@ -39,22 +44,22 @@ export function TranslationReviewStep({
             />
           </label>
           <div className="mt-4 block">
-            <span className="mb-2 block text-xs font-bold text-gray-500">본문</span>
+            <span className="mb-2 block text-xs font-bold text-gray-500">{t('bodyLabel')}</span>
             <RichTextEditor
               value={content.koBody}
               onChange={(koBody) => onChange({ ...content, koBody })}
               minHeightClassName="min-h-[320px]"
-              placeholder="한국어 원문 본문"
+              placeholder={t('koOriginalPlaceholder')}
             />
           </div>
         </div>
 
         <div className="rounded-2xl border-2 border-black bg-white p-5 shadow-sm">
           <h3 className="mb-4 text-xs font-black uppercase tracking-widest text-gray-700">
-            스페인어 번역문
+            {t('esTranslationLabel')}
           </h3>
           <label className="block">
-            <span className="mb-2 block text-xs font-bold text-gray-500">제목</span>
+            <span className="mb-2 block text-xs font-bold text-gray-500">{t('titleLabel')}</span>
             <input
               value={content.esTitle}
               onChange={(event) => onChange({ ...content, esTitle: event.target.value })}
@@ -62,12 +67,12 @@ export function TranslationReviewStep({
             />
           </label>
           <div className="mt-4 block">
-            <span className="mb-2 block text-xs font-bold text-gray-500">본문</span>
+            <span className="mb-2 block text-xs font-bold text-gray-500">{t('bodyLabel')}</span>
             <RichTextEditor
               value={content.esBody}
               onChange={(esBody) => onChange({ ...content, esBody })}
               minHeightClassName="min-h-[320px]"
-              placeholder="스페인어 번역문 본문"
+              placeholder={t('esTranslationPlaceholder')}
             />
           </div>
         </div>
@@ -79,21 +84,21 @@ export function TranslationReviewStep({
           onClick={onPrev}
           className="rounded-xl border-2 border-gray-200 px-5 py-3 text-sm font-bold text-gray-500 transition-colors cursor-pointer hover:border-gray-400 hover:text-gray-700"
         >
-          이전 단계
+          {t('prevStep')}
         </button>
         <button
           type="button"
           onClick={onSaveDraft}
           className="rounded-xl border-2 border-gray-200 px-5 py-3 text-sm font-bold text-gray-600 transition-colors cursor-pointer hover:border-gray-400 hover:text-black"
         >
-          {saveStatus === 'saved' ? '저장됨' : '임시저장'}
+          {saveStatus === 'saved' ? t('savedDraft') : t('saveDraft')}
         </button>
         <button
           type="button"
           onClick={onNext}
           className="rounded-xl bg-black px-5 py-3 text-sm font-black text-white transition-opacity cursor-pointer hover:opacity-80"
         >
-          다음 단계
+          {t('nextStep')}
         </button>
       </div>
     </section>

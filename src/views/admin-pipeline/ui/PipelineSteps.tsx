@@ -1,3 +1,4 @@
+import { useTranslations } from 'next-intl';
 import { PIPELINE_STEPS } from '../model/labels';
 import type { PipelineStep } from '../model/types';
 
@@ -12,10 +13,18 @@ export function PipelineSteps({
   canNavigateToStep,
   onStepChange,
 }: PipelineStepsProps) {
+  const t = useTranslations('admin');
   const currentIndex = PIPELINE_STEPS.findIndex((step) => step.id === currentStep);
 
+  const stepLabels: Record<PipelineStep, string> = {
+    'select-article': t('step1Label'),
+    'review-content': t('step2Label'),
+    'review-translation': t('step3Label'),
+    preview: t('step4Label'),
+  };
+
   return (
-    <ol className="mb-7 flex gap-2 overflow-x-auto pb-1" aria-label="파이프라인 단계">
+    <ol className="mb-7 flex gap-2 overflow-x-auto pb-1" aria-label={t('pipelineStepsAriaLabel')}>
       {PIPELINE_STEPS.map((step, index) => {
         const isActive = step.id === currentStep;
         const isComplete = index < currentIndex;
@@ -38,7 +47,7 @@ export function PipelineSteps({
                       : 'border-gray-100 bg-white text-gray-300'
               } ${canNavigate ? 'cursor-pointer' : 'cursor-not-allowed'}`}
             >
-              {step.number}. {step.label}
+              {step.number}. {stepLabels[step.id]}
             </button>
           </li>
         );

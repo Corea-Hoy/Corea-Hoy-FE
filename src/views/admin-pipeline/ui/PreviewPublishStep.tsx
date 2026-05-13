@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { sanitizeRichTextHtml } from '@/shared/ui/rich-text-editor/sanitizeRichTextHtml';
 
 interface PreviewData {
@@ -32,6 +33,7 @@ export function PreviewPublishStep({
   onPublish,
   onPrev,
 }: PreviewPublishStepProps) {
+  const t = useTranslations('admin');
   const [previewLanguage, setPreviewLanguage] = useState<'ko' | 'translated'>(
     getInitialPreviewLanguage,
   );
@@ -42,6 +44,7 @@ export function PreviewPublishStep({
       sessionStorage.setItem('coreahoy-preview-language', lang);
     }
   };
+
   const visibleTitle = previewLanguage === 'ko' ? previewData.koTitle : previewData.translatedTitle;
   const visibleBody = previewLanguage === 'ko' ? previewData.koBody : previewData.translatedBody;
   const sanitizedVisibleBody = useMemo(() => sanitizeRichTextHtml(visibleBody), [visibleBody]);
@@ -51,13 +54,13 @@ export function PreviewPublishStep({
       <div className="mb-5 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <p className="text-xs font-black uppercase tracking-widest text-gray-400">
-            미리보기 및 발행
+            {t('previewHeading')}
           </p>
-          <h2 className="mt-1 text-xl font-black text-black">발행 전 콘텐츠를 확인하세요</h2>
+          <h2 className="mt-1 text-xl font-black text-black">{t('previewTitle')}</h2>
         </div>
 
         <div>
-          <p className="mb-1.5 text-xs font-bold text-gray-500">콘텐츠 언어 미리보기</p>
+          <p className="mb-1.5 text-xs font-bold text-gray-500">{t('previewLangTitle')}</p>
           <div className="flex rounded-xl border border-gray-200 bg-gray-50 p-1">
             <button
               type="button"
@@ -68,7 +71,7 @@ export function PreviewPublishStep({
                   : 'text-gray-400 hover:bg-white hover:text-gray-700'
               }`}
             >
-              한국어 원문
+              {t('koPreviewBtn')}
             </button>
             <button
               type="button"
@@ -79,7 +82,7 @@ export function PreviewPublishStep({
                   : 'text-gray-400 hover:bg-white hover:text-gray-700'
               }`}
             >
-              번역본
+              {t('translatedPreviewBtn')}
             </button>
           </div>
         </div>
@@ -111,14 +114,14 @@ export function PreviewPublishStep({
           onClick={onPrev}
           className="rounded-xl border-2 border-gray-200 px-5 py-3 text-sm font-bold text-gray-500 transition-colors cursor-pointer hover:border-gray-400 hover:text-gray-700"
         >
-          이전 단계
+          {t('prevStep')}
         </button>
         <button
           type="button"
           onClick={onSaveDraft}
           className="rounded-xl border-2 border-gray-200 px-5 py-3 text-sm font-bold text-gray-600 transition-colors cursor-pointer hover:border-gray-400 hover:text-black"
         >
-          {saveStatus === 'saved' ? '저장됨' : '임시저장'}
+          {saveStatus === 'saved' ? t('savedDraft') : t('saveDraft')}
         </button>
         <button
           type="button"
@@ -126,7 +129,7 @@ export function PreviewPublishStep({
           disabled={isPublished}
           className="rounded-xl bg-black px-5 py-3 text-sm font-black text-white transition-opacity cursor-pointer hover:opacity-80 disabled:cursor-not-allowed disabled:opacity-30"
         >
-          {isPublished ? '발행 완료' : '발행하기'}
+          {isPublished ? t('publishDone') : t('publishBtn')}
         </button>
       </div>
     </section>

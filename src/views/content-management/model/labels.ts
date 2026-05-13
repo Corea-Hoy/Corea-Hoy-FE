@@ -5,12 +5,7 @@ export const CATEGORY_OPTIONS = CATEGORIES_KO.filter(
   (category): category is ContentCategory => category !== '전체',
 );
 
-export const STEP_OPTIONS: ContentStep[] = [
-  'select_article',
-  'review_content',
-  'review_translation',
-  'preview',
-];
+export const STEP_OPTIONS: ContentStep[] = ['review_content', 'review_translation', 'preview'];
 
 export const STEP_LABELS: Record<ContentStep, string> = {
   select_article: '기사 선택',
