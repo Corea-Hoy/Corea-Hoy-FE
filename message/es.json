@@ -174,6 +174,11 @@
     "deleteModal": "¿Estás seguro de que deseas eliminar esta publicación?",
     "editExitModal": "Si sales de la página, los cambios realizados no se guardarán. ¿Estás seguro de que deseas salir de la página?"
   },
+  "notFound": {
+    "title": "No se pudo encontrar la página.",
+    "description": "La dirección de la página que intentas visitar es incorrecta,\no la página ha sido cambiada o eliminada, por lo que no se pudo encontrar.",
+    "back": "Volver"
+  },
   "common": {
     "edit": "Editar",
     "delete": "Eliminar",
