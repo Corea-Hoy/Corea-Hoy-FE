@@ -5,7 +5,7 @@ import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { useUsersStore } from '@/entities/user';
-import { CATEGORIES_KO, CATEGORIES_ES } from '@/entities/content';
+import { useCategories, CATEGORY_ES_MAP } from '@/entities/content';
 import { LogOut, Search, User } from 'lucide-react';
 import LangDropdown from './LangDropdown';
 import { useLogout } from '@/features/auth';
@@ -56,6 +56,18 @@ const MobileHeader = ({
   const t = useTranslations('nav');
   const { isLoggedIn } = useUsersStore();
   const { onLogout } = useLogout();
+
+  const { data: categoryData } = useCategories();
+  const apiCategories = categoryData?.data || [];
+  const categoriesList = [
+    { id: 0, name: '전체', slug: 'all', esName: 'Todos' },
+    ...apiCategories.map((c) => ({
+      id: c.id,
+      name: c.name,
+      slug: c.slug,
+      esName: CATEGORY_ES_MAP[c.slug] || c.name,
+    })),
+  ];
 
   return (
     <>
@@ -150,14 +162,14 @@ const MobileHeader = ({
         {/* Mobile category scroll row */}
         {isHome && (
           <div className="flex items-center gap-2 px-4 py-2 overflow-x-auto scrollbar-hide border-t border-gray-100">
-            {CATEGORIES_KO.map((cat, i) => {
-              const label = isKo ? cat : CATEGORIES_ES[i];
+            {categoriesList.map((cat) => {
+              const label = isKo ? cat.name : cat.esName;
               const isActive =
-                cat === activeCategory || (activeCategory === '전체' && cat === '전체');
+                cat.name === activeCategory || (activeCategory === '전체' && cat.name === '전체');
               return (
                 <button
-                  key={cat}
-                  onClick={() => handleCategoryClick(cat)}
+                  key={cat.slug}
+                  onClick={() => handleCategoryClick(cat.name)}
                   aria-pressed={isActive}
                   className={`flex-shrink-0 px-3.5 py-1.5 rounded-full border text-xs font-bold transition-all cursor-pointer ${
                     isActive

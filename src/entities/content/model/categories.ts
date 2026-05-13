@@ -14,10 +14,12 @@ export const CATEGORIES_ES = [
 export type CategoryFilter = (typeof CATEGORIES_KO)[number];
 
 export const CATEGORY_ES_MAP: Record<string, string> = {
+  all: 'Todos',
   kpop: 'K-POP',
   drama: 'Drama',
   news: 'Noticias',
   culture: 'Cultura',
-  sport: 'Deportes',
+  sports: 'Deportes',
   food: 'Comida',
+  style: 'Estilo',
 };
