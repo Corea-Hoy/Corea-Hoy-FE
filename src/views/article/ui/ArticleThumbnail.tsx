@@ -1,5 +1,5 @@
 import Image from 'next/image';
-import { CATEGORY_LABEL, ROLE } from '@/entities/article';
+import { ROLE } from '@/entities/article';
 import { Chip } from '@/shared/ui';
 import { UserRound } from 'lucide-react';
 import { formatDate } from '@/shared/utils';
@@ -38,7 +38,7 @@ export function ArticleThumbnail({
             </button>
           </div>
         )}
-        <Chip text={CATEGORY_LABEL[newsData.category.id]} color="red" />
+        <Chip text={newsData.category.name} color="red" />
         <h1 className="!mt-2 text-[1.4rem] text-white font-bold">{title}</h1>
         <div className="flex justify-between w-full mt-[1rem] text-[0.8rem] text-white">
           <span className="flex items-center justify-start">

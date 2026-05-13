@@ -65,7 +65,7 @@ export const useArticles = () => {
   const title = getLocalizedField(newsQuery.data, 'title', locale);
   const body = getLocalizedField(newsQuery.data, 'body', locale);
   const note = getLocalizedField(newsQuery.data, 'culturalNote', locale);
-
+  const url = newsQuery.data?.sources?.[0]?.url;
   /**
    *
    **/
@@ -103,6 +103,7 @@ export const useArticles = () => {
     title,
     body,
     note,
+    url,
     newsData: newsQuery.data,
     newsIsLoading: newsQuery.isLoading,
     like,
