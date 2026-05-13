@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import api from '@/shared/api';
 
-export interface Category {
+export interface ApiCategory {
   id: number;
   name: string;
   slug: string;
@@ -9,7 +9,7 @@ export interface Category {
 
 interface CategoryResponse {
   success: boolean;
-  data: Category[];
+  data: ApiCategory[];
 }
 
 const getCategoriesApi = () => {
