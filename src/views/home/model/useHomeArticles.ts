@@ -1,6 +1,6 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useMemo, useEffect } from 'react';
 import { getArticlesData } from './useArticleApi';
-import { Article } from '@/entities/content/model/articles';
+import { useArticleStore } from '@/entities/article';
 
 interface UseHomeArticlesParams {
   searchQuery: string;
@@ -9,21 +9,23 @@ interface UseHomeArticlesParams {
 }
 
 export function useHomeArticles({ searchQuery, sortOrder, isKo }: UseHomeArticlesParams) {
-  const [articles, setArticles] = useState<Article[]>([]);
+  const { articles, setArticles, hasFetched, setHasFetched } = useArticleStore();
 
   useEffect(() => {
     async function fetchArticles() {
+      if (hasFetched) return;
       try {
         const res = await getArticlesData();
         if (res?.data?.articles) {
           setArticles(res.data.articles);
+          setHasFetched(true);
         }
       } catch (error) {
         console.error('Failed to fetch articles', error);
       }
     }
     fetchArticles();
-  }, []);
+  }, [hasFetched, setArticles, setHasFetched]);
 
   const filtered = useMemo(
     () =>
