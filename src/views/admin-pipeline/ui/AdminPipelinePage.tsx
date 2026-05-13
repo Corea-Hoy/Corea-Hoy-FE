@@ -833,8 +833,6 @@ export function AdminPipelinePage() {
             hasSelectedArticle={Boolean(selectedArticle)}
             isGenerating={isGenerating}
             onGenerate={handleGenerateContent}
-            onSaveDraft={handleSaveDraft}
-            saveStatus={saveStatus}
           />
         </section>
       )}
