@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useTranslations } from 'next-intl';
 import { RichTextEditor } from '@/shared/ui/rich-text-editor/RichTextEditor';
 import { getNewsDetail } from '@/features/article/api/article.api';
 
@@ -19,6 +20,9 @@ interface ContentEditStepProps {
 }
 
 export function ContentEditStep({ articleId, isSaving, onSave, onCancel }: ContentEditStepProps) {
+  const t = useTranslations('admin');
+  const tCommon = useTranslations('common');
+
   const [isLoading, setIsLoading] = useState(true);
   const [form, setForm] = useState<EditFormData>({
     titleKo: '',
@@ -54,8 +58,10 @@ export function ContentEditStep({ articleId, isSaving, onSave, onCancel }: Conte
     <section className="animate-fade-in">
       <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <p className="text-xs font-black uppercase tracking-widest text-gray-400">콘텐츠 수정</p>
-          <h2 className="mt-1 text-xl font-black text-black">발행된 콘텐츠를 수정합니다</h2>
+          <p className="text-xs font-black uppercase tracking-widest text-gray-400">
+            {t('editTitle')}
+          </p>
+          <h2 className="mt-1 text-xl font-black text-black">{t('editSubtitle')}</h2>
         </div>
         <div className="flex gap-2">
           <button
@@ -64,7 +70,7 @@ export function ContentEditStep({ articleId, isSaving, onSave, onCancel }: Conte
             disabled={isSaving}
             className="rounded-xl border-2 border-gray-200 px-5 py-3 text-sm font-bold text-gray-500 transition-colors cursor-pointer hover:border-gray-400 hover:text-gray-700 disabled:cursor-not-allowed disabled:opacity-50"
           >
-            취소
+            {tCommon('cancel')}
           </button>
           <button
             type="button"
@@ -72,7 +78,7 @@ export function ContentEditStep({ articleId, isSaving, onSave, onCancel }: Conte
             disabled={isSaving}
             className="rounded-xl bg-black px-5 py-3 text-sm font-black text-white transition-opacity cursor-pointer hover:opacity-80 disabled:cursor-not-allowed disabled:opacity-30"
           >
-            {isSaving ? '저장 중...' : '수정 저장'}
+            {isSaving ? t('editSaving') : t('editSave')}
           </button>
         </div>
       </div>
@@ -80,11 +86,11 @@ export function ContentEditStep({ articleId, isSaving, onSave, onCancel }: Conte
       <div className="flex flex-col gap-5">
         <div className="rounded-2xl border-2 border-black bg-white p-5 shadow-sm">
           <p className="mb-4 border-b border-gray-100 pb-3 text-xs font-black uppercase tracking-widest text-gray-700">
-            한국어
+            {t('editLangKo')}
           </p>
           <div className="flex flex-col gap-4">
             <label className="block">
-              <span className="mb-2 block text-xs font-bold text-gray-500">제목</span>
+              <span className="mb-2 block text-xs font-bold text-gray-500">{t('titleLabel')}</span>
               <input
                 value={form.titleKo}
                 onChange={(e) => setForm((prev) => ({ ...prev, titleKo: e.target.value }))}
@@ -92,12 +98,12 @@ export function ContentEditStep({ articleId, isSaving, onSave, onCancel }: Conte
               />
             </label>
             <div>
-              <span className="mb-2 block text-xs font-bold text-gray-500">본문</span>
+              <span className="mb-2 block text-xs font-bold text-gray-500">{t('bodyLabel')}</span>
               <RichTextEditor
                 value={form.bodyKo}
                 onChange={(bodyKo) => setForm((prev) => ({ ...prev, bodyKo }))}
                 minHeightClassName="min-h-[360px]"
-                placeholder="한국어 본문"
+                placeholder={t('koBodyPlaceholder')}
               />
             </div>
           </div>
@@ -105,11 +111,11 @@ export function ContentEditStep({ articleId, isSaving, onSave, onCancel }: Conte
 
         <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
           <p className="mb-4 border-b border-gray-100 pb-3 text-xs font-black uppercase tracking-widest text-gray-700">
-            스페인어
+            {t('editLangEs')}
           </p>
           <div className="flex flex-col gap-4">
             <label className="block">
-              <span className="mb-2 block text-xs font-bold text-gray-500">제목</span>
+              <span className="mb-2 block text-xs font-bold text-gray-500">{t('titleLabel')}</span>
               <input
                 value={form.titleEs}
                 onChange={(e) => setForm((prev) => ({ ...prev, titleEs: e.target.value }))}
@@ -117,12 +123,12 @@ export function ContentEditStep({ articleId, isSaving, onSave, onCancel }: Conte
               />
             </label>
             <div>
-              <span className="mb-2 block text-xs font-bold text-gray-500">본문</span>
+              <span className="mb-2 block text-xs font-bold text-gray-500">{t('bodyLabel')}</span>
               <RichTextEditor
                 value={form.bodyEs}
                 onChange={(bodyEs) => setForm((prev) => ({ ...prev, bodyEs }))}
                 minHeightClassName="min-h-[360px]"
-                placeholder="스페인어 본문"
+                placeholder={t('esTranslationPlaceholder')}
               />
             </div>
           </div>

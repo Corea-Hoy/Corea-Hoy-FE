@@ -1,15 +1,8 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import {
-  CATEGORY_OPTIONS,
-  LANGUAGE_LABELS,
-  STATUS_LABELS,
-  STATUS_STYLES,
-  STEP_LABELS,
-  STEP_OPTIONS,
-  STEP_STYLES,
-} from '../model/labels';
+import { useTranslations } from 'next-intl';
+import { CATEGORY_OPTIONS, STEP_OPTIONS, STEP_STYLES } from '../model/labels';
 import type {
   ContentCategory,
   ContentLanguage,
@@ -24,12 +17,6 @@ type FilterCategory = 'all' | ContentCategory;
 type FilterLanguage = 'all' | ContentLanguage;
 type SortKey = 'views' | 'updatedAt';
 type SortDirection = 'asc' | 'desc';
-
-const STATUS_TABS: { value: StatusTab; label: string }[] = [
-  { value: 'all', label: '전체' },
-  { value: 'draft', label: STATUS_LABELS.draft },
-  { value: 'published', label: STATUS_LABELS.published },
-];
 
 function getInitialActiveTab(): StatusTab {
   if (typeof window === 'undefined') return 'all';
@@ -70,6 +57,9 @@ export function ContentManagementPage({
   onContinueDraft,
   onEditPublished,
 }: ContentManagementPageProps) {
+  const t = useTranslations('admin');
+  const tCommon = useTranslations('common');
+
   const [activeTab, setActiveTab] = useState<StatusTab>(getInitialActiveTab);
   const [pipelineFilter, setPipelineFilter] = useState<FilterStep>('all');
   const [categoryFilter, setCategoryFilter] = useState<FilterCategory>('all');
@@ -79,6 +69,35 @@ export function ContentManagementPage({
   const [publishedSortKey, setPublishedSortKey] = useState<SortKey | null>(null);
   const [publishedSortDirection, setPublishedSortDirection] = useState<SortDirection | null>(null);
   const [deletingIds, setDeletingIds] = useState<Set<string>>(new Set());
+
+  const STATUS_TABS: { value: StatusTab; label: string }[] = [
+    { value: 'all', label: t('filterAll') },
+    { value: 'draft', label: t('statusDraft') },
+    { value: 'published', label: t('statusPublished') },
+  ];
+
+  const STEP_LABELS: Record<ContentStep, string> = {
+    select_article: t('stepSelectArticle'),
+    review_content: t('stepReviewContent'),
+    review_translation: t('stepReviewTranslation'),
+    preview: t('stepPreview'),
+    published: t('stepPublished'),
+  };
+
+  const STATUS_LABELS: Record<ContentStatus, string> = {
+    published: t('statusPublished'),
+    draft: t('statusDraft'),
+  };
+
+  const STATUS_STYLES: Record<ContentStatus, string> = {
+    published: 'bg-green-50 text-green-700',
+    draft: 'bg-gray-100 text-gray-600',
+  };
+
+  const LANGUAGE_LABELS: Record<ContentLanguage, string> = {
+    ko: t('langKoLabel'),
+    es: t('langEsLabel'),
+  };
 
   const isAllTab = activeTab === 'all';
   const isDraftTab = activeTab === 'draft';
@@ -119,8 +138,8 @@ export function ContentManagementPage({
   }, [baseFilteredContents, publishedSortKey, publishedSortDirection]);
 
   const groupedSections = [
-    { key: 'draft', title: '임시저장', items: draftContents },
-    { key: 'published', title: '발행됨', items: publishedContents },
+    { key: 'draft', title: t('draftSection'), items: draftContents },
+    { key: 'published', title: t('publishedSection'), items: publishedContents },
   ];
 
   function handleTabChange(nextTab: StatusTab) {
@@ -162,7 +181,7 @@ export function ContentManagementPage({
   }
 
   async function handleDeleteContent(contentId: string) {
-    const shouldDelete = window.confirm('정말 이 콘텐츠를 삭제하시겠습니까?');
+    const shouldDelete = window.confirm(t('deleteContentConfirm'));
     if (!shouldDelete) return;
 
     setDeletingIds((prev) => new Set(prev).add(contentId));
@@ -170,7 +189,7 @@ export function ContentManagementPage({
       await onDeleteContent(contentId);
     } catch (error) {
       console.error('Failed to delete content:', error);
-      alert('삭제에 실패했습니다.');
+      alert(t('deleteContentError'));
     } finally {
       setDeletingIds((prev) => {
         const next = new Set(prev);
@@ -244,26 +263,34 @@ export function ContentManagementPage({
         <table className="w-full min-w-[1040px] border-collapse text-left">
           <thead className="border-b border-gray-100 bg-gray-50">
             <tr>
-              <th className="px-4 py-3 text-xs font-black text-gray-500">제목</th>
-              <th className="px-4 py-3 text-center text-xs font-black text-gray-500">카테고리</th>
+              <th className="px-4 py-3 text-xs font-black text-gray-500">{t('colTitle')}</th>
+              <th className="px-4 py-3 text-center text-xs font-black text-gray-500">
+                {t('colCategory')}
+              </th>
               {tableShowStatusColumn && (
-                <th className="px-4 py-3 text-center text-xs font-black text-gray-500">상태</th>
+                <th className="px-4 py-3 text-center text-xs font-black text-gray-500">
+                  {t('colStatus')}
+                </th>
               )}
               {tableShowPipelineColumn && (
                 <th className="w-40 px-4 py-3 text-center text-xs font-black text-gray-500">
-                  현재 단계
+                  {t('colCurrentStep')}
                 </th>
               )}
-              <th className="px-4 py-3 text-center text-xs font-black text-gray-500">언어</th>
+              <th className="px-4 py-3 text-center text-xs font-black text-gray-500">
+                {t('colLanguage')}
+              </th>
               {tableShowViewsColumn && (
                 <th className="px-4 py-3 text-center">
-                  {renderSortableHeader('조회수', 'views', sectionKey)}
+                  {renderSortableHeader(t('colViews'), 'views', sectionKey)}
                 </th>
               )}
               <th className="px-4 py-3 text-center">
-                {renderSortableHeader('수정일', 'updatedAt', sectionKey)}
+                {renderSortableHeader(t('colUpdatedAt'), 'updatedAt', sectionKey)}
               </th>
-              <th className="px-4 py-3 text-center text-xs font-black text-gray-500">작업</th>
+              <th className="px-4 py-3 text-center text-xs font-black text-gray-500">
+                {t('colActions')}
+              </th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100">
@@ -281,7 +308,7 @@ export function ContentManagementPage({
                   colSpan={tableColumnCount}
                   className="px-4 py-12 text-center text-sm font-bold text-gray-400"
                 >
-                  조건에 맞는 콘텐츠가 없습니다.
+                  {t('noContents')}
                 </td>
               </tr>
             ) : (
@@ -321,7 +348,7 @@ export function ContentManagementPage({
                   )}
                   {tableShowPipelineColumn && (
                     <td className="px-4 py-4 text-center">
-                      {content.status === 'draft' && content.currentStep !== 'select_article' ? (
+                      {content.status === 'draft' ? (
                         <span
                           className={`inline-flex min-w-24 justify-center rounded-full px-3 py-1 text-[11px] font-black ${
                             STEP_STYLES[content.currentStep]
@@ -352,7 +379,7 @@ export function ContentManagementPage({
                           onClick={() => handleContinueDraft(content)}
                           className="rounded-lg bg-black px-3 py-1.5 text-xs font-black text-white transition-opacity cursor-pointer hover:opacity-80"
                         >
-                          이어서 작업하기
+                          {t('continueDraft')}
                         </button>
                         <button
                           type="button"
@@ -360,7 +387,7 @@ export function ContentManagementPage({
                           disabled={deletingIds.has(content.id)}
                           className="rounded-lg border border-red-100 px-3 py-1.5 text-xs font-black text-red-500 transition-colors cursor-pointer hover:border-red-200 hover:text-red-600 disabled:opacity-50"
                         >
-                          {deletingIds.has(content.id) ? '삭제 중...' : '삭제'}
+                          {deletingIds.has(content.id) ? t('deleting') : tCommon('delete')}
                         </button>
                       </div>
                     ) : (
@@ -370,7 +397,7 @@ export function ContentManagementPage({
                           onClick={() => handleEditPublishedContent(content)}
                           className="rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-xs font-black text-gray-600 shadow-sm transition-colors hover:border-black hover:text-black"
                         >
-                          수정
+                          {tCommon('edit')}
                         </button>
                         <button
                           type="button"
@@ -378,7 +405,7 @@ export function ContentManagementPage({
                           disabled={deletingIds.has(content.id)}
                           className="rounded-lg border border-red-100 bg-white px-3 py-1.5 text-xs font-black text-red-500 shadow-sm transition-colors hover:border-red-200 hover:text-red-600 disabled:opacity-50"
                         >
-                          {deletingIds.has(content.id) ? '삭제 중...' : '삭제'}
+                          {deletingIds.has(content.id) ? t('deleting') : tCommon('delete')}
                         </button>
                       </div>
                     )}
@@ -395,10 +422,8 @@ export function ContentManagementPage({
   return (
     <section className="animate-fade-in">
       <div className="mb-5">
-        <h2 className="text-xl font-black text-black">콘텐츠 관리</h2>
-        <p className="mt-1 text-sm font-medium text-gray-400">
-          생성된 콘텐츠의 발행 상태와 작업 단계를 관리합니다.
-        </p>
+        <h2 className="text-xl font-black text-black">{t('tabList')}</h2>
+        <p className="mt-1 text-sm font-medium text-gray-400">{t('cmSubtitle')}</p>
       </div>
 
       <div className="mb-5 flex flex-wrap gap-2">
@@ -420,19 +445,21 @@ export function ContentManagementPage({
 
       <div className="mb-5 flex flex-col gap-4 rounded-2xl border border-gray-100 bg-white p-4 shadow-sm lg:flex-row lg:items-end lg:justify-between">
         <div>
-          <p className="mb-2 text-xs font-black uppercase tracking-widest text-gray-400">필터</p>
+          <p className="mb-2 text-xs font-black uppercase tracking-widest text-gray-400">
+            {t('filter')}
+          </p>
           <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
             {isDraftTab && (
               <label>
                 <span className="mb-1.5 block text-xs font-bold text-gray-500">
-                  파이프라인 필터
+                  {t('pipelineFilter')}
                 </span>
                 <select
                   value={pipelineFilter}
                   onChange={(event) => setPipelineFilter(event.target.value as FilterStep)}
                   className="w-full rounded-xl border border-gray-200 bg-white px-3 py-3 text-sm font-bold outline-none transition-colors cursor-pointer focus:border-black lg:w-44"
                 >
-                  <option value="all">전체</option>
+                  <option value="all">{t('filterAll')}</option>
                   {STEP_OPTIONS.map((step) => (
                     <option key={step} value={step}>
                       {STEP_LABELS[step]}
@@ -443,13 +470,15 @@ export function ContentManagementPage({
             )}
 
             <label>
-              <span className="mb-1.5 block text-xs font-bold text-gray-500">카테고리 필터</span>
+              <span className="mb-1.5 block text-xs font-bold text-gray-500">
+                {t('categoryFilter')}
+              </span>
               <select
                 value={categoryFilter}
                 onChange={(event) => setCategoryFilter(event.target.value as FilterCategory)}
                 className="w-full rounded-xl border border-gray-200 bg-white px-3 py-3 text-sm font-bold outline-none transition-colors cursor-pointer focus:border-black lg:w-40"
               >
-                <option value="all">전체</option>
+                <option value="all">{t('filterAll')}</option>
                 {CATEGORY_OPTIONS.map((category) => (
                   <option key={category} value={category}>
                     {category}
@@ -459,14 +488,16 @@ export function ContentManagementPage({
             </label>
 
             <label>
-              <span className="mb-1.5 block text-xs font-bold text-gray-500">언어 필터</span>
+              <span className="mb-1.5 block text-xs font-bold text-gray-500">
+                {t('languageFilter')}
+              </span>
               <select
                 value={languageFilter}
                 onChange={(event) => setLanguageFilter(event.target.value as FilterLanguage)}
                 className="w-full rounded-xl border border-gray-200 bg-white px-3 py-3 text-sm font-bold outline-none transition-colors cursor-pointer focus:border-black lg:w-40"
               >
-                <option value="all">전체</option>
-                <option value="es">{LANGUAGE_LABELS.es}</option>
+                <option value="all">{t('filterAll')}</option>
+                <option value="es">{t('langEsLabel')}</option>
               </select>
             </label>
           </div>

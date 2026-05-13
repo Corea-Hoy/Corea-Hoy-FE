@@ -22,6 +22,7 @@ import { WorkflowControlPanel } from './WorkflowControlPanel';
 import { adminApi, type AdminArticle, type DbCategory } from '@/features/admin/api/admin.api';
 import type { ManagedContent } from '@/views/content-management/model/types';
 import { ContentEditStep, type EditFormData } from './ContentEditStep';
+import { useTranslations } from 'next-intl';
 
 const DRAFT_STORAGE_KEY = 'coreahoy-admin-pipeline-draft';
 const SESSION_STORAGE_KEY = 'coreahoy-admin-pipeline-session';
@@ -115,6 +116,7 @@ export function AdminPipelinePage() {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const t = useTranslations('admin');
 
   const sectionQuery = searchParams.get('section');
   const activeAdminSection: AdminSection =
@@ -779,7 +781,7 @@ export function AdminPipelinePage() {
     return (
       <div className="py-6 pb-10 md:py-10">
         <header className="mb-7">
-          <h1 className="mb-1 text-3xl font-black text-black">관리자 콘솔</h1>
+          <h1 className="mb-1 text-3xl font-black text-black">{t('title')}</h1>
         </header>
 
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
@@ -794,8 +796,8 @@ export function AdminPipelinePage() {
   return (
     <div className="py-6 pb-10 md:py-10">
       <header className="mb-7">
-        <h1 className="mb-1 text-3xl font-black text-black">관리자 콘솔</h1>
-        <p className="text-sm font-medium text-gray-400">콘텐츠 생성 파이프라인을 시작하세요.</p>
+        <h1 className="mb-1 text-3xl font-black text-black">{t('title')}</h1>
+        <p className="text-sm font-medium text-gray-400">{t('pipelineSubtitle')}</p>
       </header>
 
       {activeAdminSection !== 'home' && (
@@ -805,17 +807,13 @@ export function AdminPipelinePage() {
             onClick={goHome}
             className="w-fit rounded-xl border border-gray-200 px-4 py-2 text-sm font-bold text-gray-500 transition-colors cursor-pointer hover:border-black hover:text-black"
           >
-            관리자 홈
+            {t('homeButton')}
           </button>
         </div>
       )}
 
       {activeAdminSection === 'home' && (
-        <section
-          className="flex flex-col gap-3 sm:flex-row"
-          role="tablist"
-          aria-label="관리자 화면 선택"
-        >
+        <section className="flex flex-col gap-3 sm:flex-row" role="tablist">
           <button
             type="button"
             role="tab"
@@ -823,7 +821,7 @@ export function AdminPipelinePage() {
             onClick={openPipeline}
             className="rounded-xl border border-gray-200 bg-white px-5 py-3 text-sm font-extrabold text-gray-700 transition-colors cursor-pointer hover:border-black hover:text-black sm:min-w-40"
           >
-            파이프라인 실행
+            {t('tabCreate')}
           </button>
           <button
             type="button"
@@ -832,7 +830,7 @@ export function AdminPipelinePage() {
             onClick={openContentManagement}
             className="rounded-xl border border-gray-200 bg-white px-5 py-3 text-sm font-extrabold text-gray-700 transition-colors cursor-pointer hover:border-black hover:text-black sm:min-w-40"
           >
-            콘텐츠 관리
+            {t('tabList')}
           </button>
         </section>
       )}
@@ -854,7 +852,7 @@ export function AdminPipelinePage() {
               ))
             ) : candidateArticles.length === 0 ? (
               <div className="rounded-2xl border border-gray-200 bg-white p-8 text-center text-sm font-bold text-gray-400">
-                수집된 기사가 없습니다.
+                {t('noArticles')}
               </div>
             ) : (
               candidateArticles.map((article) => (

@@ -1,5 +1,5 @@
 import Image from 'next/image';
-import { TRANSLATION_TARGET_LANGUAGES } from '../model/labels';
+import { useTranslations } from 'next-intl';
 import type {
   AdminCandidateArticle,
   GeneratedContent,
@@ -32,23 +32,26 @@ export function ContentReviewStep({
   onNext,
   onPrev,
 }: ContentReviewStepProps) {
+  const t = useTranslations('admin');
   const canGoNext = Boolean(targetLanguage);
 
   return (
     <section className="animate-fade-in">
       <div className="mb-5">
-        <p className="text-xs font-black uppercase tracking-widest text-gray-400">콘텐츠 검수</p>
-        <h2 className="mt-1 text-xl font-black text-black">원문과 AI 생성 콘텐츠를 비교하세요</h2>
+        <p className="text-xs font-black uppercase tracking-widest text-gray-400">
+          {t('reviewContentHeading')}
+        </p>
+        <h2 className="mt-1 text-xl font-black text-black">{t('reviewContentTitle')}</h2>
       </div>
 
       <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
         <div className="rounded-2xl border border-gray-200 bg-gray-50 p-5 lg:max-h-[720px] lg:overflow-y-auto">
           <div className="mb-4 flex items-center justify-between gap-3">
             <h3 className="text-xs font-black uppercase tracking-widest text-gray-500">
-              뉴스 원문
+              {t('originalArticle')}
             </h3>
             <span className="rounded-full bg-white px-3 py-1 text-[11px] font-black text-gray-400">
-              읽기 전용
+              {t('readOnly')}
             </span>
           </div>
 
@@ -67,16 +70,16 @@ export function ContentReviewStep({
           <div className="mb-5 flex flex-col gap-4 border-b border-gray-100 pb-4 xl:flex-row xl:items-start xl:justify-between">
             <div className="min-w-0">
               <p className="text-xs font-black uppercase tracking-widest text-gray-700">
-                AI 생성 콘텐츠
+                {t('aiContentLabel')}
               </p>
-              <p className="mt-1 text-xs leading-relaxed text-gray-400">
-                원문과 같은 문장 구조나 표현이 반복되지 않도록 재구성하세요.
-              </p>
+              <p className="mt-1 text-xs leading-relaxed text-gray-400">{t('aiContentHint')}</p>
             </div>
 
             <div className="xl:w-40 xl:flex-shrink-0">
               <label>
-                <span className="mb-1 block text-[11px] font-bold text-gray-500">번역 언어</span>
+                <span className="mb-1 block text-[11px] font-bold text-gray-500">
+                  {t('translateLang')}
+                </span>
                 <select
                   value={targetLanguage}
                   disabled={isTranslating}
@@ -85,12 +88,8 @@ export function ContentReviewStep({
                   }
                   className="w-full rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm font-bold outline-none transition-colors cursor-pointer focus:border-black disabled:cursor-not-allowed disabled:opacity-50"
                 >
-                  <option value="">선택 없음</option>
-                  {TRANSLATION_TARGET_LANGUAGES.map((language) => (
-                    <option key={language.code} value={language.code}>
-                      {language.label}
-                    </option>
-                  ))}
+                  <option value="">-</option>
+                  <option value="es">{t('esLang')}</option>
                 </select>
               </label>
             </div>
@@ -98,7 +97,7 @@ export function ContentReviewStep({
 
           <div className="flex flex-col gap-4">
             <label className="block">
-              <span className="mb-2 block text-xs font-bold text-gray-500">제목</span>
+              <span className="mb-2 block text-xs font-bold text-gray-500">{t('titleLabel')}</span>
               <input
                 value={content.title}
                 disabled={isTranslating}
@@ -108,12 +107,12 @@ export function ContentReviewStep({
             </label>
 
             <div className="block">
-              <span className="mb-2 block text-xs font-bold text-gray-500">본문</span>
+              <span className="mb-2 block text-xs font-bold text-gray-500">{t('bodyLabel')}</span>
               <RichTextEditor
                 value={content.body}
                 onChange={(body) => onChange({ ...content, body })}
                 minHeightClassName="min-h-[360px]"
-                placeholder="한국어 콘텐츠 본문"
+                placeholder={t('koBodyPlaceholder')}
                 disabled={isTranslating}
               />
             </div>
@@ -127,14 +126,14 @@ export function ContentReviewStep({
           onClick={onPrev}
           className="rounded-xl border-2 border-gray-200 px-5 py-3 text-sm font-bold text-gray-500 transition-colors cursor-pointer hover:border-gray-400 hover:text-gray-700"
         >
-          이전 단계
+          {t('prevStep')}
         </button>
         <button
           type="button"
           onClick={onSaveDraft}
           className="rounded-xl border-2 border-gray-200 px-5 py-3 text-sm font-bold text-gray-600 transition-colors cursor-pointer hover:border-gray-400 hover:text-black"
         >
-          {saveStatus === 'saved' ? '저장됨' : '임시저장'}
+          {saveStatus === 'saved' ? t('savedDraft') : t('saveDraft')}
         </button>
         <div className="group relative">
           {!canGoNext && (
@@ -148,7 +147,7 @@ export function ContentReviewStep({
                   className="h-11 w-11 flex-shrink-0 object-contain"
                 />
                 <p className="text-xs font-bold leading-relaxed text-gray-700">
-                  번역할 언어를 선택해주세요.
+                  {t('noLangWarning')}
                 </p>
               </div>
             </div>
@@ -159,7 +158,7 @@ export function ContentReviewStep({
             disabled={!canGoNext || isTranslating}
             className="w-full rounded-xl bg-black px-5 py-3 text-sm font-black text-white transition-opacity cursor-pointer hover:opacity-80 disabled:cursor-not-allowed disabled:opacity-30 sm:w-auto"
           >
-            {isTranslating ? 'AI 번역 중...' : '다음 단계'}
+            {isTranslating ? t('aiTranslating') : t('nextStep')}
           </button>
         </div>
       </div>
