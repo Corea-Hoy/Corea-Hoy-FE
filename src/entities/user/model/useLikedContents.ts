@@ -6,7 +6,7 @@ export interface LikedArticle {
   id: string;
   title: string;
   titleEs?: string;
-  category: string;
+  category: { id: number; name: string; slug: string } | string;
   publishedAt: string;
 }
 

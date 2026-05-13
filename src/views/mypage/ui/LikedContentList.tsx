@@ -59,7 +59,7 @@ export function LikedContentList() {
               </div>
               <div className="flex flex-col justify-center gap-1 py-3 pr-3 min-w-0">
                 <span className="text-[10px] bg-gray-100 px-2 py-0.5 rounded font-semibold text-gray-500 self-start">
-                  {c.category}
+                  {typeof c.category === 'object' ? c.category.name : c.category}
                 </span>
                 <p className="font-bold text-sm leading-snug group-hover:underline line-clamp-2">
                   {isKo ? c.title : (c.titleEs ?? c.title)}
