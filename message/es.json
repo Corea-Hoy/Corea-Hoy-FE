@@ -121,6 +121,7 @@
     "featureSuggestion": "Sugerencia de nuevas funciones",
     "bugError": "Errores y fallos",
     "other": "Otros comentarios",
+    "categoryInput": "Por favor, introduce una categoría.",
     "submitMessage": "¿Deseas enviar el contenido que has escrito?\nDespués de enviarlo, la edición será limitada.",
     "submitSuccess": "El envío se ha completado.",
     "emailTitle": "Dirección de correo electrónico",
@@ -249,6 +250,11 @@
     "editSaving": "Guardando...",
     "editSuccess": "El contenido se ha modificado correctamente.",
     "editError": "No se pudo modificar el contenido. Por favor, inténtalo de nuevo."
+  },
+  "notFound": {
+    "title": "No se pudo encontrar la página.",
+    "description": "La dirección de la página que intentas visitar es incorrecta,\no la página ha sido cambiada o eliminada, por lo que no se pudo encontrar.",
+    "back": "Volver"
   },
   "common": {
     "edit": "Editar",

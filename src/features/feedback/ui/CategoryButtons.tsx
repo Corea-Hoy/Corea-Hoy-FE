@@ -18,8 +18,9 @@ export function CategoryButtons({ buttons, activeIndex, onChange }: Props) {
       {buttons.map((item, i) => (
         <button
           key={i}
+          type="button"
           value={item.value}
-          className={`flex justify-center items-center flex-col gap-2 py-4.5 px-3.5 rounded-xl border-2 border-transparent cursor-pointer ${i === activeIndex ? '!border-green-500 bg-green-200/10' : 'bg-white'}`}
+          className={`flex justify-center items-center flex-col gap-2 py-4.5 px-1 sm:px-3.5 rounded-xl border-2 border-transparent cursor-pointer touch-manipulation ${i === activeIndex ? '!border-green-500 bg-green-200/10' : 'bg-white'}`}
           onClick={() => onChange(i, item.value)}
         >
           <img className="w-[3.5rem]" src={item.image} alt="" />

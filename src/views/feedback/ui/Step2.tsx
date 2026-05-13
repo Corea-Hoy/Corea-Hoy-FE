@@ -2,6 +2,8 @@
 
 import { FEEDBACK_MAX_LENGTH } from '@/features/feedback/model/constants';
 import { useTranslations } from 'next-intl';
+import { validateEmail } from '@/shared/utils';
+import { validateContent } from '@/features/feedback/model/validate';
 
 interface Props {
   email: string;
@@ -23,9 +25,11 @@ export function Step2({
   onClick,
 }: Props) {
   const t = useTranslations();
+  const submitDisabled =
+    validateEmail(email.trim(), t) !== '' || validateContent(contents.trim(), t) !== '';
 
   return (
-    <form>
+    <form onSubmit={(e) => e.preventDefault()}>
       <div>
         {/* 이메일 */}
         <div className="flex flex-col gap-2">
@@ -56,7 +60,7 @@ export function Step2({
               id="contentsInput"
               rows={6}
               className="w-full text-base resize-none outline-none"
-              placeholder={t('feedbackPlaceholder')}
+              placeholder={t('feedback.feedbackPlaceholder')}
               required
               maxLength={FEEDBACK_MAX_LENGTH}
               value={contents}
@@ -68,7 +72,8 @@ export function Step2({
       </div>
       <button
         type="button"
-        className="mt-12 ml-auto inline-block w-full h-[3rem] rounded-xl text-base text-white font-bold bg-green-700 cursor-pointer"
+        className="mt-12 ml-auto inline-block w-full h-[3rem] rounded-xl text-base text-white font-bold bg-green-700 cursor-pointer disabled:opacity-30 disabled:bg-black disabled:cursor-not-allowed"
+        disabled={submitDisabled}
         onClick={onClick}
       >
         {t('common.submit')}
