@@ -2,6 +2,7 @@
 
 import { useArticles } from '@/features/article/model/useArticles';
 import DOMPurify from 'isomorphic-dompurify';
+import Image from 'next/image';
 import { useTranslations } from 'next-intl';
 
 export function ArticleContent() {
