@@ -1,6 +1,7 @@
 export type ArticleRequest = {
   id: string;
   titleKo: string;
+  titleEs?: string;
   bodyKo: string;
   culturalNoteKo: string;
   bodyEs: string;

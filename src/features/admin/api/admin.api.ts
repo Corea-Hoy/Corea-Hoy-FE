@@ -28,7 +28,7 @@ export interface AdminArticle {
   titleKo: string;
   titleEs: string | null;
   status: 'DRAFT' | 'PUBLISHED' | 'ARCHIVED';
-  draftStep: 'select' | 'review-ko' | 'review-es' | 'preview';
+  draftStep: 'select' | 'review_ko' | 'review_es' | 'preview';
   langStatusKo: 'pending' | 'done';
   langStatusEs: 'pending' | 'done';
   viewCount: number;

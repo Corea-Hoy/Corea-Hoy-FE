@@ -21,12 +21,13 @@ import { TranslationReviewStep } from './TranslationReviewStep';
 import { WorkflowControlPanel } from './WorkflowControlPanel';
 import { adminApi, type AdminArticle, type DbCategory } from '@/features/admin/api/admin.api';
 import type { ManagedContent } from '@/views/content-management/model/types';
+import { ContentEditStep, type EditFormData } from './ContentEditStep';
 
 const DRAFT_STORAGE_KEY = 'coreahoy-admin-pipeline-draft';
 const SESSION_STORAGE_KEY = 'coreahoy-admin-pipeline-session';
 const PUBLISH_RETURN_DELAY_MS = 2000;
 
-type AdminSection = 'home' | 'pipeline' | 'content-management';
+type AdminSection = 'home' | 'pipeline' | 'content-management' | 'content-edit';
 type ToastState = {
   title: string;
   message: string;
@@ -47,8 +48,8 @@ type SavedDraft = {
 
 function draftStepToContentStep(draftStep: AdminArticle['draftStep']): ContentStep {
   if (draftStep === 'select') return 'select_article';
-  if (draftStep === 'review-ko') return 'review_content';
-  if (draftStep === 'review-es') return 'review_translation';
+  if (draftStep === 'review_ko') return 'review_content';
+  if (draftStep === 'review_es') return 'review_translation';
   return 'preview';
 }
 
@@ -117,7 +118,14 @@ export function AdminPipelinePage() {
 
   const sectionQuery = searchParams.get('section');
   const activeAdminSection: AdminSection =
-    sectionQuery === 'pipeline' || sectionQuery === 'content-management' ? sectionQuery : 'home';
+    sectionQuery === 'pipeline' ||
+    sectionQuery === 'content-management' ||
+    sectionQuery === 'content-edit'
+      ? sectionQuery
+      : 'home';
+
+  const editingContentId =
+    activeAdminSection === 'content-edit' ? searchParams.get('contentId') : null;
 
   // Pipeline state
   const [savedArticleId, setSavedArticleId] = useState<string | null>(null);
@@ -143,10 +151,9 @@ export function AdminPipelinePage() {
   const [adminArticles, setAdminArticles] = useState<AdminArticle[]>([]);
   const [isLoadingArticles, setIsLoadingArticles] = useState(false);
   const [categoriesError, setCategoriesError] = useState(false);
-  const [newsError, setNewsError] = useState(false);
-  const [articlesError, setArticlesError] = useState(false);
   const [isSavingDraft, setIsSavingDraft] = useState(false);
   const [isPublishing, setIsPublishing] = useState(false);
+  const [isEditSaving, setIsEditSaving] = useState(false);
   const previousStepRef = useRef<PipelineStep>(currentStep);
   const toastTimeoutRef = useRef<number | null>(null);
   const publishReturnTimeoutRef = useRef<number | null>(null);
@@ -255,7 +262,6 @@ export function AdminPipelinePage() {
         setCandidateArticles(mapped);
       } catch (error) {
         console.error('Failed to load candidate articles:', error);
-        setNewsError(true);
         showToast({ title: '오류', message: '뉴스 기사를 불러오지 못했습니다.' });
       } finally {
         setIsLoadingCandidates(false);
@@ -275,7 +281,6 @@ export function AdminPipelinePage() {
         setAdminArticles(res.data.data.articles);
       } catch (error) {
         console.error('Failed to load admin articles:', error);
-        setArticlesError(true);
         showToast({ title: '오류', message: '관리자 기사를 불러오지 못했습니다.' });
       } finally {
         setIsLoadingArticles(false);
@@ -632,6 +637,8 @@ export function AdminPipelinePage() {
       );
       setSaveStatus('saved');
       showToast({ title: '임시저장 완료', message: '현재 파이프라인 작업이 저장되었습니다.' });
+      sessionStorage.setItem('coreahoy-content-management-tab', 'draft');
+      openContentManagement();
     } catch {
       showToast({ title: '오류', message: '임시저장에 실패했습니다. 다시 시도해주세요.' });
     } finally {
@@ -715,6 +722,38 @@ export function AdminPipelinePage() {
     params.delete('contentId');
     params.delete('step');
     router.push(`${pathname}?${params.toString()}`);
+  }
+
+  function openContentEdit(contentId: string) {
+    const params = new URLSearchParams(searchParams.toString());
+    params.set('section', 'content-edit');
+    params.set('contentId', contentId);
+    params.delete('step');
+    router.push(`${pathname}?${params.toString()}`);
+  }
+
+  async function handleSaveEdit(data: EditFormData) {
+    if (isEditSaving || !editingContentId) return;
+    setIsEditSaving(true);
+    try {
+      await adminApi.updateArticle(editingContentId, {
+        titleKo: data.titleKo,
+        bodyKo: data.bodyKo,
+        titleEs: data.titleEs,
+        bodyEs: data.bodyEs,
+      });
+      setAdminArticles((prev) =>
+        prev.map((a) =>
+          a.id === editingContentId ? { ...a, titleKo: data.titleKo, titleEs: data.titleEs } : a,
+        ),
+      );
+      showToast({ title: '수정 완료', message: '콘텐츠가 성공적으로 수정되었습니다.' });
+      openContentManagement();
+    } catch {
+      showToast({ title: '오류', message: '수정에 실패했습니다. 다시 시도해주세요.' });
+    } finally {
+      setIsEditSaving(false);
+    }
   }
 
   function goHome() {
@@ -884,6 +923,7 @@ export function AdminPipelinePage() {
           contents={managedContents}
           isLoading={isLoadingArticles}
           onDeleteContent={handleDeleteContent}
+          onEditPublished={openContentEdit}
           onContinueDraft={(contentId, contentStep) => {
             const article = adminArticles.find((a) => a.id === contentId);
             openDraftContentInPipeline(contentId, contentStep, article);
@@ -894,6 +934,15 @@ export function AdminPipelinePage() {
             params.set('step', contentStep);
             router.push(`${pathname}?${params.toString()}`);
           }}
+        />
+      )}
+
+      {activeAdminSection === 'content-edit' && editingContentId && (
+        <ContentEditStep
+          articleId={editingContentId}
+          isSaving={isEditSaving}
+          onSave={handleSaveEdit}
+          onCancel={openContentManagement}
         />
       )}
 

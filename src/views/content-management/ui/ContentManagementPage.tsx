@@ -60,6 +60,7 @@ interface ContentManagementPageProps {
   isLoading: boolean;
   onDeleteContent: (contentId: string) => Promise<void>;
   onContinueDraft?: (contentId: string, contentStep: ContentStep) => void;
+  onEditPublished?: (contentId: string) => void;
 }
 
 export function ContentManagementPage({
@@ -67,6 +68,7 @@ export function ContentManagementPage({
   isLoading,
   onDeleteContent,
   onContinueDraft,
+  onEditPublished,
 }: ContentManagementPageProps) {
   const [activeTab, setActiveTab] = useState<StatusTab>(getInitialActiveTab);
   const [pipelineFilter, setPipelineFilter] = useState<FilterStep>('all');
@@ -179,9 +181,7 @@ export function ContentManagementPage({
   }
 
   function handleEditPublishedContent(content: ManagedContent) {
-    const params = new URLSearchParams(window.location.search);
-    params.set('mode', 'edit');
-    window.location.href = `/article/${content.id}?${params.toString()}`;
+    onEditPublished?.(content.id);
   }
 
   function handleContinueDraft(content: ManagedContent) {
@@ -321,7 +321,7 @@ export function ContentManagementPage({
                   )}
                   {tableShowPipelineColumn && (
                     <td className="px-4 py-4 text-center">
-                      {content.status === 'draft' ? (
+                      {content.status === 'draft' && content.currentStep !== 'select_article' ? (
                         <span
                           className={`inline-flex min-w-24 justify-center rounded-full px-3 py-1 text-[11px] font-black ${
                             STEP_STYLES[content.currentStep]
