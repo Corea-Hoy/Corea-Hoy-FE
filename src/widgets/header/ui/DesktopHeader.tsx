@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { useUsersStore } from '@/entities/user';
-import { CATEGORIES_KO, CATEGORIES_ES } from '@/entities/content';
+import { CATEGORIES_KO, CATEGORIES_ES, useCategories, CATEGORY_ES_MAP } from '@/entities/content';
 import LangDropdown from './LangDropdown';
 import { Search, User } from 'lucide-react';
 import { useLogout } from '@/features/auth';
@@ -50,6 +50,18 @@ const DesktopHeader = ({
   const t = useTranslations('nav');
   const { user, isLoggedIn } = useUsersStore();
   const { onLogout } = useLogout();
+
+  const { data: categoryData } = useCategories();
+  const apiCategories = categoryData?.data || [];
+  const categoriesList = [
+    { id: 0, name: '전체', slug: 'all', esName: 'Todos' },
+    ...apiCategories.map((c) => ({
+      id: c.id,
+      name: c.name,
+      slug: c.slug,
+      esName: CATEGORY_ES_MAP[c.slug] || c.name,
+    })),
+  ];
 
   return (
     <>
@@ -155,14 +167,15 @@ const DesktopHeader = ({
             {/* Left: Categories (Home only) */}
             <div className="flex items-center gap-0 overflow-x-auto scrollbar-hide flex-1 min-w-0">
               {isHome &&
-                CATEGORIES_KO.map((cat, i) => {
-                  const label = isKo ? cat : CATEGORIES_ES[i];
+                categoriesList.map((cat) => {
+                  const label = isKo ? cat.name : cat.esName;
                   const isActive =
-                    cat === activeCategory || (activeCategory === '전체' && cat === '전체');
+                    cat.name === activeCategory ||
+                    (activeCategory === '전체' && cat.name === '전체');
                   return (
                     <button
-                      key={cat}
-                      onClick={() => handleCategoryClick(cat)}
+                      key={cat.slug}
+                      onClick={() => handleCategoryClick(cat.name)}
                       aria-pressed={isActive}
                       className={`relative flex-shrink-0 px-5 py-3 text-sm font-bold transition-colors cursor-pointer whitespace-nowrap ${
                         isActive ? 'text-black' : 'text-gray-400 hover:text-gray-700'

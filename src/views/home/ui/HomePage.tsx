@@ -4,7 +4,13 @@ import { useRef, Suspense, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { useLanguageStore } from '@/shared/model';
-import { ContentCard, CATEGORIES_KO, CATEGORIES_ES } from '@/entities/content';
+import {
+  ContentCard,
+  CATEGORIES_KO,
+  CATEGORIES_ES,
+  useCategories,
+  CATEGORY_ES_MAP,
+} from '@/entities/content';
 import { HotNewsCarousel } from '@/widgets/hot-news';
 import { useHomeArticles } from '../model/useHomeArticles';
 
@@ -34,7 +40,14 @@ function HomePageInner() {
     isKo,
   });
 
-  const categories = ['K-POP', '드라마', '뉴스', '문화', '스포츠', '음식'];
+  const { data: categoryData } = useCategories();
+  const apiCategories = categoryData?.data || [];
+
+  // Filter out the '전체' category if it comes from API just in case, though API usually doesn't return 'all'.
+  const categoriesList = apiCategories.map((c) => ({
+    name: c.name,
+    esName: CATEGORY_ES_MAP[c.slug] || c.name,
+  }));
 
   const handleCategoryViewMore = (cat: string) => {
     const params = new URLSearchParams();
@@ -62,9 +75,7 @@ function HomePageInner() {
               {activeCategory
                 ? isKo
                   ? activeCategory
-                  : (CATEGORIES_ES[
-                      CATEGORIES_KO.indexOf(activeCategory as (typeof CATEGORIES_KO)[number])
-                    ] ?? activeCategory)
+                  : categoriesList.find((c) => c.name === activeCategory)?.esName || activeCategory
                 : t('newsletterTitle')}
             </h2>
 
@@ -116,14 +127,12 @@ function HomePageInner() {
 
             {/* ── Category sections ── */}
             <div className="flex flex-col gap-10 lg:grid lg:grid-cols-2 lg:gap-x-12 lg:gap-y-14">
-              {categories.map((cat) => {
+              {categoriesList.map((catObj) => {
+                const cat = catObj.name;
                 const catItems = sorted.filter((c) => c.category.name === cat).slice(0, 2);
                 if (catItems.length === 0) return null;
 
-                const catLabel = isKo
-                  ? cat
-                  : (CATEGORIES_ES[CATEGORIES_KO.indexOf(cat as (typeof CATEGORIES_KO)[number])] ??
-                    cat);
+                const catLabel = isKo ? catObj.name : catObj.esName;
 
                 return (
                   <section key={cat}>
