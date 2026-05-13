@@ -129,6 +129,7 @@
     "submitError": "Se produjo un error al enviar. Por favor, inténtalo de nuevo."
   },
   "admin": {
+    "pipelineStepsAriaLabel": "Pasos del proceso",
     "title": "Consola de Administración",
     "subtitle": "Pipeline de Creación de Contenido",
     "tabCreate": "Ejecutar Pipeline",

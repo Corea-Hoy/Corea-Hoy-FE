@@ -46,7 +46,7 @@ interface ContentManagementPageProps {
   contents: ManagedContent[];
   isLoading: boolean;
   onDeleteContent: (contentId: string) => Promise<void>;
-  onContinueDraft?: (contentId: string, contentStep: ContentStep) => void;
+  onContinueDraft?: (contentId: string) => void;
   onEditPublished?: (contentId: string) => void;
 }
 
@@ -204,7 +204,7 @@ export function ContentManagementPage({
   }
 
   function handleContinueDraft(content: ManagedContent) {
-    onContinueDraft?.(content.id, content.currentStep);
+    onContinueDraft?.(content.id);
   }
 
   function renderSortableHeader(
@@ -497,6 +497,7 @@ export function ContentManagementPage({
                 className="w-full rounded-xl border border-gray-200 bg-white px-3 py-3 text-sm font-bold outline-none transition-colors cursor-pointer focus:border-black lg:w-40"
               >
                 <option value="all">{t('filterAll')}</option>
+                <option value="ko">{t('langKoLabel')}</option>
                 <option value="es">{t('langEsLabel')}</option>
               </select>
             </label>

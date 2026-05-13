@@ -49,6 +49,25 @@ export interface AdminArticlesResponse {
   };
 }
 
+export interface AdminArticleDetail {
+  id: string;
+  status: 'DRAFT' | 'PUBLISHED' | 'ARCHIVED';
+  draftStep: 'select' | 'review_ko' | 'review_es' | 'preview';
+  langStatusKo: 'pending' | 'done';
+  langStatusEs: 'pending' | 'done';
+  titleKo: string;
+  bodyKo: string | null;
+  culturalNoteKo: string | null;
+  titleEs: string | null;
+  bodyEs: string | null;
+  culturalNoteEs: string | null;
+  thumbnailUrl: string | null;
+  category: { id: number; name: string; slug: string };
+  sources: { id: number; url: string; title: string }[];
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface DbCategory {
   id: number;
   name: string;
@@ -92,7 +111,7 @@ export const adminApi = {
     categoryId: number;
     sourceUrl: string;
     sourceTitle?: string;
-    draftStep?: 'select' | 'review-ko' | 'review-es' | 'preview';
+    draftStep?: 'select' | 'review_ko' | 'review_es' | 'preview';
     langStatusKo?: 'pending' | 'done';
     langStatusEs?: 'pending' | 'done';
   }) => api.post<{ success: boolean; data: AdminArticle }>('/api/admin/articles', data),
@@ -106,7 +125,7 @@ export const adminApi = {
       titleEs?: string;
       bodyEs?: string;
       culturalNoteEs?: string;
-      draftStep?: 'select' | 'review-ko' | 'review-es' | 'preview';
+      draftStep?: 'select' | 'review_ko' | 'review_es' | 'preview';
       langStatusKo?: 'pending' | 'done';
       langStatusEs?: 'pending' | 'done';
     },
@@ -117,6 +136,9 @@ export const adminApi = {
 
   deleteArticle: (id: string) =>
     api.delete<{ success: boolean; message: string }>(`/api/admin/articles/${id}`),
+
+  getAdminArticle: (id: string) =>
+    api.get<{ success: boolean; data: AdminArticleDetail }>(`/api/admin/articles/${id}`),
 
   getCategories: () => api.get<{ success: boolean; data: DbCategory[] }>('/api/categories'),
 };

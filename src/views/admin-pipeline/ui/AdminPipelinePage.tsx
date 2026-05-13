@@ -11,7 +11,7 @@ import type {
   TranslationTargetLanguageSelection,
 } from '../model/types';
 import { ContentManagementPage } from '@/views/content-management/ui/ContentManagementPage';
-import type { ContentStep } from '@/views/content-management/model/types';
+
 import { getTextFromRichTextHtml } from '@/shared/ui/rich-text-editor/getTextFromRichTextHtml';
 import { ArticleSelectCard } from './ArticleSelectCard';
 import { ContentReviewStep } from './ContentReviewStep';
@@ -63,10 +63,10 @@ function getPipelineStepFromContentStep(step: ContentStep): PipelineStep {
 
 function pipelineStepToDraftStep(
   step: PipelineStep,
-): 'select' | 'review-ko' | 'review-es' | 'preview' {
+): 'select' | 'review_ko' | 'review_es' | 'preview' {
   if (step === 'select-article') return 'select';
-  if (step === 'review-content') return 'review-ko';
-  if (step === 'review-translation') return 'review-es';
+  if (step === 'review-content') return 'review_ko';
+  if (step === 'review-translation') return 'review_es';
   return 'preview';
 }
 
@@ -156,6 +156,7 @@ export function AdminPipelinePage() {
   const [isSavingDraft, setIsSavingDraft] = useState(false);
   const [isPublishing, setIsPublishing] = useState(false);
   const [isEditSaving, setIsEditSaving] = useState(false);
+  const [isLoadingDraft, setIsLoadingDraft] = useState(false);
   const previousStepRef = useRef<PipelineStep>(currentStep);
   const toastTimeoutRef = useRef<number | null>(null);
   const publishReturnTimeoutRef = useRef<number | null>(null);
@@ -185,48 +186,79 @@ export function AdminPipelinePage() {
     [categories, categoriesError],
   );
 
-  function openDraftContentInPipeline(
-    contentId: string | null,
-    contentStep: ContentStep | null,
-    article?: AdminArticle,
-  ) {
-    if (!contentId || !contentStep) return false;
+  async function openDraftContentInPipeline(contentId: string) {
+    if (!contentId) return false;
 
-    const nextStep = getPipelineStepFromContentStep(contentStep);
+    setIsLoadingDraft(true);
+    try {
+      const res = await adminApi.getAdminArticle(contentId);
+      const article = res.data.data;
 
-    setSavedArticleId(contentId);
-    setCurrentStep(nextStep);
-    setSelectedArticleId(null);
-    setGeneratedContent(null);
-    setTranslatedContent(null);
-    setTranslationTargetLanguage(nextStep === 'select-article' ? '' : 'es');
-    setHasCompletedContentReview(nextStep === 'review-translation' || nextStep === 'preview');
-    setHasReviewedTranslation(nextStep === 'preview');
-    setIsPublished(false);
-    setSaveStatus('saved');
+      const contentStep = draftStepToContentStep(article.draftStep);
+      const nextStep = getPipelineStepFromContentStep(contentStep);
 
-    if (article && nextStep !== 'select-article') {
-      const genContent: GeneratedContent = {
-        title: article.titleKo,
-        body: '',
-        culturalNoteKo: '',
-        category: article.category.name,
-      };
-      setGeneratedContent(genContent);
+      const source = article.sources[0];
+      if (source) {
+        const syntheticArticle: AdminCandidateArticle = {
+          id: source.url,
+          title: source.title,
+          summary: '',
+          url: source.url,
+          thumbnailUrl: article.thumbnailUrl,
+          source: source.url,
+          category: article.category.name,
+          slug: article.category.slug,
+          date: article.createdAt,
+        };
+        setCandidateArticles((prev) => {
+          const exists = prev.some((a) => a.id === source.url);
+          return exists ? prev : [...prev, syntheticArticle];
+        });
+        setSelectedArticleId(source.url);
+      } else {
+        setSelectedArticleId(null);
+      }
+
+      setSavedArticleId(contentId);
+      setCurrentStep(nextStep);
+      setTranslationTargetLanguage(nextStep === 'select-article' ? '' : 'es');
+      setHasCompletedContentReview(nextStep === 'review-translation' || nextStep === 'preview');
+      setHasReviewedTranslation(nextStep === 'preview');
+      setIsPublished(false);
+      setSaveStatus('saved');
+
+      if (nextStep !== 'select-article') {
+        setGeneratedContent({
+          title: article.titleKo,
+          body: article.bodyKo ?? '',
+          culturalNoteKo: article.culturalNoteKo ?? '',
+          category: article.category.name,
+        });
+      } else {
+        setGeneratedContent(null);
+      }
 
       if (nextStep === 'review-translation' || nextStep === 'preview') {
         setTranslatedContent({
           koTitle: article.titleKo,
-          koBody: '',
-          culturalNoteKo: '',
+          koBody: article.bodyKo ?? '',
+          culturalNoteKo: article.culturalNoteKo ?? '',
           esTitle: article.titleEs ?? '',
-          esBody: '',
-          culturalNoteEs: '',
+          esBody: article.bodyEs ?? '',
+          culturalNoteEs: article.culturalNoteEs ?? '',
         });
+      } else {
+        setTranslatedContent(null);
       }
-    }
 
-    return true;
+      return true;
+    } catch (error) {
+      console.error('Failed to load draft article:', error);
+      showToast({ title: '오류', message: '작업 내용을 불러오지 못했습니다.' });
+      return false;
+    } finally {
+      setIsLoadingDraft(false);
+    }
   }
 
   // Load categories on mount
@@ -301,20 +333,15 @@ export function AdminPipelinePage() {
       const urlParams = new URLSearchParams(window.location.search);
       const querySection = urlParams.get('section');
       const contentId = urlParams.get('contentId');
-      const rawContentStep = urlParams.get('step');
-      const validSteps: ContentStep[] = [
-        'select_article',
-        'review_content',
-        'review_translation',
-        'preview',
-      ];
-      const contentStep = validSteps.includes(rawContentStep as ContentStep)
-        ? (rawContentStep as ContentStep)
-        : null;
 
-      if (querySection === 'pipeline' && contentId && contentStep) {
-        openDraftContentInPipeline(contentId, contentStep);
-        setHasHydratedDraft(true);
+      if (querySection === 'pipeline' && contentId) {
+        openDraftContentInPipeline(contentId)
+          .then(() => {
+            if (!isCancelled) setHasHydratedDraft(true);
+          })
+          .catch(() => {
+            if (!isCancelled) setHasHydratedDraft(true);
+          });
         return;
       }
 
@@ -568,7 +595,7 @@ export function AdminPipelinePage() {
   }
 
   async function persistArticle(params: {
-    draftStep: 'select' | 'review-ko' | 'review-es' | 'preview';
+    draftStep: 'select' | 'review_ko' | 'review_es' | 'preview';
     langStatusKo: 'pending' | 'done';
     langStatusEs: 'pending' | 'done';
   }) {
@@ -835,7 +862,15 @@ export function AdminPipelinePage() {
         </section>
       )}
 
-      {activeAdminSection === 'pipeline' && (
+      {activeAdminSection === 'pipeline' && isLoadingDraft && (
+        <div className="animate-fade-in flex flex-col gap-4">
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="h-28 rounded-2xl bg-gray-100 animate-pulse" />
+          ))}
+        </div>
+      )}
+
+      {activeAdminSection === 'pipeline' && !isLoadingDraft && (
         <PipelineSteps
           currentStep={currentStep}
           canNavigateToStep={canNavigateToStep}
@@ -843,7 +878,7 @@ export function AdminPipelinePage() {
         />
       )}
 
-      {activeAdminSection === 'pipeline' && currentStep === 'select-article' && (
+      {activeAdminSection === 'pipeline' && !isLoadingDraft && currentStep === 'select-article' && (
         <section className="animate-fade-in lg:grid lg:grid-cols-[1fr_360px] lg:gap-8">
           <div className="flex flex-col gap-3">
             {isLoadingCandidates ? (
@@ -875,6 +910,7 @@ export function AdminPipelinePage() {
       )}
 
       {activeAdminSection === 'pipeline' &&
+        !isLoadingDraft &&
         currentStep === 'review-content' &&
         selectedArticle &&
         generatedContent && (
@@ -893,6 +929,7 @@ export function AdminPipelinePage() {
         )}
 
       {activeAdminSection === 'pipeline' &&
+        !isLoadingDraft &&
         currentStep === 'review-translation' &&
         translatedContent && (
           <TranslationReviewStep
@@ -905,7 +942,7 @@ export function AdminPipelinePage() {
           />
         )}
 
-      {activeAdminSection === 'pipeline' && currentStep === 'preview' && (
+      {activeAdminSection === 'pipeline' && !isLoadingDraft && currentStep === 'preview' && (
         <PreviewPublishStep
           previewData={previewData}
           isPublished={isPublished}
@@ -922,27 +959,39 @@ export function AdminPipelinePage() {
           isLoading={isLoadingArticles}
           onDeleteContent={handleDeleteContent}
           onEditPublished={openContentEdit}
-          onContinueDraft={(contentId, contentStep) => {
-            const article = adminArticles.find((a) => a.id === contentId);
-            openDraftContentInPipeline(contentId, contentStep, article);
-
+          onContinueDraft={(contentId) => {
+            openDraftContentInPipeline(contentId);
             const params = new URLSearchParams(searchParams.toString());
             params.set('section', 'pipeline');
             params.set('contentId', contentId);
-            params.set('step', contentStep);
+            params.delete('step');
             router.push(`${pathname}?${params.toString()}`);
           }}
         />
       )}
 
-      {activeAdminSection === 'content-edit' && editingContentId && (
-        <ContentEditStep
-          articleId={editingContentId}
-          isSaving={isEditSaving}
-          onSave={handleSaveEdit}
-          onCancel={openContentManagement}
-        />
-      )}
+      {activeAdminSection === 'content-edit' &&
+        (editingContentId ? (
+          <ContentEditStep
+            articleId={editingContentId}
+            isSaving={isEditSaving}
+            onSave={handleSaveEdit}
+            onCancel={openContentManagement}
+          />
+        ) : (
+          <div className="rounded-2xl border border-gray-200 bg-white p-12 text-center shadow-sm">
+            <p className="text-sm font-bold text-gray-500">
+              {t('selectContentToEdit') ?? '수정할 콘텐츠를 선택해주세요.'}
+            </p>
+            <button
+              type="button"
+              onClick={openContentManagement}
+              className="mt-4 rounded-xl bg-black px-6 py-3 text-sm font-black text-white transition-opacity hover:opacity-80"
+            >
+              {t('tabList')}
+            </button>
+          </div>
+        ))}
 
       {toast && (
         <div

@@ -24,7 +24,7 @@ export function PipelineSteps({
   };
 
   return (
-    <ol className="mb-7 flex gap-2 overflow-x-auto pb-1" aria-label="파이프라인 단계">
+    <ol className="mb-7 flex gap-2 overflow-x-auto pb-1" aria-label={t('pipelineStepsAriaLabel')}>
       {PIPELINE_STEPS.map((step, index) => {
         const isActive = step.id === currentStep;
         const isComplete = index < currentIndex;

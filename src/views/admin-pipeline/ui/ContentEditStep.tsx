@@ -24,12 +24,21 @@ export function ContentEditStep({ articleId, isSaving, onSave, onCancel }: Conte
   const tCommon = useTranslations('common');
 
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [form, setForm] = useState<EditFormData>({
     titleKo: '',
     bodyKo: '',
     titleEs: '',
     bodyEs: '',
   });
+
+  const [prevArticleId, setPrevArticleId] = useState(articleId);
+
+  if (articleId !== prevArticleId) {
+    setPrevArticleId(articleId);
+    setIsLoading(true);
+    setError(null);
+  }
 
   useEffect(() => {
     getNewsDetail(articleId)
@@ -41,8 +50,12 @@ export function ContentEditStep({ articleId, isSaving, onSave, onCancel }: Conte
           bodyEs: data.bodyEs ?? '',
         });
       })
+      .catch((err) => {
+        console.error('Failed to fetch article detail:', err);
+        setError(t('fetchError') ?? '콘텐츠를 불러오는 중 오류가 발생했습니다.');
+      })
       .finally(() => setIsLoading(false));
-  }, [articleId]);
+  }, [articleId, t]);
 
   if (isLoading) {
     return (
@@ -50,6 +63,21 @@ export function ContentEditStep({ articleId, isSaving, onSave, onCancel }: Conte
         {[1, 2].map((i) => (
           <div key={i} className="h-96 rounded-2xl bg-gray-100 animate-pulse" />
         ))}
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="rounded-2xl border border-red-100 bg-red-50 p-8 text-center">
+        <p className="text-sm font-bold text-red-500">{error}</p>
+        <button
+          type="button"
+          onClick={onCancel}
+          className="mt-4 rounded-xl border border-red-200 px-6 py-2 text-sm font-bold text-red-600 hover:bg-red-100"
+        >
+          {tCommon('cancel')}
+        </button>
       </div>
     );
   }

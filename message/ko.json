@@ -129,6 +129,7 @@
     "submitError": "제출 중 오류가 발생했습니다. 다시 시도해주세요."
   },
   "admin": {
+    "pipelineStepsAriaLabel": "파이프라인 단계",
     "title": "관리자 콘솔",
     "subtitle": "컨텐츠 생성 파이프라인",
     "tabCreate": "파이프라인 실행",
