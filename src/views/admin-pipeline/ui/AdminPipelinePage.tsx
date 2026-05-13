@@ -20,7 +20,7 @@ import { PreviewPublishStep } from './PreviewPublishStep';
 import { TranslationReviewStep } from './TranslationReviewStep';
 import { WorkflowControlPanel } from './WorkflowControlPanel';
 import { adminApi, type AdminArticle, type DbCategory } from '@/features/admin/api/admin.api';
-import type { ManagedContent } from '@/views/content-management/model/types';
+import type { ManagedContent, ContentStep } from '@/views/content-management/model/types';
 import { ContentEditStep, type EditFormData } from './ContentEditStep';
 import { useTranslations } from 'next-intl';
 
