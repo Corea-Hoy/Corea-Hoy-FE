@@ -61,7 +61,7 @@ export function Step1({ onClick, onChange, other, onOtherChange }: Props) {
 
   return (
     <>
-      <div className="grid grid-cols-3 gap-x-2 gap-y-6 ">
+      <div className="grid grid-cols-3 gap-x-2 gap-y-6">
         <CategoryButtons
           buttons={buttons}
           activeIndex={activeButton}

@@ -15,7 +15,7 @@ export function ArticleContent() {
       <div dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(body ?? '') }}></div>
 
       {/* 요약 */}
-      <div className="flex items-center gap-2 my-8 px-5 pt-5 pb-4 border-l-6 border-l-amber-500 rounded-xl rounded-tl-none rounded-bl-none bg-amber-50">
+      <div className="flex items-center gap-2 my-8 pl-0 pr-2 sm:pl-3 sm:pr-5 pt-5 pb-4 border-l-6 border-l-amber-500 rounded-xl rounded-tl-none rounded-bl-none bg-amber-50">
         <img
           className="relative top-[-0.3rem] w-[5rem]"
           src="/images/characters/mascot-impact.svg"
@@ -29,9 +29,9 @@ export function ArticleContent() {
 
       {/* 출처 */}
       <p className="mt-12">
-        <b>출처:</b>
+        <b className="whitespace-nowrap">출처:</b>
         <a
-          className="pl-1.5 underline !underline"
+          className="pl-1.5 underline !underline break-words"
           href={url ?? '#'}
           target="_blank"
           rel="noopener noreferrer"

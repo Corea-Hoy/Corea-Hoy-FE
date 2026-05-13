@@ -37,7 +37,7 @@ export function FeedbackPage() {
       </div>
 
       {/* 컨텐츠 */}
-      <div className="relative mt-[1rem] py-[2.5rem] px-[2.5rem] rounded-2xl bg-gray-50">
+      <div className="relative mt-[1rem] py-[2.5rem] px-[1rem] sm:px-[2.5rem] rounded-2xl bg-gray-50">
         <div className="absolute top-[-4rem] right-0 w-[5rem]">
           <img src="/images/characters/mascot-cheer.png" alt="" />
         </div>
