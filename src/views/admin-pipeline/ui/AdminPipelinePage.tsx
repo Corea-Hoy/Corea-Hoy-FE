@@ -168,13 +168,13 @@ export function AdminPipelinePage() {
   const [hasHydratedDraft, setHasHydratedDraft] = useState(false);
   const [toast, setToast] = useState<ToastState>(null);
 
+  // API state
+  const [candidateArticles, setCandidateArticles] = useState<AdminCandidateArticle[]>([]);
+
   const CANDIDATE_PAGE_SIZE = 10;
   const [candidatePage, setCandidatePage] = useState(1);
   const totalCandidatePages = Math.ceil(candidateArticles.length / CANDIDATE_PAGE_SIZE) || 1;
   const safeCandidatePage = Math.min(candidatePage, totalCandidatePages);
-
-  // API state
-  const [candidateArticles, setCandidateArticles] = useState<AdminCandidateArticle[]>([]);
   const [isLoadingCandidates, setIsLoadingCandidates] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
   const [isTranslating, setIsTranslating] = useState(false);
