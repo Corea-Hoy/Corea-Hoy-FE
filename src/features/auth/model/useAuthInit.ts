@@ -6,10 +6,9 @@ import { useEffect } from 'react';
 export const useAuthInit = () => {
   const login = useUsersStore((state) => state.login);
   const updateProfile = useUsersStore((state) => state.updateProfile);
-  const logout = useUsersStore((state) => state.logout);
   const isLoggedIn = useUsersStore((state) => state.isLoggedIn);
 
-  const { data, isError } = useQuery({
+  const { data } = useQuery({
     queryKey: ['me'],
     queryFn: getMe,
     enabled: isLoggedIn,
@@ -19,15 +18,10 @@ export const useAuthInit = () => {
   });
 
   useEffect(() => {
-    if (isError && isLoggedIn) {
-      logout();
-    }
-  }, [isError, isLoggedIn, logout]);
-
-  useEffect(() => {
     if (!data?.data?.user) return;
 
     if (!isLoggedIn) {
+      // 첫 로그인 (자동 로그인)
       login({
         id: data.data.user.id,
         email: data.data.user.email,
@@ -36,6 +30,7 @@ export const useAuthInit = () => {
         image: data.data.user.avatarEmoji || data.data.user.image,
       });
     } else {
+      // 이미 로그인 상태 → 프로필 업데이트 (invalidateQueries 이후 반영)
       updateProfile(data.data.user.nickname, data.data.user.avatarEmoji || data.data.user.image);
     }
   }, [data, login, updateProfile, isLoggedIn]);
