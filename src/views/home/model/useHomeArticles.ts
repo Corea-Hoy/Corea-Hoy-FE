@@ -78,5 +78,5 @@ export function useHomeArticles({ searchQuery, sortOrder, isKo }: UseHomeArticle
     [latestArticles],
   );
 
-  return { sorted, latestArticles, latestArticleIds, hotArticles };
+  return { sorted, latestArticles, latestArticleIds, hotArticles, hasFetched };
 }

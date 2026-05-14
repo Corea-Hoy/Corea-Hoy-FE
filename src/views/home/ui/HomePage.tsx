@@ -13,6 +13,7 @@ import {
 } from '@/entities/content';
 import { HotNewsCarousel } from '@/widgets/hot-news';
 import { useHomeArticles } from '../model/useHomeArticles';
+import { Loading } from '@/shared/ui/loading/Loading';
 
 const SORT_OPTIONS = [
   { id: 'latest' as const, ko: '최신순', es: 'Reciente' },
@@ -34,7 +35,7 @@ function HomePageInner() {
   const activeCategory = searchParams.get('category');
   const isMainLanding = !activeCategory && !searchQuery;
 
-  const { sorted, latestArticles, hotArticles } = useHomeArticles({
+  const { sorted, latestArticles, hotArticles, hasFetched } = useHomeArticles({
     searchQuery,
     sortOrder,
     isKo,
@@ -161,7 +162,8 @@ function HomePageInner() {
         )}
 
         {/* ── Empty state ── */}
-        {sorted.length === 0 && (
+        {!hasFetched && <Loading />}
+        {hasFetched && sorted.length === 0 && (
           <div className="py-24 text-center">
             <span className="text-5xl mb-4 block">🔍</span>
             <p className="text-lg font-bold text-gray-300 mb-6">{t('noResults')}</p>
