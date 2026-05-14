@@ -2,7 +2,7 @@
 
 import { Pencil, Trash2 } from 'lucide-react';
 import { CommentsResponse } from '@/entities/comment/model/types';
-import { formatDate } from '@/shared/utils';
+import { formatDateTime } from '@/shared/utils';
 import { useUsersStore } from '@/entities/user';
 import { CommentForm } from '@/features/comment';
 
@@ -51,7 +51,7 @@ export function CommentCard({
           </div>
         )}
       </div>
-      <span className="text-[0.8rem] text-gray-300">{formatDate(commentData.updatedAt)}</span>
+      <span className="text-[0.8rem] text-gray-300">{formatDateTime(commentData.updatedAt)}</span>
 
       <div>
         {isEdit ? (

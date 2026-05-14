@@ -87,7 +87,7 @@
     "copied": "복사됨!",
     "copyLink": "링크 복사",
     "comments": "댓글",
-    "commentPlaceholder": "댓글을 입력하세요...",
+    "commentPlaceholder": "댓글을 10자 이상 입력해주세요.",
     "submit": "등록",
     "firstComment": "첫 번째 댓글을 남겨보세요.",
     "deleteCommentConfirm": "정말 이 댓글을 삭제하시겠습니까?",
@@ -96,8 +96,7 @@
     "shareModal": "이 소식을 함께 나눠보세요.",
     "likeWithoutLogin": "마음에 드셨다면 로그인 후 좋아요를 눌러보세요.",
     "likeError": "좋아요 처리에 실패했습니다.",
-    "shareSuccess": "링크가 복사되었습니다.",
-    "deleteConfirm": "정말 이 게시글을 삭제하시겠습니까?"
+    "shareSuccess": "링크가 복사되었습니다."
   },
   "comment" : {
     "commentError": "댓글 등록에 실패했습니다.",
