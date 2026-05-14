@@ -71,8 +71,10 @@ function pipelineStepToDraftStep(
 }
 
 function isSameGeneratedContent(a: GeneratedContent | null, b: GeneratedContent) {
+  if (!a) return false;
+
   return (
-    a?.title === b.title &&
+    a.title === b.title &&
     a.body === b.body &&
     a.culturalNoteKo === b.culturalNoteKo &&
     a.category === b.category
@@ -80,8 +82,10 @@ function isSameGeneratedContent(a: GeneratedContent | null, b: GeneratedContent)
 }
 
 function isSameTranslatedContent(a: TranslatedContent | null, b: TranslatedContent) {
+  if (!a) return false;
+
   return (
-    a?.koTitle === b.koTitle &&
+    a.koTitle === b.koTitle &&
     a.koBody === b.koBody &&
     a.culturalNoteKo === b.culturalNoteKo &&
     a.esTitle === b.esTitle &&
