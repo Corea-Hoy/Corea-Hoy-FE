@@ -87,7 +87,7 @@
     "copied": "¡Copiado!",
     "copyLink": "Copiar enlace",
     "comments": "Comentarios",
-    "commentPlaceholder": "Escribe un comentario...",
+    "commentPlaceholder": "Por favor, escribe un comentario de al menos 10 caracteres.",
     "submit": "Enviar",
     "firstComment": "Aún no hay comentarios.",
     "deleteCommentConfirm": "¿Seguro que quieres eliminar este comentario?",
@@ -96,8 +96,7 @@
     "shareModal": "¡Comparte esta noticia con todos!",
     "likeWithoutLogin": "Si te ha gustado, inicia sesión y dale “me gusta",
     "likeError": "No se pudo procesar el 'me gusta'.",
-    "shareSuccess": "El enlace se ha copiado.",
-    "deleteConfirm": "¿Realmente deseas eliminar esta publicación?"
+    "shareSuccess": "El enlace se ha copiado."
   },
   "comment": {
     "commentError": "No se pudo publicar el comentario.",

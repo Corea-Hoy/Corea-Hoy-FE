@@ -1,2 +1,2 @@
 export { validateEmail } from './email';
-export { formatDate } from './formatDate';
+export { formatDateTime } from './formatDate';

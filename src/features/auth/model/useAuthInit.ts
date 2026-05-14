@@ -6,9 +6,10 @@ import { useEffect } from 'react';
 export const useAuthInit = () => {
   const login = useUsersStore((state) => state.login);
   const updateProfile = useUsersStore((state) => state.updateProfile);
+  const logout = useUsersStore((state) => state.logout);
   const isLoggedIn = useUsersStore((state) => state.isLoggedIn);
 
-  const { data } = useQuery({
+  const { data, isError } = useQuery({
     queryKey: ['me'],
     queryFn: getMe,
     enabled: isLoggedIn,
@@ -16,6 +17,14 @@ export const useAuthInit = () => {
     staleTime: 1000 * 60 * 5, // 5분
     refetchOnWindowFocus: false,
   });
+
+  useEffect(() => {
+    // getMe 실패(세션 만료) → localStorage 상태 정리
+    // 이후 다른 인증 API 호출이 enabled: false로 차단되어 강제 로그아웃 방지
+    if (isError && isLoggedIn) {
+      logout();
+    }
+  }, [isError, isLoggedIn, logout]);
 
   useEffect(() => {
     if (!data?.data?.user) return;

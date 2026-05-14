@@ -16,9 +16,12 @@ api.interceptors.response.use(
   (error) => {
     const url = error.config?.url ?? '';
     if (error.response?.status === 401 && !url.includes('/api/auth')) {
-      useUsersStore.getState().logout();
-      if (typeof window !== 'undefined') {
-        window.location.href = '/login';
+      const { isLoggedIn, logout } = useUsersStore.getState();
+      if (isLoggedIn) {
+        logout();
+        if (typeof window !== 'undefined') {
+          window.location.href = '/login';
+        }
       }
     }
     return Promise.reject(error);
