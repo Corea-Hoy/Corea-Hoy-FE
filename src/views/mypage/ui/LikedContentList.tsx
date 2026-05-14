@@ -4,6 +4,22 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useTranslations, useLocale } from 'next-intl';
 import { useLikedContents } from '@/entities/user';
+import { useState } from 'react';
+
+function LikedItemImage({ src, alt }: { src?: string; alt: string }) {
+  const [imgSrc, setImgSrc] = useState(src || '/images/characters/mascot-cheer.png');
+
+  return (
+    <Image
+      src={imgSrc}
+      alt={alt}
+      fill
+      sizes="96px"
+      className="object-cover"
+      onError={() => setImgSrc('/images/characters/mascot-cheer.png')}
+    />
+  );
+}
 
 export function LikedContentList() {
   const t = useTranslations('mypage');
@@ -48,13 +64,10 @@ export function LikedContentList() {
               href={`/article/${c.id}`}
               className="group flex gap-3 border border-gray-100 bg-white rounded-xl overflow-hidden hover:border-black transition-all duration-200"
             >
-              <div className="relative w-24 h-20 flex-shrink-0">
-                <Image
-                  src={`https://picsum.photos/seed/${c.id}/240/160`}
-                  alt={isKo ? c.title : (c.titleEs ?? c.title)}
-                  fill
-                  sizes="96px"
-                  className="object-cover"
+              <div className="relative w-28 sm:w-32 flex-shrink-0 bg-gray-50">
+                <LikedItemImage
+                  src={c.thumbnailUrl}
+                  alt={isKo ? c.titleKo : (c.titleEs ?? c.titleKo)}
                 />
               </div>
               <div className="flex flex-col justify-center gap-1 py-3 pr-3 min-w-0">
@@ -62,7 +75,7 @@ export function LikedContentList() {
                   {typeof c.category === 'object' ? c.category.name : c.category}
                 </span>
                 <p className="font-bold text-sm leading-snug group-hover:underline line-clamp-2">
-                  {isKo ? c.title : (c.titleEs ?? c.title)}
+                  {isKo ? c.titleKo : (c.titleEs ?? c.titleKo)}
                 </p>
                 <span className="text-xs text-gray-300">{c.publishedAt}</span>
               </div>

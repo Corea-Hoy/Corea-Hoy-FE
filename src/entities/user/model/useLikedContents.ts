@@ -4,8 +4,9 @@ import { useUsersStore } from '@/entities/user';
 
 export interface LikedArticle {
   id: string;
-  title: string;
-  titleEs?: string;
+  titleKo: string;
+  titleEs: string;
+  thumbnailUrl?: string;
   category: { id: number; name: string; slug: string } | string;
   publishedAt: string;
 }
