@@ -7,6 +7,7 @@ declare global {
           initialize: (config: {
             client_id: string;
             callback: (res: { credential: string }) => void;
+            itp_support?: boolean;
           }) => void;
           prompt: () => void;
         };

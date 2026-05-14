@@ -19,8 +19,6 @@ export const useAuthInit = () => {
   });
 
   useEffect(() => {
-    // getMe 실패(세션 만료) → localStorage 상태 정리
-    // 이후 다른 인증 API 호출이 enabled: false로 차단되어 강제 로그아웃 방지
     if (isError && isLoggedIn) {
       logout();
     }
@@ -30,7 +28,6 @@ export const useAuthInit = () => {
     if (!data?.data?.user) return;
 
     if (!isLoggedIn) {
-      // 첫 로그인 (자동 로그인)
       login({
         id: data.data.user.id,
         email: data.data.user.email,
@@ -39,7 +36,6 @@ export const useAuthInit = () => {
         image: data.data.user.avatarEmoji || data.data.user.image,
       });
     } else {
-      // 이미 로그인 상태 → 프로필 업데이트 (invalidateQueries 이후 반영)
       updateProfile(data.data.user.nickname, data.data.user.avatarEmoji || data.data.user.image);
     }
   }, [data, login, updateProfile, isLoggedIn]);
