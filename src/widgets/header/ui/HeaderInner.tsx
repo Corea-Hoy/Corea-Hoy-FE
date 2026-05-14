@@ -24,9 +24,10 @@ export function HeaderInner() {
   const [prevQ, setPrevQ] = useState(searchParams.get('q') ?? '');
   const [searchValue, setSearchValue] = useState(searchParams.get('q') ?? '');
 
-  if (searchParams.get('q') !== prevQ) {
-    setPrevQ(searchParams.get('q') ?? '');
-    setSearchValue(searchParams.get('q') ?? '');
+  const currentQ = searchParams.get('q') ?? '';
+  if (currentQ !== prevQ) {
+    setPrevQ(currentQ);
+    setSearchValue(currentQ);
   }
 
   const debouncedSearch = useDebounce(searchValue, 300);
