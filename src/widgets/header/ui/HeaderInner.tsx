@@ -7,6 +7,9 @@ import { useState, useEffect, useRef } from 'react';
 import DesktopHeader from './DesktopHeader';
 import MobileHeader from './MobileHeader';
 import MobileTopBar from './MobileTopBar';
+import { useDebounce } from '@/shared/lib/hooks/useDebounce';
+import { useQuery } from '@tanstack/react-query';
+import { getSuggestions } from '@/views/home/api/articles.api';
 
 export function HeaderInner() {
   const pathname = usePathname();
@@ -19,6 +22,18 @@ export function HeaderInner() {
   const mobileHeaderRef = useRef<HTMLElement>(null);
 
   const [searchValue, setSearchValue] = useState(searchParams.get('q') ?? '');
+  const debouncedSearch = useDebounce(searchValue, 300);
+
+  const { data: suggestionsData } = useQuery({
+    queryKey: ['suggestions', debouncedSearch],
+    queryFn: async () => {
+      const res = await getSuggestions(debouncedSearch);
+      return res.data.data;
+    },
+    enabled: debouncedSearch.length >= 2,
+  });
+
+  const suggestions = suggestionsData || [];
 
   // Close search on outside click
   useEffect(() => {
@@ -95,6 +110,7 @@ export function HeaderInner() {
         isKo={isKo}
         activeCategory={activeCategory}
         handleCategoryClick={handleCategoryClick}
+        suggestions={suggestions}
       />
 
       <MobileHeader
@@ -109,6 +125,7 @@ export function HeaderInner() {
         isHome={isHome}
         activeCategory={activeCategory}
         handleCategoryClick={handleCategoryClick}
+        suggestions={suggestions}
       />
 
       <MobileTopBar isKo={isKo} />
