@@ -11,7 +11,7 @@ import type {
   TranslationTargetLanguageSelection,
 } from '../model/types';
 import { ContentManagementPage } from '@/views/content-management/ui/ContentManagementPage';
-
+import { Loading } from '@/shared/ui';
 import { getTextFromRichTextHtml } from '@/shared/ui/rich-text-editor/getTextFromRichTextHtml';
 import { ArticleSelectCard } from './ArticleSelectCard';
 import { ContentReviewStep } from './ContentReviewStep';
@@ -860,6 +860,7 @@ export function AdminPipelinePage() {
 
   return (
     <div className="py-6 pb-10 md:py-10">
+      {(isGenerating || isTranslating) && <Loading />}
       <header className="mb-7">
         <h1 className="mb-1 text-3xl font-black text-black">{t('title')}</h1>
         <p className="text-sm font-medium text-gray-400">{t('pipelineSubtitle')}</p>
