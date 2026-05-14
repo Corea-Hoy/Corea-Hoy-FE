@@ -1,8 +1,9 @@
 import axios from 'axios';
+import { ENV } from '@/shared/config/env';
 import { useUsersStore } from '@/entities/user';
 
 const api = axios.create({
-  baseURL: typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_API_URL,
+  baseURL: ENV.API_URL,
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json',
