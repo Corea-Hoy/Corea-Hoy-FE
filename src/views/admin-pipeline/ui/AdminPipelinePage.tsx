@@ -170,6 +170,8 @@ export function AdminPipelinePage() {
 
   const CANDIDATE_PAGE_SIZE = 10;
   const [candidatePage, setCandidatePage] = useState(1);
+  const totalCandidatePages = Math.ceil(candidateArticles.length / CANDIDATE_PAGE_SIZE) || 1;
+  const safeCandidatePage = Math.min(candidatePage, totalCandidatePages);
 
   // API state
   const [candidateArticles, setCandidateArticles] = useState<AdminCandidateArticle[]>([]);
@@ -451,6 +453,8 @@ export function AdminPipelinePage() {
     return () => {
       isCancelled = true;
     };
+    // 마운트 시 단 한 번 draft를 복원하기 위한 effect이므로 의도적으로 빈 deps 사용.
+    // openDraftContentInPipeline을 deps에 추가하면 함수 참조가 매 렌더마다 바뀌어 무한 재실행됨.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -946,8 +950,8 @@ export function AdminPipelinePage() {
               <>
                 {candidateArticles
                   .slice(
-                    (candidatePage - 1) * CANDIDATE_PAGE_SIZE,
-                    candidatePage * CANDIDATE_PAGE_SIZE,
+                    (safeCandidatePage - 1) * CANDIDATE_PAGE_SIZE,
+                    safeCandidatePage * CANDIDATE_PAGE_SIZE,
                   )
                   .map((article) => (
                     <ArticleSelectCard
@@ -958,8 +962,8 @@ export function AdminPipelinePage() {
                     />
                   ))}
                 <Pagination
-                  currentPage={candidatePage}
-                  totalPages={Math.ceil(candidateArticles.length / CANDIDATE_PAGE_SIZE)}
+                  currentPage={safeCandidatePage}
+                  totalPages={totalCandidatePages}
                   onPageChange={setCandidatePage}
                 />
               </>

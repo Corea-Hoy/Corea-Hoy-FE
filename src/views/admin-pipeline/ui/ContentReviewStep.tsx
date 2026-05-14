@@ -50,7 +50,7 @@ export function ContentReviewStep({
           rel="noopener noreferrer"
           className="flex items-center gap-1 rounded-full border border-gray-400 px-2.5 py-1 text-xs font-bold text-gray-700 transition-colors hover:border-gray-900 hover:text-gray-900"
         >
-          원문 보기
+          {t('viewOriginal')}
           <svg
             xmlns="http://www.w3.org/2000/svg"
             className="h-3 w-3"

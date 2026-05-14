@@ -1,3 +1,4 @@
+import { useTranslations } from 'next-intl';
 import type { AdminCandidateArticle } from '../model/types';
 
 interface ArticleSelectCardProps {
@@ -7,6 +8,7 @@ interface ArticleSelectCardProps {
 }
 
 export function ArticleSelectCard({ article, isSelected, onSelect }: ArticleSelectCardProps) {
+  const t = useTranslations('admin');
   return (
     <div
       role="radio"
@@ -54,7 +56,7 @@ export function ArticleSelectCard({ article, isSelected, onSelect }: ArticleSele
           onClick={(e) => e.stopPropagation()}
           className="ml-auto flex items-center gap-1 rounded-full border border-gray-400 px-2.5 py-1 font-bold text-gray-700 transition-colors hover:border-gray-900 hover:text-gray-900"
         >
-          원문 보기
+          {t('viewOriginal')}
           <svg
             xmlns="http://www.w3.org/2000/svg"
             className="h-3 w-3"
