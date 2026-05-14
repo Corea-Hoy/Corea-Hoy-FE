@@ -28,7 +28,7 @@ export interface AdminArticle {
   titleKo: string;
   titleEs: string | null;
   status: 'DRAFT' | 'PUBLISHED' | 'ARCHIVED';
-  draftStep: 'select' | 'review_ko' | 'review_es' | 'preview';
+  draftStep: 'select' | 'review-ko' | 'review-es' | 'review_ko' | 'review_es' | 'preview';
   langStatusKo: 'pending' | 'done';
   langStatusEs: 'pending' | 'done';
   viewCount: number;
@@ -52,7 +52,7 @@ export interface AdminArticlesResponse {
 export interface AdminArticleDetail {
   id: string;
   status: 'DRAFT' | 'PUBLISHED' | 'ARCHIVED';
-  draftStep: 'select' | 'review_ko' | 'review_es' | 'preview';
+  draftStep: 'select' | 'review-ko' | 'review-es' | 'review_ko' | 'review_es' | 'preview';
   langStatusKo: 'pending' | 'done';
   langStatusEs: 'pending' | 'done';
   titleKo: string;
@@ -63,7 +63,7 @@ export interface AdminArticleDetail {
   culturalNoteEs: string | null;
   thumbnailUrl: string | null;
   category: { id: number; name: string; slug: string };
-  sources: { id: number; url: string; title: string }[];
+  sources: { id: number; url: string; title: string | null }[];
   createdAt: string;
   updatedAt: string;
 }
@@ -111,7 +111,7 @@ export const adminApi = {
     categoryId: number;
     sourceUrl: string;
     sourceTitle?: string;
-    draftStep?: 'select' | 'review_ko' | 'review_es' | 'preview';
+    draftStep?: 'select' | 'review-ko' | 'review-es' | 'preview';
     langStatusKo?: 'pending' | 'done';
     langStatusEs?: 'pending' | 'done';
   }) => api.post<{ success: boolean; data: AdminArticle }>('/api/admin/articles', data),
@@ -125,7 +125,7 @@ export const adminApi = {
       titleEs?: string;
       bodyEs?: string;
       culturalNoteEs?: string;
-      draftStep?: 'select' | 'review_ko' | 'review_es' | 'preview';
+      draftStep?: 'select' | 'review-ko' | 'review-es' | 'preview';
       langStatusKo?: 'pending' | 'done';
       langStatusEs?: 'pending' | 'done';
     },

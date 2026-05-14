@@ -49,8 +49,8 @@ type SavedDraft = {
 
 function draftStepToContentStep(draftStep: AdminArticle['draftStep']): ContentStep {
   if (draftStep === 'select') return 'select_article';
-  if (draftStep === 'review_ko') return 'review_content';
-  if (draftStep === 'review_es') return 'review_translation';
+  if (draftStep === 'review-ko' || draftStep === 'review_ko') return 'review_content';
+  if (draftStep === 'review-es' || draftStep === 'review_es') return 'review_translation';
   return 'preview';
 }
 
@@ -63,11 +63,35 @@ function getPipelineStepFromContentStep(step: ContentStep): PipelineStep {
 
 function pipelineStepToDraftStep(
   step: PipelineStep,
-): 'select' | 'review_ko' | 'review_es' | 'preview' {
+): 'select' | 'review-ko' | 'review-es' | 'preview' {
   if (step === 'select-article') return 'select';
-  if (step === 'review-content') return 'review_ko';
-  if (step === 'review-translation') return 'review_es';
+  if (step === 'review-content') return 'review-ko';
+  if (step === 'review-translation') return 'review-es';
   return 'preview';
+}
+
+function isSameGeneratedContent(a: GeneratedContent | null, b: GeneratedContent) {
+  if (!a) return false;
+
+  return (
+    a.title === b.title &&
+    a.body === b.body &&
+    a.culturalNoteKo === b.culturalNoteKo &&
+    a.category === b.category
+  );
+}
+
+function isSameTranslatedContent(a: TranslatedContent | null, b: TranslatedContent) {
+  if (!a) return false;
+
+  return (
+    a.koTitle === b.koTitle &&
+    a.koBody === b.koBody &&
+    a.culturalNoteKo === b.culturalNoteKo &&
+    a.esTitle === b.esTitle &&
+    a.esBody === b.esBody &&
+    a.culturalNoteEs === b.culturalNoteEs
+  );
 }
 
 const categoryMap: Record<string, ManagedContent['category']> = {
@@ -178,6 +202,12 @@ export function AdminPipelinePage() {
     translatedBody: translatedContent?.esBody ?? '',
   };
 
+  const hasValidTranslatedContent = Boolean(
+    translatedContent?.esTitle.trim() &&
+    translatedContent?.esBody &&
+    getTextFromRichTextHtml(translatedContent.esBody),
+  );
+
   const getCategoryId = useCallback(
     (slug: string) => {
       if (categoriesError) return null;
@@ -201,7 +231,7 @@ export function AdminPipelinePage() {
       if (source) {
         const syntheticArticle: AdminCandidateArticle = {
           id: source.url,
-          title: source.title,
+          title: source.title ?? article.titleKo,
           summary: '',
           url: source.url,
           thumbnailUrl: article.thumbnailUrl,
@@ -293,7 +323,10 @@ export function AdminPipelinePage() {
           slug: c.slug,
           date: c.publishedAt ?? '',
         }));
-        setCandidateArticles(mapped);
+        setCandidateArticles((prev) => {
+          const preserved = prev.filter((a) => !mapped.some((m) => m.id === a.id));
+          return [...mapped, ...preserved];
+        });
       } catch (error) {
         console.error('Failed to load candidate articles:', error);
         showToast({ title: '오류', message: '뉴스 기사를 불러오지 못했습니다.' });
@@ -550,6 +583,8 @@ export function AdminPipelinePage() {
   }
 
   function handleTranslationTargetLanguageChange(language: TranslationTargetLanguageSelection) {
+    if (translationTargetLanguage === language) return;
+
     setTranslationTargetLanguage(language);
     setHasCompletedContentReview(false);
     setHasReviewedTranslation(false);
@@ -557,10 +592,7 @@ export function AdminPipelinePage() {
   }
 
   function handleNextFromTranslation() {
-    if (!translatedContent) return;
-    if (!translatedContent.esTitle.trim() || !getTextFromRichTextHtml(translatedContent.esBody)) {
-      return;
-    }
+    if (!translatedContent || !hasValidTranslatedContent) return;
     setHasReviewedTranslation(true);
     setCurrentStep('preview');
     setSaveStatus('dirty');
@@ -583,19 +615,21 @@ export function AdminPipelinePage() {
   function canNavigateToStep(step: PipelineStep) {
     if (step === 'select-article') return true;
     if (step === 'review-content') return Boolean(generatedContent);
-    if (step === 'review-translation')
-      return Boolean(translatedContent && hasCompletedContentReview);
-    if (step === 'preview') return Boolean(translatedContent && hasReviewedTranslation);
+    if (step === 'review-translation') return Boolean(translatedContent);
+    if (step === 'preview') return hasValidTranslatedContent;
     return false;
   }
 
   function handleStepChange(step: PipelineStep) {
     if (!canNavigateToStep(step)) return;
+    if (step === 'preview') {
+      setHasReviewedTranslation(true);
+    }
     setCurrentStep(step);
   }
 
   async function persistArticle(params: {
-    draftStep: 'select' | 'review_ko' | 'review_es' | 'preview';
+    draftStep: 'select' | 'review-ko' | 'review-es' | 'preview';
     langStatusKo: 'pending' | 'done';
     langStatusEs: 'pending' | 'done';
   }) {
@@ -713,6 +747,8 @@ export function AdminPipelinePage() {
   }
 
   function handleGeneratedContentChange(content: GeneratedContent) {
+    if (isSameGeneratedContent(generatedContent, content)) return;
+
     setGeneratedContent(content);
     setHasCompletedContentReview(false);
     setHasReviewedTranslation(false);
@@ -720,6 +756,8 @@ export function AdminPipelinePage() {
   }
 
   function handleTranslatedContentChange(content: TranslatedContent) {
+    if (isSameTranslatedContent(translatedContent, content)) return;
+
     setTranslatedContent(content);
     setHasReviewedTranslation(false);
     setSaveStatus('dirty');
