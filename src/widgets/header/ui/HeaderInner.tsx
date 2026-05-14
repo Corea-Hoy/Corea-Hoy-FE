@@ -21,7 +21,14 @@ export function HeaderInner() {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const mobileHeaderRef = useRef<HTMLElement>(null);
 
+  const [prevQ, setPrevQ] = useState(searchParams.get('q') ?? '');
   const [searchValue, setSearchValue] = useState(searchParams.get('q') ?? '');
+
+  if (searchParams.get('q') !== prevQ) {
+    setPrevQ(searchParams.get('q') ?? '');
+    setSearchValue(searchParams.get('q') ?? '');
+  }
+
   const debouncedSearch = useDebounce(searchValue, 300);
 
   const { data: suggestionsData } = useQuery({

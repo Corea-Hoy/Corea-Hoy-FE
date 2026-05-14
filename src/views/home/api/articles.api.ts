@@ -6,6 +6,7 @@ export interface GetArticlesParams {
   page?: number;
   limit?: number;
   sort?: string;
+  q?: string;
 }
 
 export const getArticles = (params?: GetArticlesParams) => {
