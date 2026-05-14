@@ -244,7 +244,9 @@ const DesktopHeader = ({
             {/* 관리자 피드백 */}
             <div className="flex items-center gap-1 xl:gap-2 ml-4">
               {[
-                { href: '/admin', label: t('admin'), icon: '⚙️' },
+                ...(user?.role === 'ADMIN'
+                  ? [{ href: '/admin', label: t('admin'), icon: '⚙️' }]
+                  : []),
                 { href: '/feedback', label: t('feedback'), icon: '💬' },
               ].map((link) => {
                 const isActive = pathname === link.href;
