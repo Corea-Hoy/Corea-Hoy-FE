@@ -11,7 +11,7 @@ import type {
   TranslationTargetLanguageSelection,
 } from '../model/types';
 import { ContentManagementPage } from '@/views/content-management/ui/ContentManagementPage';
-import { Loading } from '@/shared/ui';
+import { Loading, Pagination } from '@/shared/ui';
 import { getTextFromRichTextHtml } from '@/shared/ui/rich-text-editor/getTextFromRichTextHtml';
 import { ArticleSelectCard } from './ArticleSelectCard';
 import { ContentReviewStep } from './ContentReviewStep';
@@ -167,6 +167,9 @@ export function AdminPipelinePage() {
   const [saveStatus, setSaveStatus] = useState<SaveStatus>('idle');
   const [hasHydratedDraft, setHasHydratedDraft] = useState(false);
   const [toast, setToast] = useState<ToastState>(null);
+
+  const CANDIDATE_PAGE_SIZE = 10;
+  const [candidatePage, setCandidatePage] = useState(1);
 
   // API state
   const [candidateArticles, setCandidateArticles] = useState<AdminCandidateArticle[]>([]);
@@ -344,8 +347,18 @@ export function AdminPipelinePage() {
     const load = async () => {
       setIsLoadingArticles(true);
       try {
-        const res = await adminApi.getAdminArticles({ limit: 50 });
-        setAdminArticles(res.data.data.articles);
+        const first = await adminApi.getAdminArticles({ page: 1, limit: 50 });
+        const { articles, pagination } = first.data.data;
+        if (pagination.totalPages <= 1) {
+          setAdminArticles(articles);
+          return;
+        }
+        const rest = await Promise.all(
+          Array.from({ length: pagination.totalPages - 1 }, (_, i) =>
+            adminApi.getAdminArticles({ page: i + 2, limit: 50 }),
+          ),
+        );
+        setAdminArticles([...articles, ...rest.flatMap((r) => r.data.data.articles)]);
       } catch (error) {
         console.error('Failed to load admin articles:', error);
         showToast({ title: '오류', message: '관리자 기사를 불러오지 못했습니다.' });
@@ -438,6 +451,7 @@ export function AdminPipelinePage() {
     return () => {
       isCancelled = true;
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -929,14 +943,26 @@ export function AdminPipelinePage() {
                 {t('noArticles')}
               </div>
             ) : (
-              candidateArticles.map((article) => (
-                <ArticleSelectCard
-                  key={article.id}
-                  article={article}
-                  isSelected={article.id === selectedArticleId}
-                  onSelect={handleSelectArticle}
+              <>
+                {candidateArticles
+                  .slice(
+                    (candidatePage - 1) * CANDIDATE_PAGE_SIZE,
+                    candidatePage * CANDIDATE_PAGE_SIZE,
+                  )
+                  .map((article) => (
+                    <ArticleSelectCard
+                      key={article.id}
+                      article={article}
+                      isSelected={article.id === selectedArticleId}
+                      onSelect={handleSelectArticle}
+                    />
+                  ))}
+                <Pagination
+                  currentPage={candidatePage}
+                  totalPages={Math.ceil(candidateArticles.length / CANDIDATE_PAGE_SIZE)}
+                  onPageChange={setCandidatePage}
                 />
-              ))
+              </>
             )}
           </div>
 

@@ -3,6 +3,7 @@
 import { useMemo, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { CATEGORY_OPTIONS, STEP_OPTIONS, STEP_STYLES } from '../model/labels';
+import { Pagination } from '@/shared/ui';
 import type {
   ContentCategory,
   ContentLanguage,
@@ -10,6 +11,8 @@ import type {
   ContentStep,
   ManagedContent,
 } from '../model/types';
+
+const ITEMS_PER_PAGE = 10;
 
 type StatusTab = 'all' | ContentStatus;
 type FilterStep = 'all' | ContentStep;
@@ -69,6 +72,8 @@ export function ContentManagementPage({
   const [publishedSortKey, setPublishedSortKey] = useState<SortKey | null>(null);
   const [publishedSortDirection, setPublishedSortDirection] = useState<SortDirection | null>(null);
   const [deletingIds, setDeletingIds] = useState<Set<string>>(new Set());
+  const [draftPage, setDraftPage] = useState(1);
+  const [publishedPage, setPublishedPage] = useState(1);
 
   const STATUS_TABS: { value: StatusTab; label: string }[] = [
     { value: 'all', label: t('filterAll') },
@@ -152,6 +157,8 @@ export function ContentManagementPage({
     setDraftSortDirection(null);
     setPublishedSortKey(null);
     setPublishedSortDirection(null);
+    setDraftPage(1);
+    setPublishedPage(1);
   }
 
   function handleSort(nextSortKey: SortKey, sectionKey: 'draft' | 'published') {
@@ -456,7 +463,11 @@ export function ContentManagementPage({
                 </span>
                 <select
                   value={pipelineFilter}
-                  onChange={(event) => setPipelineFilter(event.target.value as FilterStep)}
+                  onChange={(event) => {
+                    setPipelineFilter(event.target.value as FilterStep);
+                    setDraftPage(1);
+                    setPublishedPage(1);
+                  }}
                   className="w-full rounded-xl border border-gray-200 bg-white px-3 py-3 text-sm font-bold outline-none transition-colors cursor-pointer focus:border-black lg:w-44"
                 >
                   <option value="all">{t('filterAll')}</option>
@@ -475,7 +486,11 @@ export function ContentManagementPage({
               </span>
               <select
                 value={categoryFilter}
-                onChange={(event) => setCategoryFilter(event.target.value as FilterCategory)}
+                onChange={(event) => {
+                  setCategoryFilter(event.target.value as FilterCategory);
+                  setDraftPage(1);
+                  setPublishedPage(1);
+                }}
                 className="w-full rounded-xl border border-gray-200 bg-white px-3 py-3 text-sm font-bold outline-none transition-colors cursor-pointer focus:border-black lg:w-40"
               >
                 <option value="all">{t('filterAll')}</option>
@@ -493,7 +508,11 @@ export function ContentManagementPage({
               </span>
               <select
                 value={languageFilter}
-                onChange={(event) => setLanguageFilter(event.target.value as FilterLanguage)}
+                onChange={(event) => {
+                  setLanguageFilter(event.target.value as FilterLanguage);
+                  setDraftPage(1);
+                  setPublishedPage(1);
+                }}
                 className="w-full rounded-xl border border-gray-200 bg-white px-3 py-3 text-sm font-bold outline-none transition-colors cursor-pointer focus:border-black lg:w-40"
               >
                 <option value="all">{t('filterAll')}</option>
@@ -507,21 +526,55 @@ export function ContentManagementPage({
 
       {isAllTab ? (
         <div className="flex flex-col gap-6">
-          {groupedSections.map((section) => (
-            <section key={section.key}>
-              <div className="mb-3 flex items-center justify-between">
-                <h3 className="text-sm font-black text-black">
-                  {section.title} ({section.items.length})
-                </h3>
-              </div>
-              {renderContentTable(section.items, section.key as 'draft' | 'published')}
-            </section>
-          ))}
+          {groupedSections.map((section) => {
+            const isDraft = section.key === 'draft';
+            const page = isDraft ? draftPage : publishedPage;
+            const setPage = isDraft ? setDraftPage : setPublishedPage;
+            const totalPages = Math.ceil(section.items.length / ITEMS_PER_PAGE);
+            const paginatedItems = section.items.slice(
+              (page - 1) * ITEMS_PER_PAGE,
+              page * ITEMS_PER_PAGE,
+            );
+            return (
+              <section key={section.key}>
+                <div className="mb-3 flex items-center justify-between">
+                  <h3 className="text-sm font-black text-black">
+                    {section.title} ({section.items.length})
+                  </h3>
+                </div>
+                {renderContentTable(paginatedItems, section.key as 'draft' | 'published')}
+                <Pagination currentPage={page} totalPages={totalPages} onPageChange={setPage} />
+              </section>
+            );
+          })}
         </div>
       ) : activeTab === 'draft' ? (
-        renderContentTable(draftContents, 'draft')
+        <>
+          {renderContentTable(
+            draftContents.slice((draftPage - 1) * ITEMS_PER_PAGE, draftPage * ITEMS_PER_PAGE),
+            'draft',
+          )}
+          <Pagination
+            currentPage={draftPage}
+            totalPages={Math.ceil(draftContents.length / ITEMS_PER_PAGE)}
+            onPageChange={setDraftPage}
+          />
+        </>
       ) : (
-        renderContentTable(publishedContents, 'published')
+        <>
+          {renderContentTable(
+            publishedContents.slice(
+              (publishedPage - 1) * ITEMS_PER_PAGE,
+              publishedPage * ITEMS_PER_PAGE,
+            ),
+            'published',
+          )}
+          <Pagination
+            currentPage={publishedPage}
+            totalPages={Math.ceil(publishedContents.length / ITEMS_PER_PAGE)}
+            onPageChange={setPublishedPage}
+          />
+        </>
       )}
     </section>
   );
