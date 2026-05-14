@@ -11,6 +11,9 @@
     "format:check": "prettier --check .",
     "prepare": "husky"
   },
+  "pnpm": {
+    "onlyBuiltDependencies": ["@swc/core", "@parcel/watcher", "sharp", "unrs-resolver"]
+  },
   "lint-staged": {
     "*.{js,ts,tsx}": [
       "eslint --fix",
