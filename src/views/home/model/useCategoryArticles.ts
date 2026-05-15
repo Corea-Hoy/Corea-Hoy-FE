@@ -32,7 +32,9 @@ export function useCategoryArticles({
     initialPageParam: 1,
     getNextPageParam: (lastPage) => {
       if (!lastPage || !lastPage.pagination) return undefined;
-      const { page, totalPages } = lastPage.pagination;
+      const page = Number(lastPage.pagination.page);
+      const totalPages = Number(lastPage.pagination.totalPages);
+
       if (page < totalPages) {
         return page + 1;
       }

@@ -26,7 +26,9 @@ export function useSearchArticles({
     initialPageParam: 1,
     getNextPageParam: (lastPage) => {
       if (!lastPage || !lastPage.pagination) return undefined;
-      const { page, totalPages } = lastPage.pagination;
+      const page = Number(lastPage.pagination.page);
+      const totalPages = Number(lastPage.pagination.totalPages);
+
       return page < totalPages ? page + 1 : undefined;
     },
     enabled: !!query,
