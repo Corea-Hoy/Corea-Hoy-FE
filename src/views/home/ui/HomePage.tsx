@@ -108,15 +108,26 @@ function HomePageInner() {
     sortOrder,
   });
 
-  const loadMoreRef = useRef<HTMLDivElement>(null);
-  const entry = useIntersectionObserver(loadMoreRef, { rootMargin: '200px' });
+  const [loadMoreRef, entry] = useIntersectionObserver({ rootMargin: '600px' });
   const inView = entry?.isIntersecting;
 
   useEffect(() => {
+    console.log('Infinite Scroll Check:', {
+      inView,
+      activeCategory,
+      hasCategoryNext,
+      isFetchingCategoryNext,
+      searchQuery,
+      hasSearchNext,
+      isFetchingSearchNext,
+    });
+
     if (inView) {
       if (activeCategory && hasCategoryNext && !isFetchingCategoryNext) {
+        console.log('Triggering fetchCategoryNext...');
         fetchCategoryNext();
       } else if (searchQuery && hasSearchNext && !isFetchingSearchNext) {
+        console.log('Triggering fetchSearchNext...');
         fetchSearchNext();
       }
     }

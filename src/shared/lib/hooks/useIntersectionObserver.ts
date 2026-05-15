@@ -1,33 +1,38 @@
-import { useEffect, useState, RefObject } from 'react';
+import { useEffect, useState } from 'react';
 
 interface Args extends IntersectionObserverInit {
   freezeOnceVisible?: boolean;
 }
 
-export function useIntersectionObserver(
-  elementRef: RefObject<Element | null>,
-  { threshold = 0, root = null, rootMargin = '0%', freezeOnceVisible = false }: Args,
-): IntersectionObserverEntry | undefined {
+/**
+ * Intersection Observer를 사용하여 요소의 가시성을 감지하는 훅입니다.
+ * Callback Ref 패턴을 사용하여 조건부 렌더링에서도 안정적으로 동작합니다.
+ */
+export function useIntersectionObserver({
+  threshold = 0,
+  root = null,
+  rootMargin = '0%',
+  freezeOnceVisible = false,
+}: Args) {
+  const [element, setElement] = useState<Element | null>(null);
   const [entry, setEntry] = useState<IntersectionObserverEntry>();
 
   const frozen = entry?.isIntersecting && freezeOnceVisible;
 
-  const updateEntry = ([entry]: IntersectionObserverEntry[]): void => {
-    setEntry(entry);
-  };
-
   useEffect(() => {
-    const node = elementRef?.current;
     const hasIOSupport = !!window.IntersectionObserver;
+    if (!hasIOSupport || frozen || !element) return;
 
-    if (!hasIOSupport || frozen || !node) return;
+    const observer = new IntersectionObserver(([entry]) => setEntry(entry), {
+      threshold,
+      root,
+      rootMargin,
+    });
 
-    const observer = new IntersectionObserver(updateEntry, { threshold, root, rootMargin });
-
-    observer.observe(node);
+    observer.observe(element);
 
     return () => observer.disconnect();
-  }, [elementRef, threshold, root, rootMargin, frozen]);
+  }, [element, threshold, root, rootMargin, frozen]);
 
-  return entry;
+  return [setElement, entry] as const;
 }
