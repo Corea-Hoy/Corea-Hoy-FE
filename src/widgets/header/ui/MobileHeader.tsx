@@ -2,16 +2,17 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { usePathname } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { useUsersStore } from '@/entities/user';
 import { useCategories, CATEGORY_ES_MAP } from '@/entities/content';
 import { LogOut, Search, User } from 'lucide-react';
 import LangDropdown from './LangDropdown';
 import { useLogout } from '@/features/auth';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { createPortal } from 'react-dom';
 import { ConfirmModal } from '@/shared/ui';
+import { Article } from '@/entities/content/model/articles';
 
 interface LangDropdownProps {
   language: string;
@@ -35,6 +36,7 @@ interface MobileHeaderProps {
   isHome: boolean;
   activeCategory: string;
   handleCategoryClick: (cat: string) => void;
+  suggestions?: Article[];
 }
 
 const MobileHeader = ({
@@ -49,10 +51,11 @@ const MobileHeader = ({
   isHome,
   activeCategory,
   handleCategoryClick,
+  suggestions = [],
 }: MobileHeaderProps) => {
   const [showModal, setShowModal] = useState(false);
+  const router = useRouter();
 
-  const pathname = usePathname();
   const t = useTranslations('nav');
   const { isLoggedIn } = useUsersStore();
   const { onLogout } = useLogout();
@@ -123,35 +126,59 @@ const MobileHeader = ({
             </>
           ) : (
             <div className="flex items-center w-full gap-2 animate-in fade-in slide-in-from-right-4 duration-200">
-              <form onSubmit={handleSearch} className="flex-1 relative">
-                <input
-                  type="text"
-                  autoFocus
-                  value={searchValue}
-                  onChange={(e) => setSearchValue(e.target.value)}
-                  placeholder={t('search')}
-                  aria-label={t('search')}
-                  className="w-full pl-10 pr-4 py-2 bg-gray-100 border-none rounded-full text-sm outline-none"
-                />
-                <span
-                  className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-sm"
-                  aria-hidden="true"
-                >
-                  <svg
-                    focusable="false"
-                    height="20px"
-                    viewBox="0 0 24 24"
-                    width="20px"
-                    xmlns="http://www.w3.org/2000/svg"
+              <div className="flex-1 relative">
+                <form onSubmit={handleSearch}>
+                  <input
+                    type="text"
+                    autoFocus
+                    value={searchValue}
+                    onChange={(e) => setSearchValue(e.target.value)}
+                    placeholder={t('search')}
+                    aria-label={t('search')}
+                    className="w-full pl-10 pr-4 py-2 bg-gray-100 border-none rounded-full text-sm outline-none"
+                  />
+                  <span
+                    className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-sm"
+                    aria-hidden="true"
                   >
-                    <Search />
-                  </svg>
-                </span>
-              </form>
+                    <svg
+                      focusable="false"
+                      height="20px"
+                      viewBox="0 0 24 24"
+                      width="20px"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <Search />
+                    </svg>
+                  </span>
+                </form>
+                {/* Suggestions dropdown */}
+                {suggestions.length > 0 && (
+                  <ul className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-100 rounded-2xl shadow-xl overflow-hidden z-50 py-1">
+                    {suggestions.map((article) => (
+                      <li key={article.id}>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            router.push(`/article/${article.id}`);
+                            setIsSearchOpen(false);
+                          }}
+                          className="w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors text-left cursor-pointer"
+                        >
+                          <Search size={14} className="text-gray-400 flex-shrink-0" />
+                          <span className="text-sm font-medium text-gray-800 line-clamp-1">
+                            {isKo ? article.titleKo : article.titleEs}
+                          </span>
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
               <button
                 onClick={() => setIsSearchOpen(false)}
                 aria-label={isKo ? '검색 닫기' : 'Cerrar búsqueda'}
-                className="text-xs font-bold text-gray-500 px-2"
+                className="text-xs font-bold text-gray-500 px-2 cursor-pointer"
               >
                 {isKo ? '취소' : 'Cancelar'}
               </button>

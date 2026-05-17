@@ -2,17 +2,18 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { useUsersStore } from '@/entities/user';
-import { CATEGORIES_KO, CATEGORIES_ES, useCategories, CATEGORY_ES_MAP } from '@/entities/content';
+import { useCategories, CATEGORY_ES_MAP } from '@/entities/content';
 import LangDropdown from './LangDropdown';
 import { Search, User } from 'lucide-react';
 import { useLogout } from '@/features/auth';
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { ConfirmModal, Avatar } from '@/shared/ui';
 import { AVATAR_PRESETS } from '@/entities/user';
+import { Article } from '@/entities/content/model/articles';
 
 interface LangDropdownProps {
   language: string;
@@ -33,6 +34,7 @@ interface DesktopHeaderProps {
   isKo: boolean;
   activeCategory: string;
   handleCategoryClick: (cat: string) => void;
+  suggestions?: Article[];
 }
 
 const DesktopHeader = ({
@@ -44,12 +46,34 @@ const DesktopHeader = ({
   isKo,
   activeCategory,
   handleCategoryClick,
+  suggestions = [],
 }: DesktopHeaderProps) => {
   const [showModal, setShowModal] = useState(false);
+  const [isFocused, setIsFocused] = useState(false);
+  const searchContainerRef = useRef<HTMLDivElement>(null);
   const pathname = usePathname();
+  const router = useRouter();
   const t = useTranslations('nav');
   const { user, isLoggedIn } = useUsersStore();
   const { onLogout } = useLogout();
+
+  const showSuggestions = isFocused && suggestions.length > 0;
+
+  // Close on click outside
+  useEffect(() => {
+    function handleClick(e: MouseEvent) {
+      if (searchContainerRef.current && !searchContainerRef.current.contains(e.target as Node)) {
+        setIsFocused(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClick);
+    return () => document.removeEventListener('mousedown', handleClick);
+  }, []);
+
+  function handleSuggestionClick(article: Article) {
+    setIsFocused(false);
+    router.push(`/article/${article.id}`);
+  }
 
   const { data: categoryData } = useCategories();
   const apiCategories = categoryData?.data || [];
@@ -86,32 +110,59 @@ const DesktopHeader = ({
           </div>
 
           {/* Center: Search Bar */}
-          <form onSubmit={handleSearch} className="relative group flex-[2] min-w-0 max-w-2xl">
-            <div className="relative flex items-center">
-              <span
-                className="absolute left-3.5 text-gray-400 text-sm group-focus-within:text-black transition-colors"
-                aria-hidden="true"
-              >
-                <svg
-                  focusable="false"
-                  height="20px"
-                  viewBox="0 0 24 24"
-                  width="20px"
-                  xmlns="http://www.w3.org/2000/svg"
+          <div ref={searchContainerRef} className="relative group flex-[2] min-w-0 max-w-2xl">
+            <form
+              onSubmit={(e) => {
+                handleSearch(e);
+                setIsFocused(false);
+              }}
+            >
+              <div className="relative flex items-center">
+                <span
+                  className="absolute left-3.5 text-gray-400 text-sm group-focus-within:text-black transition-colors"
+                  aria-hidden="true"
                 >
-                  <Search />
-                </svg>
-              </span>
-              <input
-                type="text"
-                value={searchValue}
-                onChange={(e) => setSearchValue(e.target.value)}
-                placeholder={t('search')}
-                aria-label={t('search')}
-                className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-full text-sm focus:bg-white focus:border-black transition-all outline-none placeholder:text-gray-400"
-              />
-            </div>
-          </form>
+                  <svg
+                    focusable="false"
+                    height="20px"
+                    viewBox="0 0 24 24"
+                    width="20px"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <Search />
+                  </svg>
+                </span>
+                <input
+                  type="text"
+                  value={searchValue}
+                  onChange={(e) => setSearchValue(e.target.value)}
+                  onFocus={() => setIsFocused(true)}
+                  placeholder={t('search')}
+                  aria-label={t('search')}
+                  className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-full text-sm focus:bg-white focus:border-black transition-all outline-none placeholder:text-gray-400"
+                />
+              </div>
+            </form>
+            {/* Suggestions dropdown */}
+            {showSuggestions && (
+              <ul className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-100 rounded-2xl shadow-xl overflow-hidden z-50 py-1">
+                {suggestions.map((article) => (
+                  <li key={article.id}>
+                    <button
+                      type="button"
+                      onClick={() => handleSuggestionClick(article)}
+                      className="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-gray-50 transition-colors text-left cursor-pointer"
+                    >
+                      <Search size={14} className="text-gray-400 flex-shrink-0" />
+                      <span className="text-sm font-medium text-gray-800 line-clamp-1">
+                        {isKo ? article.titleKo : article.titleEs}
+                      </span>
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
 
           {/* Right: Lang + User */}
           <div className="flex-1 flex items-center justify-end gap-3">
@@ -193,7 +244,9 @@ const DesktopHeader = ({
             {/* 관리자 피드백 */}
             <div className="flex items-center gap-1 xl:gap-2 ml-4">
               {[
-                { href: '/admin', label: t('admin'), icon: '⚙️' },
+                ...(user?.role === 'ADMIN'
+                  ? [{ href: '/admin', label: t('admin'), icon: '⚙️' }]
+                  : []),
                 { href: '/feedback', label: t('feedback'), icon: '💬' },
               ].map((link) => {
                 const isActive = pathname === link.href;

@@ -1,3 +1,4 @@
+import { Suspense } from 'react';
 import type { Metadata } from 'next';
 import './globals.css';
 import { Providers } from '@/app/providers';
@@ -25,7 +26,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <Providers>
             <Header />
             <main className="flex-1 max-w-screen-xl mx-auto w-full px-4 pb-20 lg:pb-0">
-              {children}
+              <Suspense fallback={null}>{children}</Suspense>
             </main>
             <Footer />
           </Providers>
