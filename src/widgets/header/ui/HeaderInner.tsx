@@ -1,6 +1,6 @@
 'use client';
 
-import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { useLanguageStore } from '@/shared/model';
 import { useState, useEffect, useRef } from 'react';
@@ -12,7 +12,6 @@ import { useQuery } from '@tanstack/react-query';
 import { getSuggestions } from '@/views/home/api/articles.api';
 
 export function HeaderInner() {
-  const pathname = usePathname();
   const router = useRouter();
   const searchParams = useSearchParams();
   const t = useTranslations('nav');
@@ -67,7 +66,6 @@ export function HeaderInner() {
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, [isLangOpen]);
 
-  const isHome = pathname === '/';
   const isKo = language === 'ko';
   const activeCategory = searchParams.get('category') ?? '전체';
 
@@ -114,7 +112,6 @@ export function HeaderInner() {
         setSearchValue={setSearchValue}
         handleSearch={handleSearch}
         langDropdownProps={langDropdownProps}
-        isHome={isHome}
         isKo={isKo}
         activeCategory={activeCategory}
         handleCategoryClick={handleCategoryClick}
@@ -130,7 +127,6 @@ export function HeaderInner() {
         handleSearch={handleSearch}
         isKo={isKo}
         langDropdownProps={langDropdownProps}
-        isHome={isHome}
         activeCategory={activeCategory}
         handleCategoryClick={handleCategoryClick}
         suggestions={suggestions}

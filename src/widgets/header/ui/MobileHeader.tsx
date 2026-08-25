@@ -33,7 +33,6 @@ interface MobileHeaderProps {
   handleSearch: (e: React.FormEvent) => void;
   isKo: boolean;
   langDropdownProps: LangDropdownProps;
-  isHome: boolean;
   activeCategory: string;
   handleCategoryClick: (cat: string) => void;
   suggestions?: Article[];
@@ -48,7 +47,6 @@ const MobileHeader = ({
   handleSearch,
   isKo,
   langDropdownProps,
-  isHome,
   activeCategory,
   handleCategoryClick,
   suggestions = [],
@@ -187,29 +185,27 @@ const MobileHeader = ({
         </div>
 
         {/* Mobile category scroll row */}
-        {isHome && (
-          <div className="flex items-center gap-2 px-4 py-2 overflow-x-auto scrollbar-hide border-t border-gray-100">
-            {categoriesList.map((cat) => {
-              const label = isKo ? cat.name : cat.esName;
-              const isActive =
-                cat.name === activeCategory || (activeCategory === '전체' && cat.name === '전체');
-              return (
-                <button
-                  key={cat.slug}
-                  onClick={() => handleCategoryClick(cat.name)}
-                  aria-pressed={isActive}
-                  className={`flex-shrink-0 px-3.5 py-1.5 rounded-full border text-xs font-bold transition-all cursor-pointer ${
-                    isActive
-                      ? 'bg-black text-white border-black shadow-md shadow-black/10'
-                      : 'bg-white text-gray-500 border-gray-200 hover:border-gray-400'
-                  }`}
-                >
-                  {label}
-                </button>
-              );
-            })}
-          </div>
-        )}
+        <div className="flex items-center gap-2 px-4 py-2 overflow-x-auto scrollbar-hide border-t border-gray-100">
+          {categoriesList.map((cat) => {
+            const label = isKo ? cat.name : cat.esName;
+            const isActive =
+              cat.name === activeCategory || (activeCategory === '전체' && cat.name === '전체');
+            return (
+              <button
+                key={cat.slug}
+                onClick={() => handleCategoryClick(cat.name)}
+                aria-pressed={isActive}
+                className={`flex-shrink-0 px-3.5 py-1.5 rounded-full border text-xs font-bold transition-all cursor-pointer ${
+                  isActive
+                    ? 'bg-black text-white border-black shadow-md shadow-black/10'
+                    : 'bg-white text-gray-500 border-gray-200 hover:border-gray-400'
+                }`}
+              >
+                {label}
+              </button>
+            );
+          })}
+        </div>
       </header>
       {typeof document !== 'undefined' &&
         showModal &&

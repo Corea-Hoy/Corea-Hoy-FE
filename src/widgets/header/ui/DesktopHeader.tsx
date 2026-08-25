@@ -30,7 +30,6 @@ interface DesktopHeaderProps {
   setSearchValue: (val: string) => void;
   handleSearch: (e: React.FormEvent) => void;
   langDropdownProps: LangDropdownProps;
-  isHome: boolean;
   isKo: boolean;
   activeCategory: string;
   handleCategoryClick: (cat: string) => void;
@@ -42,7 +41,6 @@ const DesktopHeader = ({
   setSearchValue,
   handleSearch,
   langDropdownProps,
-  isHome,
   isKo,
   activeCategory,
   handleCategoryClick,
@@ -215,30 +213,28 @@ const DesktopHeader = ({
         {/* Persistent Secondary Nav Bar */}
         <div className="bg-gray-50/80 backdrop-blur-md border-b border-gray-100">
           <div className="max-w-screen-xl mx-auto px-6 h-12 flex items-center justify-between">
-            {/* Left: Categories (Home only) */}
+            {/* Left: Categories */}
             <div className="flex items-center gap-0 overflow-x-auto scrollbar-hide flex-1 min-w-0">
-              {isHome &&
-                categoriesList.map((cat) => {
-                  const label = isKo ? cat.name : cat.esName;
-                  const isActive =
-                    cat.name === activeCategory ||
-                    (activeCategory === '전체' && cat.name === '전체');
-                  return (
-                    <button
-                      key={cat.slug}
-                      onClick={() => handleCategoryClick(cat.name)}
-                      aria-pressed={isActive}
-                      className={`relative flex-shrink-0 px-5 py-3 text-sm font-bold transition-colors cursor-pointer whitespace-nowrap ${
-                        isActive ? 'text-black' : 'text-gray-400 hover:text-gray-700'
-                      }`}
-                    >
-                      {label}
-                      {isActive && (
-                        <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-black rounded-full" />
-                      )}
-                    </button>
-                  );
-                })}
+              {categoriesList.map((cat) => {
+                const label = isKo ? cat.name : cat.esName;
+                const isActive =
+                  cat.name === activeCategory || (activeCategory === '전체' && cat.name === '전체');
+                return (
+                  <button
+                    key={cat.slug}
+                    onClick={() => handleCategoryClick(cat.name)}
+                    aria-pressed={isActive}
+                    className={`relative flex-shrink-0 px-5 py-3 text-sm font-bold transition-colors cursor-pointer whitespace-nowrap ${
+                      isActive ? 'text-black' : 'text-gray-400 hover:text-gray-700'
+                    }`}
+                  >
+                    {label}
+                    {isActive && (
+                      <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-black rounded-full" />
+                    )}
+                  </button>
+                );
+              })}
             </div>
 
             {/* 관리자 피드백 */}
