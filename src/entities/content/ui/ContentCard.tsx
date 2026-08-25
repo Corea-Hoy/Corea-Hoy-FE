@@ -7,13 +7,15 @@ import Image from 'next/image';
 import { CATEGORY_ES_MAP } from '../model/categories';
 import { Chip } from '@/shared/ui/chip/Chip';
 import { Article } from '../model/articles';
+import { blurDataURL } from '@/shared/lib';
 
 interface ContentCardProps {
   content: Article;
   isKo: boolean;
+  preload?: boolean;
 }
 
-export default function ContentCard({ content, isKo }: ContentCardProps) {
+export default function ContentCard({ content, isKo, preload = false }: ContentCardProps) {
   const [imgSrc, setImgSrc] = useState(
     content.thumbnailUrl || '/images/characters/mascot-cheer.png',
   );
@@ -36,6 +38,9 @@ export default function ContentCard({ content, isKo }: ContentCardProps) {
           sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
           className="object-cover"
           onError={() => setImgSrc('/images/characters/mascot-cheer.png')}
+          preload={preload}
+          placeholder="blur"
+          blurDataURL={blurDataURL()}
         />
         <div className="absolute top-2 left-2 sm:top-3 sm:left-3 z-10">
           <Chip

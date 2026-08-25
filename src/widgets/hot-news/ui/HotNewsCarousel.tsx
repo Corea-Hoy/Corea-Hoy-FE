@@ -5,6 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Chip } from '@/shared/ui/chip/Chip';
 import { Article } from '@/entities/content/model/articles';
+import { blurDataURL } from '@/shared/lib';
 
 interface HotNewsCarouselProps {
   isKo: boolean;
@@ -152,7 +153,7 @@ export default function HotNewsCarousel({ isKo, articles }: HotNewsCarouselProps
             className="flex transition-transform duration-700 cubic-bezier(0.23, 1, 0.32, 1)"
             style={{ gap: `${GAP}px`, transform: `translateX(-${translateX}px)` }}
           >
-            {hotItems.map((item) => (
+            {hotItems.map((item, i) => (
               <Link key={item.id} href={`/article/${item.id}`} style={cardStyle}>
                 <div className="group h-[360px] sm:h-[400px] lg:h-[460px] bg-black rounded-2xl overflow-hidden transition-all duration-500  hover:-translate-y-2 relative flex flex-col">
                   {/* Card Background Image */}
@@ -160,7 +161,11 @@ export default function HotNewsCarousel({ isKo, articles }: HotNewsCarouselProps
                     src={item.thumbnailUrl}
                     alt={isKo ? item.titleKo : item.titleEs}
                     fill
+                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 65vw, 33vw"
                     className="object-cover opacity-70 group-hover:opacity-90 transition-all duration-700 group-hover:scale-110"
+                    preload={i === 0}
+                    placeholder="blur"
+                    blurDataURL={blurDataURL()}
                   />
 
                   {/* Category Chip - Top Left */}

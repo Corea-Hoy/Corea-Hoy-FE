@@ -3,6 +3,7 @@ import { Chip } from '@/shared/ui';
 import { UserRound } from 'lucide-react';
 import { formatDateTime } from '@/shared/utils';
 import { useArticles } from '@/features/article/model/useArticles';
+import { blurDataURL } from '@/shared/lib';
 export function ArticleThumbnail() {
   const { title, newsData: _newsData } = useArticles();
   const newsData = _newsData!;
@@ -10,7 +11,16 @@ export function ArticleThumbnail() {
   return (
     <div className="relative">
       <div className="h-[20rem] w-full overflow-hidden">
-        <Image fill sizes="100vw" className="object-cover" src={newsData.thumbnailUrl} alt="" />
+        <Image
+          fill
+          sizes="100vw"
+          className="object-cover"
+          src={newsData.thumbnailUrl}
+          alt=""
+          preload
+          placeholder="blur"
+          blurDataURL={blurDataURL()}
+        />
       </div>
 
       <div className="absolute top-0 left-0 flex flex-col justify-end items-start w-full h-[20rem] p-4 bg-black/40">

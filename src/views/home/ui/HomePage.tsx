@@ -4,14 +4,18 @@ import { useRef, Suspense, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { useLanguageStore } from '@/shared/model';
-import { ContentCard, useCategories, CATEGORY_ES_MAP } from '@/entities/content';
-import { HotNewsCarousel } from '@/widgets/hot-news';
+import {
+  ContentCard,
+  ContentCardSkeleton,
+  useCategories,
+  CATEGORY_ES_MAP,
+} from '@/entities/content';
+import { HotNewsCarousel, HotNewsCarouselSkeleton } from '@/widgets/hot-news';
 import { useHomeArticles } from '../model/useHomeArticles';
 import { useCategoryArticles } from '../model/useCategoryArticles';
 import { useSearchArticles } from '../model/useSearchArticles';
 import { useArticlesQuery } from '../model/useArticlesQuery';
 import { useIntersectionObserver } from '@/shared/lib/hooks/useIntersectionObserver';
-import { Loading } from '@/shared/ui/loading/Loading';
 import { useEffect } from 'react';
 
 function CategoryPreviewSection({
@@ -29,7 +33,20 @@ function CategoryPreviewSection({
     limit: 2,
   });
 
-  if (isLoading) return <div className="animate-pulse h-40 bg-gray-100 rounded-xl" />;
+  if (isLoading) {
+    return (
+      <section>
+        <div className="flex items-center justify-between mb-4 pb-3 border-b border-gray-100">
+          <div className="h-5 w-24 bg-gray-200 rounded animate-pulse" />
+          <div className="h-4 w-14 bg-gray-200 rounded animate-pulse" />
+        </div>
+        <div className="grid grid-cols-2 gap-3 sm:gap-4 md:gap-6">
+          <ContentCardSkeleton />
+          <ContentCardSkeleton />
+        </div>
+      </section>
+    );
+  }
   if (articles.length === 0) return null;
 
   const catLabel = isKo ? catObj.name : catObj.esName;
@@ -81,8 +98,14 @@ function HomePageInner() {
     isKo,
   });
 
-  const { data: popularArticles = [] } = useArticlesQuery({ sort: 'popular', limit: 6 });
-  const { data: latestApiArticles = [] } = useArticlesQuery({ sort: 'latest', limit: 4 });
+  const { data: popularArticles = [], isLoading: isPopularLoading } = useArticlesQuery({
+    sort: 'popular',
+    limit: 6,
+  });
+  const { data: latestApiArticles = [], isLoading: isLatestLoading } = useArticlesQuery({
+    sort: 'latest',
+    limit: 4,
+  });
 
   const {
     data: categoryInfiniteData,
@@ -169,7 +192,14 @@ function HomePageInner() {
   return (
     <div>
       {/* ── Hero (main landing only) ── */}
-      {isMainLanding && popularArticles.length > 0 && (
+      {isMainLanding && isPopularLoading && (
+        <section className="bg-white py-6 sm:py-10 ">
+          <div className="max-w-screen-xl mx-auto relative z-10">
+            <HotNewsCarouselSkeleton />
+          </div>
+        </section>
+      )}
+      {isMainLanding && !isPopularLoading && popularArticles.length > 0 && (
         <section className="bg-white py-6 sm:py-10 ">
           <div className="max-w-screen-xl mx-auto relative z-10">
             <HotNewsCarousel isKo={isKo} articles={popularArticles} />
@@ -219,9 +249,11 @@ function HomePageInner() {
         {activeCategory || searchQuery ? (
           <>
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6">
-              {(activeCategory ? sortedCategoryArticles : sortedSearchArticles).map((content) => (
-                <ContentCard key={content.id} content={content} isKo={isKo} />
-              ))}
+              {isAnyLoading
+                ? Array.from({ length: 8 }).map((_, i) => <ContentCardSkeleton key={i} />)
+                : (activeCategory ? sortedCategoryArticles : sortedSearchArticles).map(
+                    (content) => <ContentCard key={content.id} content={content} isKo={isKo} />,
+                  )}
             </div>
             {/* 무한 스크롤 옵저버 타겟 */}
             <div ref={loadMoreRef} className="h-10 w-full mt-4 flex items-center justify-center">
@@ -237,9 +269,16 @@ function HomePageInner() {
                   {isKo ? '최신 뉴스' : 'Últimas noticias'}
                 </p>
                 <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6">
-                  {latestApiArticles.map((content) => (
-                    <ContentCard key={content.id} content={content} isKo={isKo} />
-                  ))}
+                  {isLatestLoading
+                    ? Array.from({ length: 4 }).map((_, i) => <ContentCardSkeleton key={i} />)
+                    : latestApiArticles.map((content, i) => (
+                        <ContentCard
+                          key={content.id}
+                          content={content}
+                          isKo={isKo}
+                          preload={i < 2}
+                        />
+                      ))}
                 </div>
               </section>
             )}
@@ -259,7 +298,6 @@ function HomePageInner() {
         )}
 
         {/* ── Empty state ── */}
-        {isAnyLoading && <Loading />}
         {!isAnyLoading &&
           (activeCategory || searchQuery) &&
           (activeCategory ? sortedCategoryArticles : sortedSearchArticles).length === 0 && (
