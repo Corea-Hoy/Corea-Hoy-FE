@@ -42,3 +42,7 @@ next-env.d.ts
 
 # IDE
 .idea/
+.claude/
+
+# 이 프로젝트는 pnpm 사용 (pnpm-lock.yaml)
+package-lock.json
