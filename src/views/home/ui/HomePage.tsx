@@ -11,7 +11,6 @@ import {
   CATEGORY_ES_MAP,
 } from '@/entities/content';
 import { HotNewsCarousel, HotNewsCarouselSkeleton } from '@/widgets/hot-news';
-import { useHomeArticles } from '../model/useHomeArticles';
 import { useCategoryArticles } from '../model/useCategoryArticles';
 import { useSearchArticles } from '../model/useSearchArticles';
 import { useArticlesQuery } from '../model/useArticlesQuery';
@@ -92,12 +91,6 @@ function HomePageInner() {
   const activeCategory = searchParams.get('category');
   const isMainLanding = !activeCategory && !searchQuery;
 
-  const { sorted, hasFetched } = useHomeArticles({
-    searchQuery,
-    sortOrder,
-    isKo,
-  });
-
   const { data: popularArticles = [], isLoading: isPopularLoading } = useArticlesQuery({
     sort: 'popular',
     limit: 6,
@@ -172,6 +165,12 @@ function HomePageInner() {
 
   const isAnyLoading = activeCategory ? isCategoryLoading : searchQuery ? isSearchLoading : false;
   const isFetchingAnyNext = isFetchingCategoryNext || isFetchingSearchNext;
+
+  const isMainLandingEmpty =
+    !isPopularLoading &&
+    !isLatestLoading &&
+    popularArticles.length === 0 &&
+    latestApiArticles.length === 0;
 
   const { data: categoryData } = useCategories();
   const apiCategories = categoryData?.data || [];
@@ -312,7 +311,7 @@ function HomePageInner() {
               </button>
             </div>
           )}
-        {!searchQuery && !activeCategory && hasFetched && sorted.length === 0 && (
+        {!searchQuery && !activeCategory && isMainLandingEmpty && (
           <div className="py-24 text-center">
             <span className="text-5xl mb-4 block">🔍</span>
             <p className="text-lg font-bold text-gray-300 mb-6">{t('noResults')}</p>
