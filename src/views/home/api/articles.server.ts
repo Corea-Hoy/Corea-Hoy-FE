@@ -8,8 +8,13 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL ?? '';
  * 백엔드가 콜드 스타트 중이면 20초 이상 걸린다. 그만큼 렌더가 밀리면 프리페치가
  * 오히려 손해이므로 타임아웃 후 예외를 던진다. 호출부(app/page.tsx)는 이 실패를
  * 무시하고 기존처럼 클라이언트 페치로 넘어간다.
+ *
+ * 값 근거: 목록 응답은 단일 요청이면 1.6~2.0초지만, app/page.tsx가 popular/latest를
+ * Promise.all로 동시에 쏘면 서로 경합해 3~4초까지 늘어난다. 3초로 두면 정상 응답이
+ * 전부 잘려 백그라운드 재검증이 매번 실패하고 캐시가 stale로 고착된다.
+ * 콜드 스타트(약 26초)는 여전히 여기서 끊긴다.
  */
-const PREFETCH_TIMEOUT_MS = 3000;
+const PREFETCH_TIMEOUT_MS = 8000;
 
 /** 캐시 수명. 뉴스 목록이라 1분이면 신선도와 속도의 균형이 맞는다. */
 const CACHE_TTL_SECONDS = 60;
