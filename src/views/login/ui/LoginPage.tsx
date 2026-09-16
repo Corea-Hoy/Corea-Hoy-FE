@@ -25,7 +25,7 @@ export function LoginPage() {
       <div className="w-full max-w-sm mx-auto bg-white p-8">
         <div className="mx-auto mb-4 max-w-[6rem]">
           <Image
-            src="/images/logo/logo.svg"
+            src="/images/logo/logo.webp"
             alt="corea hoy"
             width={96}
             height={96}
@@ -42,10 +42,10 @@ export function LoginPage() {
             <GoogleLoginButton onClick={onGoogleLogin} disabled={isPending} />
             <div className="absolute right-[-1rem] top-[-3.5rem] w-[5rem]">
               <Image
-                src="/images/characters/mascot-v.svg"
+                src="/images/characters/mascot-v.webp"
                 alt=""
                 width={80}
-                height={80}
+                height={66}
                 className="w-full h-auto"
               />
             </div>

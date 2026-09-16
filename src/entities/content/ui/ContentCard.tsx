@@ -35,7 +35,7 @@ export default function ContentCard({ content, isKo, preload = false }: ContentC
           src={imgSrc}
           alt={isKo ? content.titleKo : content.titleEs}
           fill
-          sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+          sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, (max-width: 1280px) 25vw, 300px"
           className="object-cover"
           onError={() => setImgSrc('/images/characters/mascot-cheer.png')}
           preload={preload}

@@ -22,7 +22,7 @@ export default function DeskTopFooter() {
             <div className="max-w-sm">
               <Link href="/" className="inline-block mb-4 hover:opacity-70 transition-opacity">
                 <Image
-                  src="/images/logo/logo.svg"
+                  src="/images/logo/logo.webp"
                   alt="Corea Hoy"
                   width={110}
                   height={44}

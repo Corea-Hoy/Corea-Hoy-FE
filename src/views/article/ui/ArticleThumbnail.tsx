@@ -13,7 +13,7 @@ export function ArticleThumbnail() {
       <div className="h-[20rem] w-full overflow-hidden">
         <Image
           fill
-          sizes="100vw"
+          sizes="(max-width: 1280px) 100vw, 1248px"
           className="object-cover"
           src={newsData.thumbnailUrl}
           alt=""

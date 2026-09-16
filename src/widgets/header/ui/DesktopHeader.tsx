@@ -97,12 +97,11 @@ const DesktopHeader = ({
               className="flex items-center hover:opacity-70 transition-opacity flex-shrink-0"
             >
               <Image
-                src="/images/logo/logo.svg"
+                src="/images/logo/logo.webp"
                 alt="Corea Hoy"
                 width={120}
                 height={48}
                 style={{ objectFit: 'contain' }}
-                priority
               />
             </Link>
           </div>

@@ -157,11 +157,16 @@ export default function HotNewsCarousel({ isKo, articles }: HotNewsCarouselProps
               <Link key={item.id} href={`/article/${item.id}`} style={cardStyle}>
                 <div className="group h-[360px] sm:h-[400px] lg:h-[460px] bg-black rounded-2xl overflow-hidden transition-all duration-500  hover:-translate-y-2 relative flex flex-col">
                   {/* Card Background Image */}
+                  {/*
+                    sizes: 카드 실폭 = (컨테이너 내부폭 - GAP*(ceil(vc)-1)) / vc.
+                    레이아웃이 max-w-screen-xl(1280px)에서 멈추므로 그 이상에서는
+                    402px로 고정된다. vw로 두면 넓은 화면에서 필요보다 큰 변형을 받는다.
+                  */}
                   <SafeImage
                     src={item.thumbnailUrl}
                     alt={isKo ? item.titleKo : item.titleEs}
                     fill
-                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 65vw, 33vw"
+                    sizes="(max-width: 640px) 85vw, (max-width: 1024px) 65vw, (max-width: 1280px) 38vw, 410px"
                     className="object-cover opacity-70 group-hover:opacity-90 transition-all duration-700 group-hover:scale-110"
                     preload={i === 0}
                     placeholder="blur"

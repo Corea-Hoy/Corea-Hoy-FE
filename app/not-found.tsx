@@ -23,7 +23,13 @@ export default function NotFound() {
         </button>
       </div>
       <div className="absolute z-[-1] right-[-1rem] bottom-[-3rem] w-[12rem]">
-        <img src="/images/characters/mascot.svg" alt="" />
+        <img
+          src="/images/characters/mascot.webp"
+          width={192}
+          height={247}
+          alt=""
+          decoding="async"
+        />
       </div>
     </div>
   );
